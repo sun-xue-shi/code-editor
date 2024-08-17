@@ -10,7 +10,7 @@
       </div>
     </div>
     <Modal title="发布成功" width="700px" :footer="null"> 发布成功弹窗 </Modal>
-    
+
     <Layout>
       <LayoutSider width="300" style="background: #fff">
         <div class="sidebar-container">list</div>
@@ -19,7 +19,9 @@
         <LayoutContent class="preview-container">
           <p>画布区域</p>
           <div class="preview-list">
-            <div class="body-container"></div>
+            <div class="body-container" v-for="ele in elements" :key="ele.id">
+              {{ ele.props.text }}
+            </div>
           </div>
         </LayoutContent>
       </Layout>
@@ -46,15 +48,15 @@ import {
   TabPane,
   LayoutContent,
   Modal,
-  Menu,
-  MenuItem,
-  LayoutHeader,
   Drawer,
-  Spin,
-  Button
+  Spin
 } from 'ant-design-vue'
 
-import { RouterLink } from 'vue-router'
+import { useEditStore } from '@/stores/edit'
+
+const editStore = useEditStore()
+
+const elements = editStore.editInfo.components
 </script>
 
 <style scoped>
