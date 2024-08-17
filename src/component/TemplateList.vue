@@ -1,34 +1,40 @@
 <script setup lang="ts">
 import { Row, Col, CardMeta, Tag, Card } from 'ant-design-vue'
+import { RouterLink } from 'vue-router'
+import { useTemplateStore } from '@/stores/template'
+import { UserOutlined } from '@ant-design/icons-vue'
+
+const templateStore = useTemplateStore()
+const list = templateStore.templateInfo
 </script>
 
 <template>
   <div class="template-list-component">
     <Row :gutter="16">
-      <Col :span="6" v-for="item in 6" :key="item" class="poster-item">
-        <!-- <router-link to="/editor/1"> -->
-        <Card hoverable>
-          <template #cover>
-            <!-- <img :src="item.coverImg"  /> -->
+      <Col :span="6" v-for="item in list" :key="item.id" class="poster-item">
+        <router-link to="/edit">
+          <Card hoverable>
+            <template #cover>
+              <!-- <img :src="item.coverImg"  /> -->
 
-            <div class="hover-item">
-              <a-button size="large" type="primary">'编辑该作品'</a-button>
-            </div>
-          </template>
-          <CardMeta title="海报标题">
-            <template #description>
-              <div class="description-detail">
-                <span>作者:xxx</span>
-                <span class="user-number"><UserOutlined /> 5 </span>
+              <div class="hover-item">
+                <a-button size="large" type="primary">'编辑该作品'</a-button>
               </div>
             </template>
-          </CardMeta>
-        </Card>
-        <div class="tag-list">
-          <Tag color="red"> HOT </Tag>
-          <Tag color="green"> NEW </Tag>
-        </div>
-        <!-- </router-link> -->
+            <CardMeta :title="item.title">
+              <template #description>
+                <div class="description-detail">
+                  <span>作者:{{ item.author }}</span>
+                  <span class="user-number"><UserOutlined />{{ item.copiedCount }} </span>
+                </div>
+              </template>
+            </CardMeta>
+          </Card>
+          <div class="tag-list">
+            <Tag color="red"> HOT </Tag>
+            <Tag color="green"> NEW </Tag>
+          </div>
+        </router-link>
       </Col>
     </Row>
   </div>

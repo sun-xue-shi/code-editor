@@ -1,52 +1,31 @@
-<!-- <template>
+<template>
   <div class="work-detail-container">
-    <a-row type="flex" justify="center">
-      <a-col :span="8" class="cover-img">
-        <img :src="currentTemplate.coverImg" alt="">
-      </a-col>
-      <a-col :span="8">
-        <h2>{{currentTemplate.title}}</h2>
-        <p>{{currentTemplate.desc}}</p>
-      <div class="author">
-        <a-avatar :src="currentTemplate.user.picture" v-if="currentTemplate.user.picture">
-        </a-avatar>
-        <a-avatar v-else>
-          <template v-slot:icon><UserOutlined /></template>
-        </a-avatar>
-        该模版由 <b>{{currentTemplate.user.nickName}}</b> 创作
-      </div>
-      <div class="bar-code-area" >
-        <span>扫一扫，手机预览</span>
-        <div ref="container"></div>
-      </div>
-      <div class="use-button">
-        <a-button
-          type="primary" size="large"
-          @click="onCopy(currentTemplate.id)"
-          :loading="isCreating"
-        >
-          {{ isCreating ? '创建中...' : '使用模版' }}
-        </a-button>
-        <a-button
-          size="large"
-          :style="{ marginLeft: '20px' }"
-          @click="download"
-        >
-          下载图片海报
-        </a-button>
-      </div>
-      </a-col>
-    </a-row>
+    <Row type="flex" justify="center">
+      <Col :span="8" class="cover-img"> 海报图片 </Col>
+      <Col :span="8">
+        <h2>海报标题</h2>
+        <p>描述</p>
+        <div class="author">头像： 该模版由 <b>xxx</b> 创作</div>
+        <div class="bar-code-area">
+          <span>扫一扫，手机预览</span>
+          <div ref="container">二维码图片</div>
+        </div>
+        <div class="use-button">
+          <Button type="primary" size="large"> 创建中... </Button>
+          <Button size="large" :style="{ marginLeft: '20px' }"> 下载图片海报 </Button>
+        </div>
+      </Col>
+    </Row>
   </div>
 </template>
 
-<script lang="ts">
-
+<script setup lang="ts">
+import { Button, Col, Row } from 'ant-design-vue'
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .work-detail-container {
-  margin-top:50px;
+  margin-top: 50px;
 }
 .cover-img {
   margin-right: 30px;
@@ -63,4 +42,4 @@
 .bar-code-area {
   margin: 20px 0;
 }
-</style> -->
+</style>

@@ -1,66 +1,63 @@
-<!-- <template>
+<template>
   <div class="editor" id="editor-layout-main">
-    <a-spin tip="读取中" class="editor-spinner"> </a-spin>
+    <Spin tip="读取中" class="editor-spinner"> </Spin>
 
-    <a-drawer title="设置面板" placement="right" width="400" :closable="true"> 设置面板 </a-drawer>
+    <Drawer title="设置面板" placement="right" width="400" :closable="true"> 设置面板 </Drawer>
     <div class="final-preview">
       <div class="final-preview-inner">
         <div class="preview-title">预览标题</div>
         <div class="iframe-container">预览</div>
       </div>
     </div>
-    <a-modal title="发布成功" width="700px" :footer="null"> 发布成功弹窗 </a-modal>
-    <a-layout>
-      <a-layout-header class="header">
-        <div class="page-title">
-          <router-link to="/">
-            <img alt="Vue logo" src="../assets/logo-simple.png" class="logo-img" />
-          </router-link>
-        </div>
-        <a-menu :selectable="false" theme="dark" mode="horizontal" :style="{ lineHeight: '64px' }">
-          <a-menu-item key="1">
-            <a-button type="primary">预览和设置</a-button>
-          </a-menu-item>
-          <a-menu-item key="2">
-            <a-button type="primary">保存</a-button>
-          </a-menu-item>
-          <a-menu-item key="3">
-            <a-button type="primary">发布</a-button>
-          </a-menu-item>
-          <a-menu-item key="4"> userinfo </a-menu-item>
-        </a-menu>
-      </a-layout-header>
-    </a-layout>
-    <a-layout>
-      <a-layout-sider width="300" style="background: #fff">
+    <Modal title="发布成功" width="700px" :footer="null"> 发布成功弹窗 </Modal>
+    
+    <Layout>
+      <LayoutSider width="300" style="background: #fff">
         <div class="sidebar-container">list</div>
-      </a-layout-sider>
-      <a-layout style="padding: 0 24px 24px">
-        <a-layout-content class="preview-container">
+      </LayoutSider>
+      <Layout style="padding: 0 24px 24px">
+        <LayoutContent class="preview-container">
           <p>画布区域</p>
           <div class="preview-list">
             <div class="body-container"></div>
           </div>
-        </a-layout-content>
-      </a-layout>
-      <a-layout-sider width="300" style="background: #fff" class="settings-panel">
-        <a-tabs type="card" v-model:activeKey="activePanel">
+        </LayoutContent>
+      </Layout>
+      <LayoutSider width="300" style="background: #fff" class="settings-panel">
+        <Tabs type="card">
           <a-tab-pane key="component" tab="属性设置" class="no-top-radius">
             属性设置内容
           </a-tab-pane>
           <a-tab-pane key="layer" tab="图层设置"> 图层设置内容 </a-tab-pane>
-          <a-tab-pane key="page" tab="页面设置">
+          <TabPane key="page" tab="页面设置">
             <div class="page-settings">页面设置content</div>
-          </a-tab-pane>
-        </a-tabs>
-      </a-layout-sider>
-    </a-layout>
+          </TabPane>
+        </Tabs>
+      </LayoutSider>
+    </Layout>
   </div>
 </template>
 
-<script lang="ts"></script>
+<script setup lang="ts">
+import {
+  LayoutSider,
+  Layout,
+  Tabs,
+  TabPane,
+  LayoutContent,
+  Modal,
+  Menu,
+  MenuItem,
+  LayoutHeader,
+  Drawer,
+  Spin,
+  Button
+} from 'ant-design-vue'
 
-<style>
+import { RouterLink } from 'vue-router'
+</script>
+
+<style scoped>
 .header {
   display: flex;
   justify-content: space-between;
@@ -178,4 +175,4 @@
 .settings-panel .ant-tabs-tab {
   border-radius: 0 !important;
 }
-</style> -->
+</style>
