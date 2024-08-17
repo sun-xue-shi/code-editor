@@ -6,4 +6,8 @@ const router = createRouter({
   routes
 })
 
+router.beforeEach((to) => {
+  document.title = `code-editor-${to.meta.title || ''}`
+})
+
 export default router
