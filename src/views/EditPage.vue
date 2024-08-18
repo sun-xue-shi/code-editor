@@ -19,9 +19,7 @@
         <LayoutContent class="preview-container">
           <p>画布区域</p>
           <div class="preview-list">
-            <div class="body-container" v-for="ele in elements" :key="ele.id">
-              {{ ele.props.text }}
-            </div>
+            <TextComp v-for="ele in elements" :key="ele.id" :tag="ele.name" v-bind="ele.props" />
           </div>
         </LayoutContent>
       </Layout>
@@ -51,7 +49,7 @@ import {
   Drawer,
   Spin
 } from 'ant-design-vue'
-
+import TextComp from '@/component/TextComp.vue'
 import { useEditStore } from '@/stores/edit'
 
 const editStore = useEditStore()

@@ -8,9 +8,9 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 const testData: CompData[] = [
-  { id: v4(), name: 'zl-text', props: { text: 'test' } },
-  { id: v4(), name: 'zl-text2', props: { text: 'test1' } },
-  { id: v4(), name: 'zl-text3', props: { text: 'test2' } }
+  { id: v4(), name: 'div', props: { text: 'test', fontSize: '10px' } },
+  { id: v4(), name: 'div', props: { text: 'test1', fontSize: '20px' } },
+  { id: v4(), name: 'div', props: { text: 'test2', fontSize: '40px' } }
 ]
 
 export const useEditStore = defineStore(
@@ -25,7 +25,7 @@ export const useEditStore = defineStore(
 
     //清除模版信息
     const removeTemplate = () => {
-      editInfo.value = {} as EditorData 
+      editInfo.value = {} as EditorData
     }
 
     return { editInfo, setTemplate, removeTemplate }
