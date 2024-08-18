@@ -8,9 +8,33 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 const testData: CompData[] = [
-  { id: v4(), name: 'div', props: { text: 'test', fontSize: '10px' } },
-  { id: v4(), name: 'div', props: { text: 'test1', fontSize: '20px' } },
-  { id: v4(), name: 'div', props: { text: 'test2', fontSize: '40px' } }
+  {
+    id: v4(),
+    name: 'div',
+    props: {
+      text: 'test',
+      fontSize: '10px',
+      color: 'red',
+      actionType: 'url',
+      url: 'https://www.weibo.com'
+    }
+  },
+  {
+    id: v4(),
+    name: 'div',
+    props: { text: 'test1', fontSize: '20px', actionType: 'url', url: 'https://www.baidu.com' }
+  },
+  {
+    id: v4(),
+    name: 'div',
+    props: {
+      text: 'test2',
+      fontSize: '40px',
+      actionType: 'url',
+      url: 'https://www.baidu.com',
+      backgroundColor: 'red'
+    }
+  }
 ]
 
 export const useEditStore = defineStore(
@@ -19,16 +43,25 @@ export const useEditStore = defineStore(
     const editInfo = ref<EditorData>({ components: testData, currentElement: '' })
 
     //存储模版信息
-    const setTemplate = (template: EditorData) => {
+    const setEditInfo = (template: EditorData) => {
       editInfo.value = template
     }
 
     //清除模版信息
-    const removeTemplate = () => {
+    const removeEditInfo = () => {
       editInfo.value = {} as EditorData
     }
 
-    return { editInfo, setTemplate, removeTemplate }
+    const addEditInfo = (props: Record<string, any>) => {
+      const newData: CompData = {
+        id: v4(),
+        name: 'div',
+        props
+      }
+      editInfo.value.components.push(newData)
+    }
+
+    return { editInfo, setEditInfo, removeEditInfo, addEditInfo }
   },
   // pinia定制化
   {
