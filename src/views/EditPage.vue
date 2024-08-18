@@ -1,34 +1,32 @@
 <template>
   <div class="editor" id="editor-layout-main">
-    <Spin tip="读取中" class="editor-spinner"> </Spin>
+    <!-- <Spin tip="读取中" class="editor-spinner"> </Spin> -->
 
     <Drawer title="设置面板" placement="right" width="400" :closable="true"> 设置面板 </Drawer>
-    <div class="final-preview">
+    <!-- <div class="final-preview">
       <div class="final-preview-inner">
         <div class="preview-title">预览标题</div>
         <div class="iframe-container">预览</div>
       </div>
-    </div>
+    </div> -->
     <Modal title="发布成功" width="700px" :footer="null"> 发布成功弹窗 </Modal>
-    
+
     <Layout>
       <LayoutSider width="300" style="background: #fff">
-        <div class="sidebar-container">list</div>
+        <div class="sidebar-container"><ListComp @addItem="handleAddItem" /></div>
       </LayoutSider>
       <Layout style="padding: 0 24px 24px">
         <LayoutContent class="preview-container">
           <p>画布区域</p>
           <div class="preview-list">
-            <div class="body-container"></div>
+            <TextComp v-for="ele in elements" :key="ele.id" :tag="ele.name" v-bind="ele.props" />
           </div>
         </LayoutContent>
       </Layout>
       <LayoutSider width="300" style="background: #fff" class="settings-panel">
         <Tabs type="card">
-          <a-tab-pane key="component" tab="属性设置" class="no-top-radius">
-            属性设置内容
-          </a-tab-pane>
-          <a-tab-pane key="layer" tab="图层设置"> 图层设置内容 </a-tab-pane>
+          <TabPane key="component" tab="属性设置" class="no-top-radius"> 属性设置内容 </TabPane>
+          <TabPane key="layer" tab="图层设置"> 图层设置内容 </TabPane>
           <TabPane key="page" tab="页面设置">
             <div class="page-settings">页面设置content</div>
           </TabPane>
@@ -46,15 +44,22 @@ import {
   TabPane,
   LayoutContent,
   Modal,
-  Menu,
-  MenuItem,
-  LayoutHeader,
   Drawer,
-  Spin,
-  Button
+  Spin
 } from 'ant-design-vue'
+import TextComp from '@/component/TextComp.vue'
+import ListComp from '@/component/ListComp.vue'
+import { useEditStore } from '@/stores/edit'
 
-import { RouterLink } from 'vue-router'
+const editStore = useEditStore()
+
+const { addEditInfo, editInfo } = editStore
+
+const elements = editInfo.components
+
+const handleAddItem = (data: Record<string, any>) => {
+  addEditInfo(data)
+}
 </script>
 
 <style scoped>
@@ -95,7 +100,7 @@ import { RouterLink } from 'vue-router'
   background: #fff;
   overflow-x: hidden;
   overflow-y: auto;
-  position: fixed;
+  position: absolute;
   margin-top: 50px;
   max-height: 80vh;
 }
@@ -153,7 +158,7 @@ import { RouterLink } from 'vue-router'
   font-weight: bold;
 }
 .iframe-container {
-  width: 100%;
+  width: 50%;
   height: 706px;
   overflow-y: auto;
   overflow-x: hidden;
