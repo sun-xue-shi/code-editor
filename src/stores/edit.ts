@@ -6,6 +6,7 @@ import { v4 } from 'uuid'
 import type { EditorData, CompData } from '@/types/edit.'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import type { TextComponentProps } from '@/types/props'
 
 const testData: CompData[] = [
   {
@@ -52,7 +53,7 @@ export const useEditStore = defineStore(
       editInfo.value = {} as EditorData
     }
 
-    const addEditInfo = (props: Record<string, any>) => {
+    const addEditInfo = (props: Partial<TextComponentProps>) => {
       const newData: CompData = {
         id: v4(),
         name: 'div',

@@ -87,7 +87,7 @@ export const imageStylePropsNames = without(
 
 export const shapeStylePropsNames = without(Object.keys(imageDefaultProps), 'actionType', 'url')
 
-export const transformToComponentProps = <T extends Record<string, any>>(props: T) => {
+export const transformToComponentProps = (props: TextComponentProps) => {
   const mapProps = mapValues(props, (item) => {
     return {
       type: (item as any).constructor as StringConstructor,

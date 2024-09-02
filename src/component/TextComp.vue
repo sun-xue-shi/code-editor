@@ -6,13 +6,13 @@ import type { TextComponentProps } from '@/types/props'
 
 const props = defineProps<TextComponentProps>()
 
-const { styleProps } = useCompCommon(props, textStylePropNames)
+const { styleProps, handleClick } = useCompCommon(props, textStylePropNames)
 
-const handleClick = () => {
-  if (props.actionType === 'url' && props.url) {
-    window.location.href = props.url
-  }
-}
+// const handleClick = () => {
+//   if (props.actionType === 'url' && props.url) {
+//     window.location.href = props.url
+//   }
+// }
 </script>
 
 <template>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import TextComp from './TextComp.vue'
-import { defineEmits } from 'vue'
 
 const textPropsList = [
   {

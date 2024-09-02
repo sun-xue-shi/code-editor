@@ -37,19 +37,11 @@
 </template>
 
 <script setup lang="ts">
-import {
-  LayoutSider,
-  Layout,
-  Tabs,
-  TabPane,
-  LayoutContent,
-  Modal,
-  Drawer,
-  Spin
-} from 'ant-design-vue'
+import { LayoutSider, Layout, Tabs, TabPane, LayoutContent, Modal, Drawer } from 'ant-design-vue'
 import TextComp from '@/component/TextComp.vue'
 import ListComp from '@/component/ListComp.vue'
 import { useEditStore } from '@/stores/edit'
+import type { TextComponentProps } from '@/types/props'
 
 const editStore = useEditStore()
 
@@ -57,7 +49,7 @@ const { addEditInfo, editInfo } = editStore
 
 const elements = editInfo.components
 
-const handleAddItem = (data: Record<string, any>) => {
+const handleAddItem = (data: Partial<TextComponentProps>) => {
   addEditInfo(data)
 }
 </script>
