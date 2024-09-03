@@ -17,7 +17,8 @@ const textPropsList = [
   },
   {
     text: '正文内容',
-    tag: 'p'
+    tag: 'p',
+    lineHeight: '2px'
   },
   {
     text: '宋体正文内容',

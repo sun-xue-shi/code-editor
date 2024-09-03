@@ -37,6 +37,7 @@
             <PropsTable
               v-if="currentElement && currentElement.props"
               :props="currentElement?.props"
+              @change="handleChange"
             />
             {{ currentElement && currentElement.props }}
           </TabPane>
@@ -62,7 +63,7 @@ import type { CompData } from '@/types/edit.'
 import PropsTable from '@/component/PropsTable.vue'
 const editStore = useEditStore()
 
-const { addEditInfo, editInfo, getCurrentElement, setActive } = editStore
+const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent } = editStore
 
 const elements = editInfo.components
 
@@ -73,6 +74,9 @@ const handleAddItem = (data: Partial<TextComponentProps>) => {
 }
 function handleSetActive(id: string) {
   setActive(editInfo, id)
+}
+function handleChange(e: any) {
+  updateComponent(editInfo, e)
 }
 </script>
 

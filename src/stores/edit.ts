@@ -72,7 +72,24 @@ export const useEditStore = defineStore(
       return comp
     }
 
-    return { editInfo, setEditInfo, removeEditInfo, addEditInfo, setActive, getCurrentElement }
+    function updateComponent(editInfo2: EditorData, { key, value }) {
+      const update = editInfo2.components.find(
+        (component) => component.id === editInfo2.currentElement
+      )
+      if (update) {
+        update.props[key as keyof TextComponentProps] = value
+      }
+    }
+
+    return {
+      editInfo,
+      setEditInfo,
+      removeEditInfo,
+      addEditInfo,
+      setActive,
+      getCurrentElement,
+      updateComponent
+    }
   },
   // pinia定制化
   {
