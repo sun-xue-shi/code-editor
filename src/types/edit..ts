@@ -11,3 +11,8 @@ export interface CompData {
   /**业务组件名称 */
   name: string
 }
+
+export interface EditWrapper {
+  id: string
+  active: boolean
+}

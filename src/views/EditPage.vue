@@ -19,13 +19,27 @@
         <LayoutContent class="preview-container">
           <p>画布区域</p>
           <div class="preview-list">
-            <TextComp v-for="ele in elements" :key="ele.id" :tag="ele.name" v-bind="ele.props" />
+            <EditWrapper
+              v-for="ele in elements"
+              :key="ele.id"
+              :id="ele.id"
+              @setActive="handleSetActive"
+              :active="ele.id === (currentElement && currentElement.id)"
+            >
+              <TextComp :tag="ele.name" v-bind="ele.props" />
+            </EditWrapper>
           </div>
         </LayoutContent>
       </Layout>
       <LayoutSider width="300" style="background: #fff" class="settings-panel">
         <Tabs type="card">
-          <TabPane key="component" tab="属性设置" class="no-top-radius"> 属性设置内容 </TabPane>
+          <TabPane key="component" tab="属性设置" class="no-top-radius">
+            <PropsTable
+              v-if="currentElement && currentElement.props"
+              :props="currentElement?.props"
+            />
+            {{ currentElement && currentElement.props }}
+          </TabPane>
           <TabPane key="layer" tab="图层设置"> 图层设置内容 </TabPane>
           <TabPane key="page" tab="页面设置">
             <div class="page-settings">页面设置content</div>
@@ -42,15 +56,23 @@ import TextComp from '@/component/TextComp.vue'
 import ListComp from '@/component/ListComp.vue'
 import { useEditStore } from '@/stores/edit'
 import type { TextComponentProps } from '@/types/props'
-
+import EditWrapper from '@/component/EditWrapper.vue'
+import { computed } from 'vue'
+import type { CompData } from '@/types/edit.'
+import PropsTable from '@/component/PropsTable.vue'
 const editStore = useEditStore()
 
-const { addEditInfo, editInfo } = editStore
+const { addEditInfo, editInfo, getCurrentElement, setActive } = editStore
 
 const elements = editInfo.components
 
+const currentElement = computed<undefined | CompData>(() => getCurrentElement(editInfo))
+
 const handleAddItem = (data: Partial<TextComponentProps>) => {
   addEditInfo(data)
+}
+function handleSetActive(id: string) {
+  setActive(editInfo, id)
 }
 </script>
 
