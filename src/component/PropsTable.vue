@@ -1,23 +1,38 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { PropToForms, TextComponentProps } from '@/types/props'
+import type { TextComponentProps, FormProp } from '@/types/props'
 import { mapPropsToForms } from '@/types/props'
+import RenderVNode from '@/hooks/RenderVNode'
 
 interface PropsType {
   type?: TextComponentProps
   props: Record<string, any>
 }
 const props = defineProps<PropsType>()
+const emit = defineEmits<{
+  (e: 'change', value: Record<string, any>): void
+}>()
 
 const finalProps = computed(() => {
-  const result: PropToForms = {}
+  const result: Record<string, FormProp> = {}
   Object.keys(props.props).map((key) => {
     const item = mapPropsToForms[key as keyof TextComponentProps]
     if (item) {
-      item.value = item.initailTransform
-        ? item.initailTransform(props.props[key])
-        : props.props[key]
-      result[key as keyof TextComponentProps] = item
+      const value = props.props[key]
+      const { valueProp = 'value', envenName = 'change', initailTransform, afterTransform } = item
+      const newItem: FormProp = {
+        ...item,
+        value: initailTransform ? initailTransform(value) : value,
+        valueProp,
+        envenName,
+        events: {
+          [envenName]: (e: any) => {
+            emit('change', { key, value: afterTransform ? afterTransform(e) : e })
+          }
+        }
+      }
+
+      result[key as keyof TextComponentProps] = newItem
     }
   })
 
@@ -33,8 +48,9 @@ const finalProps = computed(() => {
         <component
           v-if="value"
           :is="value.component"
-          :value="value.value"
+          :[value.valueProp]="value.value"
           v-bind="value.extraProps"
+          v-on="value.events"
         >
           <template v-if="value.options">
             <component
@@ -43,7 +59,7 @@ const finalProps = computed(() => {
               :key="key"
               :value="option.value"
             >
-              {{ option.text }}
+              <render-v-node :v-node="option.text" />
             </component>
           </template>
         </component>
@@ -52,4 +68,14 @@ const finalProps = computed(() => {
   </div>
 </template>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+.prop-item {
+  display: flex;
+  padding-left: 15px;
+  padding-bottom: 10px;
+  .label {
+    display: inline-block;
+    width: 25%;
+  }
+}
+</style>

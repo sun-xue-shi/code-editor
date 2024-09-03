@@ -1,5 +1,6 @@
-import ColorPicker from '@/component/ColorPicker.vue'
-import { Input, InputNumber, Select, Slider, RadioGroup, RadioButton } from 'ant-design-vue'
+import { Textarea, InputNumber, Select, Slider, RadioGroup, RadioButton } from 'ant-design-vue'
+import type { VNode } from 'vue'
+import { h } from 'vue'
 
 /**元素通用属性 */
 export interface CommonComponentProps {
@@ -46,28 +47,46 @@ export interface TextComponentProps extends CommonComponentProps {
 
 export interface PropToForm {
   component: any
-  value?: string
   extraProps?: Record<string, any>
-  text: string
+  text?: string
   subComponent?: any
-  options?: { text: string; value: any }[]
+  options?: { text: string | VNode; value: any }[]
   initailTransform?: (v: any) => any
+  afterTransform?: (v: any) => any
+  valueProp?: string
+  envenName?: string
 }
 
 export type PropToForms = {
   [p in keyof TextComponentProps]?: PropToForm
 }
 
-// 这里只有text 可能是没写完 然后我觉得 这个地方不应该存放mapPropsToForms这样的一个变量 因为这个地方应该只放props的类型才对
+const fontFamilyArr = [
+  { value: '', text: '无' },
+  { text: '宋体', value: '"SimSun","STSong' },
+  { text: '黑体', value: '"SimHei,"STHeiti"' },
+  { text: '楷体', value: '"KaiTi,"STKaiti"' },
+  { text: '仿宋', value: '"FangSong,"STFangsong"' }
+]
+const fontFamilyOptions = fontFamilyArr.map((font) => {
+  return {
+    value: font.value,
+    text: h('span', { style: { fontFamily: font.value } }, font.text)
+  }
+})
+
 export const mapPropsToForms: PropToForms = {
   text: {
-    component: Input,
-    text: '文本'
+    component: Textarea,
+    text: '文本',
+    extraProps: { rows: 3 },
+    afterTransform: (e: any) => e.target.value
   },
   fontSize: {
     component: InputNumber,
     text: '字号',
-    initailTransform: (v: string) => parseInt(v)
+    initailTransform: (v: string) => parseInt(v),
+    afterTransform: (e: number) => (e ? `${e}px` : '')
   },
   lineHeight: {
     component: Slider,
@@ -75,9 +94,13 @@ export const mapPropsToForms: PropToForms = {
     extraProps: {
       min: 0,
       max: 3,
-      step: 0.1
+      step: 1,
+      style: {
+        width: '150px'
+      }
     },
-    initailTransform: (v: string) => parseFloat(v)
+    initailTransform: (v: string) => parseFloat(v),
+    afterTransform: (e: number) => e.toString()
   },
   textAlign: {
     component: RadioGroup,
@@ -87,22 +110,25 @@ export const mapPropsToForms: PropToForms = {
       { value: 'left', text: '左' },
       { value: 'center', text: '中' },
       { value: 'right', text: '右' }
-    ]
+    ],
+    afterTransform: (e: any) => e.target.value
   },
   fontFamily: {
     component: Select,
     subComponent: RadioButton,
     text: '字体',
-    options: [
-      { value: '', text: '无' },
-      { value: '宋体', text: '"SimSun","STSong' },
-      { value: '黑体', text: '"SimHei,"STHeiti"' },
-      { value: '楷体', text: '"KaiTi,"STKaiti"' },
-      { value: '仿宋', text: '"FangSong,"STFangsong"' }
-    ]
-  },
-  color: {
-    text: '字体颜色',
-    component: ColorPicker
+    options: [{ value: '', text: '无' }, ...fontFamilyOptions]
   }
+}
+
+export interface FormProp {
+  component: any
+  value: string
+  extraProps?: Record<string, any> | undefined
+  text?: string | VNode
+  subComponent?: any
+  options?: { text: string | VNode; value: any }[]
+  valueProp: string
+  envenName: string
+  events?: { [key: string]: (e: any) => void }
 }
