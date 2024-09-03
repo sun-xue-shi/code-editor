@@ -43,7 +43,6 @@ describe('ColorPicker comp', () => {
     const fistItem = wapper.get('li:first-child div')
     fistItem.trigger('click')
     const events = wapper.emitted('change')!
-    console.log('events[1]', events[1][0])
 
     expect(events[1][0]).toEqual(DEFAULT_COLOR[0])
   })

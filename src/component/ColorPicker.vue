@@ -6,7 +6,7 @@ export interface Props {
   colors: string[]
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   colors: () => DEFAULT_COLOR,
   value: ''
 })
@@ -84,7 +84,7 @@ const onChange = (color: string) => {
   cursor: pointer;
   border: 1px solid #ccc;
 }
-.transparnet-color {
-  background: url('~@/assets/transparent.png') no-repeat;
+.transparent-color {
+  background: url('../assets/transparent.png') no-repeat;
 }
 </style>
