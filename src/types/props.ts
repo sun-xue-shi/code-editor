@@ -40,3 +40,62 @@ export interface TextComponentProps extends CommonComponentProps {
   backgroundColor?: string
   tag?: string
 }
+
+export interface PropToForm {
+  component: string
+  value?: string
+  extraProps?: Record<string, any>
+  text: string
+  subComponent?: string
+  options?: { text: string; value: any }[]
+  initailTransform?: (v: any) => any
+}
+
+export type PropToForms = {
+  [p in keyof TextComponentProps]?: PropToForm
+}
+
+// 这里只有text 可能是没写完 然后我觉得 这个地方不应该存放mapPropsToForms这样的一个变量 因为这个地方应该只放props的类型才对
+export const mapPropsToForms: PropToForms = {
+  text: {
+    component: 'a-input',
+    text: '文本'
+  },
+  fontSize: {
+    component: 'a-input-number',
+    text: '字号',
+    initailTransform: (v: string) => parseInt(v)
+  },
+  lineHeight: {
+    component: 'a-slider',
+    text: '行高',
+    extraProps: {
+      min: 0,
+      max: 3,
+      step: 0.1
+    },
+    initailTransform: (v: string) => parseFloat(v)
+  },
+  textAlign: {
+    component: 'a-radio-group',
+    subComponent: 'a-radio-button',
+    text: '对齐',
+    options: [
+      { value: 'left', text: '左' },
+      { value: 'center', text: '中' },
+      { value: 'right', text: '右' }
+    ]
+  },
+  fontFamily: {
+    component: 'a-select',
+    subComponent: 'a-radio-button',
+    text: '字体',
+    options: [
+      { value: '', text: '无' },
+      { value: '宋体', text: '"SimSun","STSong' },
+      { value: '黑体', text: '"SimHei,"STHeiti"' },
+      { value: '楷体', text: '"KaiTi,"STKaiti"' },
+      { value: '仿宋', text: '"FangSong,"STFangsong"' }
+    ]
+  }
+}
