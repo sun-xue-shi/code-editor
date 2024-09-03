@@ -15,9 +15,8 @@ const testData: CompData[] = [
     props: {
       text: 'test',
       fontSize: '10px',
-      color: 'red',
-      actionType: 'url',
-      url: 'https://www.weibo.com'
+      color: '#000000',
+      actionType: 'url'
     }
   },
   {
