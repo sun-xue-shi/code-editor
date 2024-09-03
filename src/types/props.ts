@@ -1,3 +1,4 @@
+import ColorPicker from '@/component/ColorPicker.vue'
 import { Textarea, InputNumber, Select, Slider, RadioGroup, RadioButton } from 'ant-design-vue'
 import type { VNode } from 'vue'
 import { h } from 'vue'
@@ -118,6 +119,10 @@ export const mapPropsToForms: PropToForms = {
     subComponent: RadioButton,
     text: '字体',
     options: [{ value: '', text: '无' }, ...fontFamilyOptions]
+  },
+  color: {
+    component: ColorPicker,
+    text: '文本颜色'
   }
 }
 
