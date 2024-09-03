@@ -1,3 +1,4 @@
+import ColorPicker from '@/component/ColorPicker.vue'
 import { Input, InputNumber, Select, Slider, RadioGroup, RadioButton } from 'ant-design-vue'
 
 /**元素通用属性 */
@@ -99,5 +100,9 @@ export const mapPropsToForms: PropToForms = {
       { value: '楷体', text: '"KaiTi,"STKaiti"' },
       { value: '仿宋', text: '"FangSong,"STFangsong"' }
     ]
+  },
+  color: {
+    text: '字体颜色',
+    component: ColorPicker
   }
 }
