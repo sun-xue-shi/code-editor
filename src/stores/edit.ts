@@ -32,7 +32,6 @@ const testData: CompData[] = [
       text: 'test2',
       fontSize: '40px',
       actionType: 'url',
-      url: 'https://www.baidu.com',
       backgroundColor: 'red'
     }
   }

@@ -1,3 +1,5 @@
+import { Input, InputNumber, Select, Slider, RadioGroup, RadioButton } from 'ant-design-vue'
+
 /**元素通用属性 */
 export interface CommonComponentProps {
   // actions
@@ -42,11 +44,11 @@ export interface TextComponentProps extends CommonComponentProps {
 }
 
 export interface PropToForm {
-  component: string
+  component: any
   value?: string
   extraProps?: Record<string, any>
   text: string
-  subComponent?: string
+  subComponent?: any
   options?: { text: string; value: any }[]
   initailTransform?: (v: any) => any
 }
@@ -58,16 +60,16 @@ export type PropToForms = {
 // 这里只有text 可能是没写完 然后我觉得 这个地方不应该存放mapPropsToForms这样的一个变量 因为这个地方应该只放props的类型才对
 export const mapPropsToForms: PropToForms = {
   text: {
-    component: 'a-input',
+    component: Input,
     text: '文本'
   },
   fontSize: {
-    component: 'a-input-number',
+    component: InputNumber,
     text: '字号',
     initailTransform: (v: string) => parseInt(v)
   },
   lineHeight: {
-    component: 'a-slider',
+    component: Slider,
     text: '行高',
     extraProps: {
       min: 0,
@@ -77,8 +79,8 @@ export const mapPropsToForms: PropToForms = {
     initailTransform: (v: string) => parseFloat(v)
   },
   textAlign: {
-    component: 'a-radio-group',
-    subComponent: 'a-radio-button',
+    component: RadioGroup,
+    subComponent: RadioButton,
     text: '对齐',
     options: [
       { value: 'left', text: '左' },
@@ -87,8 +89,8 @@ export const mapPropsToForms: PropToForms = {
     ]
   },
   fontFamily: {
-    component: 'a-select',
-    subComponent: 'a-radio-button',
+    component: Select,
+    subComponent: RadioButton,
     text: '字体',
     options: [
       { value: '', text: '无' },
