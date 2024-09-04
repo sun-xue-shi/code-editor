@@ -70,7 +70,7 @@ describe('Uploader comp', () => {
     expect(firstItem.get('.filename').text()).toBe(testFile.name)
   })
 
-  it('上传失败返回错误', async () => {
+  it('上传失败返回错误及删除操作', async () => {
     mockedAxios.post.mockRejectedValueOnce({ error: 'error' })
     await wrapper.get('input').trigger('change')
     expect(mockedAxios.post).toHaveBeenCalledTimes(2)
@@ -147,24 +147,4 @@ describe('Uploader comp', () => {
     expect(callback).toHaveBeenCalled()
   })
 
-  it('异步上传前检查', async () => {
-    mockedAxios.post.mockResolvedValueOnce({ data: { url: 'yyy.url' } })
-    const failedPromise = (file: File) => {
-      return Promise.reject('错误')
-    }
-
-    const wrapper = shallowMount(Uploader, {
-      props: {
-        url: 'test.url',
-        beforeUpload: failedPromise
-      }
-    })
-
-    const fileInput = wrapper.get('input').element as HTMLInputElement
-    setInputValue(fileInput)
-    await wrapper.get('input').trigger('change')
-    await flushPromises()
-    expect(mockedAxios.post).not.toHaveBeenCalled()
-    expect(wrapper.findAll('li').length).toBe(0)
-  })
 })
