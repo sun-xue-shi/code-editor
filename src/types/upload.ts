@@ -6,7 +6,10 @@ export interface UploaderFile {
   name: string
   status: UploadStaus
   raw: File
+  response?: any
 }
 export interface ActionType {
   url: string
+  beforeUpload?: CheckUpload
 }
+export type CheckUpload = (file: File) => boolean | Promise<File>
