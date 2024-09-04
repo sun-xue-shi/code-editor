@@ -66,7 +66,7 @@ function removeFile(id: string) {
       <span v-else>点击上传</span>
     </button>
     <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
-    <ul>
+    <ul class="upload-list">
       <li
         :class="`upoaded-file upload-${file.status}`"
         v-for="file in uploadFlifes"
@@ -80,6 +80,27 @@ function removeFile(id: string) {
 </template>
 
 <style scoped lang="less">
+.upload-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  li {
+    transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
+    font-size: 14px;
+    line-height: 1.8;
+    margin-top: 5px;
+    border-radius: 4px;
+    min-width: 200px;
+    position: relative;
+    &:first-child {
+      margin-top: 10px;
+    }
+  }
+}
+.filename {
+  margin-left: 5px;
+  margin-right: 40px;
+}
 .uplod-uploading {
   color: yellow;
 }
