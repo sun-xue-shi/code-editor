@@ -17,6 +17,7 @@
     "@ant-design/icons-vue": "^7.0.1",
     "ant-design-vue": "4.x",
     "axios": "^1.7.7",
+    "flush-promises": "^1.0.2",
     "less": "^4.2.0",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
