@@ -23,6 +23,23 @@ const lastFileData = computed(() => {
   }
   return false
 })
+const isDragOver = ref(false)
+let events: { [key: string]: (e: DragEvent) => void } = {
+  click: triggerUpload
+}
+
+if (props.drag) {
+  events = {
+    ...events,
+    dragover: (e: DragEvent) => {
+      handleDrag(e, true)
+    },
+    dragleave: (e: DragEvent) => {
+      handleDrag(e, false)
+    },
+    drop: handleDrop
+  }
+}
 
 function triggerUpload() {
   if (fileInput.value) {
@@ -61,11 +78,9 @@ function postFile(uploadFile: File) {
     })
 }
 
-function handleFileChange(e: Event) {
-  const target = e.target as HTMLInputElement
-  const file = target.files
-  if (file) {
-    const uploadFile = file[0]
+function uploadFiles(files: null | FileList) {
+  if (files) {
+    const uploadFile = files[0]
     if (props.beforeUpload) {
       const result = props.beforeUpload(uploadFile)
       if (result && result instanceof Promise) {
@@ -86,18 +101,35 @@ function handleFileChange(e: Event) {
     } else {
       postFile(uploadFile)
     }
-    postFile(uploadFile)
   }
 }
 
+function handleFileChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  uploadFiles(target.files)
+}
+
 function removeFile(id: string) {
-  uploadFlifes.value = uploadFlifes.value.filter((file) => file.uid === id)
+  uploadFlifes.value = uploadFlifes.value.filter((file) => file.uid !== id)
+}
+
+function handleDrag(e: DragEvent, over: boolean) {
+  e.preventDefault()
+  isDragOver.value = over
+}
+
+function handleDrop(e: DragEvent) {
+  e.preventDefault()
+  isDragOver.value = false
+  if (e.dataTransfer) {
+    uploadFiles(e.dataTransfer.files)
+  }
 }
 </script>
 
 <template>
   <div class="file-upload">
-    <div @click="triggerUpload" class="upload-area">
+    <div v-on="events" class="upload-area" :class="{ 'is-dragover': drag && isDragOver }">
       <slot v-if="isUploading" name="loading">
         <button disabled>正在上传</button>
       </slot>

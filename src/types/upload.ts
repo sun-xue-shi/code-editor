@@ -11,5 +11,6 @@ export interface UploaderFile {
 export interface ActionType {
   url: string
   beforeUpload?: CheckUpload
+  drag?: boolean
 }
 export type CheckUpload = (file: File) => boolean | Promise<File>

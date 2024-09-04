@@ -10,7 +10,7 @@ const list = templateStore.templateInfo
 
 <template>
   <div class="template-list-component">
-    <Uploader url="http://..." />
+    <Uploader url="http://local.teat:7001/api/upload" />
     <ARow :gutter="16">
       <ACol :span="6" v-for="item in list" :key="item.id" class="poster-item">
         <router-link to="/edit">
