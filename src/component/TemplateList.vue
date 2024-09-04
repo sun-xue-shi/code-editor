@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Row, Col, CardMeta, Tag, Card } from 'ant-design-vue'
 import { RouterLink } from 'vue-router'
 import { useTemplateStore } from '@/stores/template'
 import { UserOutlined } from '@ant-design/icons-vue'
@@ -10,10 +9,10 @@ const list = templateStore.templateInfo
 
 <template>
   <div class="template-list-component">
-    <Row :gutter="16">
-      <Col :span="6" v-for="item in list" :key="item.id" class="poster-item">
+    <ARow :gutter="16">
+      <ACol :span="6" v-for="item in list" :key="item.id" class="poster-item">
         <router-link to="/edit">
-          <Card hoverable>
+          <ACard hoverable>
             <template #cover>
               <!-- <img :src="item.coverImg"  /> -->
 
@@ -21,22 +20,22 @@ const list = templateStore.templateInfo
                 <a-button size="large" type="primary">'编辑该作品'</a-button>
               </div>
             </template>
-            <CardMeta :title="item.title">
+            <ACardMeta :title="item.title">
               <template #description>
                 <div class="description-detail">
                   <span>作者:{{ item.author }}</span>
                   <span class="user-number"><UserOutlined />{{ item.copiedCount }} </span>
                 </div>
               </template>
-            </CardMeta>
-          </Card>
+            </ACardMeta>
+          </ACard>
           <div class="tag-list">
-            <Tag color="red"> HOT </Tag>
-            <Tag color="green"> NEW </Tag>
+            <ATag color="red"> HOT </ATag>
+            <ATag color="green"> NEW </ATag>
           </div>
         </router-link>
-      </Col>
-    </Row>
+      </ACol>
+    </ARow>
   </div>
 </template>
 

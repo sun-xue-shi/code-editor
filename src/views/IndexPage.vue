@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { Layout, LayoutContent, LayoutHeader, LayoutFooter } from 'ant-design-vue'
 </script>
 
 <template>
   <div class="homepage-container">
-    <Layout class="layout">
-      <LayoutHeader class="layout-header"><div class="header">Header</div></LayoutHeader>
-      <LayoutContent class="layout-content">
+    <ALayout class="layout">
+      <ALayoutHeader class="layout-header"><div class="header">Header</div></ALayoutHeader>
+      <ALayoutContent class="layout-content">
         <RouterView />
-      </LayoutContent>
-      <LayoutFooter class="layout-footer">Footer</LayoutFooter>
-    </Layout>
+      </ALayoutContent>
+      <ALayoutFooter class="layout-footer">Footer</ALayoutFooter>
+    </ALayout>
   </div>
 </template>
 
