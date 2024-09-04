@@ -2,21 +2,21 @@
   <div class="editor" id="editor-layout-main">
     <!-- <Spin tip="读取中" class="editor-spinner"> </Spin> -->
 
-    <Drawer title="设置面板" placement="right" width="400" :closable="true"> 设置面板 </Drawer>
+    <ADrawer title="设置面板" placement="right" width="400" :closable="true"> 设置面板 </ADrawer>
     <!-- <div class="final-preview">
       <div class="final-preview-inner">
         <div class="preview-title">预览标题</div>
         <div class="iframe-container">预览</div>
       </div>
     </div> -->
-    <Modal title="发布成功" width="700px" :footer="null"> 发布成功弹窗 </Modal>
+    <AModal title="发布成功" width="700px" :footer="null"> 发布成功弹窗 </AModal>
 
-    <Layout>
-      <LayoutSider width="300" style="background: #fff">
+    <ALayout>
+      <ALayoutSider width="300" style="background: #fff">
         <div class="sidebar-container"><ListComp @addItem="handleAddItem" /></div>
-      </LayoutSider>
-      <Layout style="padding: 0 24px 24px">
-        <LayoutContent class="preview-container">
+      </ALayoutSider>
+      <ALayout style="padding: 0 24px 24px">
+        <ALayoutContent class="preview-container">
           <p>画布区域</p>
           <div class="preview-list">
             <EditWrapper
@@ -29,30 +29,29 @@
               <TextComp :tag="ele.name" v-bind="ele.props" />
             </EditWrapper>
           </div>
-        </LayoutContent>
-      </Layout>
-      <LayoutSider width="300" style="background: #fff" class="settings-panel">
-        <Tabs type="card">
-          <TabPane key="component" tab="属性设置" class="no-top-radius">
+        </ALayoutContent>
+      </ALayout>
+      <ALayoutSider width="300" style="background: #fff" class="settings-panel">
+        <ATabs type="card">
+          <ATabPane key="component" tab="属性设置" class="no-top-radius">
             <PropsTable
               v-if="currentElement && currentElement.props"
               :props="currentElement?.props"
               @change="handleChange"
             />
             {{ currentElement && currentElement.props }}
-          </TabPane>
-          <TabPane key="layer" tab="图层设置"> 图层设置内容 </TabPane>
-          <TabPane key="page" tab="页面设置">
+          </ATabPane>
+          <ATabPane key="layer" tab="图层设置"> 图层设置内容 </ATabPane>
+          <ATabPane key="page" tab="页面设置">
             <div class="page-settings">页面设置content</div>
-          </TabPane>
-        </Tabs>
-      </LayoutSider>
-    </Layout>
+          </ATabPane>
+        </ATabs>
+      </ALayoutSider>
+    </ALayout>
   </div>
 </template>
 
 <script setup lang="ts">
-import { LayoutSider, Layout, Tabs, TabPane, LayoutContent, Modal, Drawer } from 'ant-design-vue'
 import TextComp from '@/component/TextComp.vue'
 import ListComp from '@/component/ListComp.vue'
 import { useEditStore } from '@/stores/edit'
