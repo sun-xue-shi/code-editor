@@ -3,6 +3,7 @@ import { Row, Col, CardMeta, Tag, Card } from 'ant-design-vue'
 import { RouterLink } from 'vue-router'
 import { useTemplateStore } from '@/stores/template'
 import { UserOutlined } from '@ant-design/icons-vue'
+import Uploader from './Uploader.vue'
 
 const templateStore = useTemplateStore()
 const list = templateStore.templateInfo
@@ -10,6 +11,7 @@ const list = templateStore.templateInfo
 
 <template>
   <div class="template-list-component">
+    <Uploader url="http://..." />
     <Row :gutter="16">
       <Col :span="6" v-for="item in list" :key="item.id" class="poster-item">
         <router-link to="/edit">
