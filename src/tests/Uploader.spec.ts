@@ -26,10 +26,10 @@ function setInputValue(fileInput: HTMLInputElement) {
   })
 }
 
-let wapper: VueWrapper
+let wrapper: VueWrapper
 describe('Uploader comp', () => {
   beforeAll(() => {
-    wapper = shallowMount(Uploader, {
+    wrapper = shallowMount(Uploader, {
       props: {
         url: 'test.url'
       },
@@ -41,30 +41,30 @@ describe('Uploader comp', () => {
 
   it('组件结构是否正确', () => {
     //上传按钮存在
-    expect(wapper.find('button').exists()).toBeTruthy()
+    expect(wrapper.find('button').exists()).toBeTruthy()
     //按钮文字
-    expect(wapper.get('button').text()).toBe('点击上传')
+    expect(wrapper.get('button').text()).toBe('点击上传')
     //默认隐藏文件选择窗口
-    expect(wapper.get('input').isVisible()).toBeFalsy()
+    expect(wrapper.get('input').isVisible()).toBeFalsy()
   })
 
   it('基本上传流程是否正确', async () => {
     mockedAxios.post.mockResolvedValueOnce({ status: 'success' })
-    const fileInput = wapper.get('input').element as HTMLInputElement
+    const fileInput = wrapper.get('input').element as HTMLInputElement
     // fileInput.files = [testFile] as unknown as FileList
     setInputValue(fileInput)
-    await wapper.get('input').trigger('change')
+    await wrapper.get('input').trigger('change')
     expect(mockedAxios.post).toHaveBeenCalledTimes(1)
-    expect(wapper.get('button').text()).toBe('正在上传')
+    expect(wrapper.get('button').text()).toBe('正在上传')
     //此时按钮禁止操作
-    expect(wapper.get('button').attributes('disabled')).toBe('')
+    expect(wrapper.get('button').attributes('disabled')).toBe('')
     //文件列表长度为1
-    expect(wapper.findAll('li').length).toBe(1)
+    expect(wrapper.findAll('li').length).toBe(1)
     //列表第一个元素包含上传中的类名
-    const firstItem = wapper.get('li:first-child')
+    const firstItem = wrapper.get('li:first-child')
     expect(firstItem.classes()).toContain('upload-loading')
     await flushPromises()
-    expect(wapper.get('button').text()).toBe('点击上传')
+    expect(wrapper.get('button').text()).toBe('点击上传')
     //第一个元素包含上传成功的类名 且对应文件名正确
     expect(firstItem.classes()).toContain('upload-success')
     expect(firstItem.get('.filename').text()).toBe(testFile.name)
@@ -72,33 +72,28 @@ describe('Uploader comp', () => {
 
   it('上传失败返回错误', async () => {
     mockedAxios.post.mockRejectedValueOnce({ error: 'error' })
-    await wapper.get('input').trigger('change')
+    await wrapper.get('input').trigger('change')
     expect(mockedAxios.post).toHaveBeenCalledTimes(2)
-    expect(wapper.get('button').text()).toBe('正在上传')
+    expect(wrapper.get('button').text()).toBe('正在上传')
     //此时按钮禁止操作
-
-    expect(wapper.get('button').attributes('disabled')).toBe('')
+    expect(wrapper.get('button').attributes('disabled')).toBe('')
 
     await flushPromises()
-    expect(wapper.get('button').text()).toBe('点击上传')
+    expect(wrapper.get('button').text()).toBe('点击上传')
     //文件列表长度为2
-    expect(wapper.findAll('li').length).toBe(2)
+    expect(wrapper.findAll('li').length).toBe(2)
     //列表最后一个元素包含上传失败的类名
-    const lastItem = wapper.get('li:last-child')
+    const lastItem = wrapper.get('li:last-child')
     expect(lastItem.classes()).toContain('upload-error')
     //触发删除操作
     await lastItem.get('.delete-file').trigger('click')
-    expect(wapper.findAll('li').length).toBe(1)
+    expect(wrapper.findAll('li').length).toBe(1)
   })
 
   it('自定义插槽是否展示正确内容', async () => {
-    console.log(555);
-    
     mockedAxios.post.mockResolvedValueOnce({ data: { url: '123.url' } })
-    console.log(111)
-
-    // mockedAxios.post.mockResolvedValueOnce({ data: { url: 'xyz.url' } })
-    const wapper = mount(Uploader, {
+    mockedAxios.post.mockResolvedValueOnce({ data: { url: 'xyz.url' } })
+    const wrapper = mount(Uploader, {
       props: {
         url: 'test.url'
       },
@@ -112,19 +107,64 @@ describe('Uploader comp', () => {
       }
     })
 
-    expect(wapper.get('button').text()).toBe('custom button')
-    const fileInput = wapper.get('input').element as HTMLInputElement
+    expect(wrapper.get('button').text()).toBe('custom button')
+    const fileInput = wrapper.get('input').element as HTMLInputElement
     setInputValue(fileInput)
-    await wapper.get('input').trigger('change')
-    expect(wapper.get('.loading').text()).toBe('custom loading')
+    await wrapper.get('input').trigger('change')
+    expect(wrapper.get('.loading').text()).toBe('custom loading')
     await flushPromises()
-    console.log("wapper.get('.custom-loaded')", wapper.get('.custom-loaded'))
+    expect(wrapper.get('.custom-loaded').text()).toBe('123.url')
 
-    expect(wapper.get('.custom-loaded').text()).toBe('123.url')
+    await wrapper.get('input').trigger('change')
+    expect(wrapper.get('.loading').text()).toBe('custom loading')
+    await flushPromises()
+    expect(wrapper.get('.custom-loaded').text()).toBe('xyz.url')
+  })
 
-    // await wapper.get('input').trigger('change')
-    // expect(wapper.get('.loading').text()).toBe('custom loading')
-    // await flushPromises()
-    // expect(wapper.get('.custom-loaded').text()).toBe('xyz.url')
+  it('上传前检查', async () => {
+    const callback = vitest.fn()
+    mockedAxios.post.mockRejectedValueOnce({ data: { url: 'xxx.url' } })
+    const checkFileSize = (file: File) => {
+      if (file.size > 2) {
+        callback()
+        return false
+      }
+      return true
+    }
+
+    const wrapper = shallowMount(Uploader, {
+      props: {
+        url: 'test.url',
+        beforeUpload: checkFileSize
+      }
+    })
+
+    const fileInput = wrapper.get('input').element as HTMLInputElement
+    setInputValue(fileInput)
+    await wrapper.get('input').trigger('change')
+    expect(mockedAxios.post).not.toHaveBeenCalled()
+    expect(wrapper.findAll('li').length).toBe(0)
+    expect(callback).toHaveBeenCalled()
+  })
+
+  it('异步上传前检查', async () => {
+    mockedAxios.post.mockResolvedValueOnce({ data: { url: 'yyy.url' } })
+    const failedPromise = (file: File) => {
+      return Promise.reject('错误')
+    }
+
+    const wrapper = shallowMount(Uploader, {
+      props: {
+        url: 'test.url',
+        beforeUpload: failedPromise
+      }
+    })
+
+    const fileInput = wrapper.get('input').element as HTMLInputElement
+    setInputValue(fileInput)
+    await wrapper.get('input').trigger('change')
+    await flushPromises()
+    expect(mockedAxios.post).not.toHaveBeenCalled()
+    expect(wrapper.findAll('li').length).toBe(0)
   })
 })
