@@ -12,5 +12,6 @@ export interface ActionType {
   url: string
   beforeUpload?: CheckUpload
   drag?: boolean
+  autoUpload?: boolean
 }
 export type CheckUpload = (file: File) => boolean | Promise<File>

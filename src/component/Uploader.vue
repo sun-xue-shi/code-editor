@@ -9,12 +9,12 @@ import { last } from 'lodash-es'
 const props = defineProps<ActionType>()
 
 const fileInput = ref<null | HTMLInputElement>(null)
-const uploadFlifes = ref<UploaderFile[]>([])
+const fileList = ref<UploaderFile[]>([])
 const isUploading = computed(() => {
-  return uploadFlifes.value.some((file) => file.status === 'loading')
+  return fileList.value.some((file) => file.status === 'loading')
 })
 const lastFileData = computed(() => {
-  const lastFile = last(uploadFlifes.value)
+  const lastFile = last(fileList.value)
   if (lastFile) {
     return {
       loaded: lastFile.status === 'success',
@@ -41,23 +41,16 @@ if (props.drag) {
   }
 }
 
-function triggerUpload() {
+function triggerUpload(e: Event) {
   if (fileInput.value) {
     fileInput.value.click()
   }
 }
 
-function postFile(uploadFile: File) {
+function postFile(readyFile: UploaderFile) {
   const formData = new FormData()
-  formData.append(uploadFile.name, uploadFile)
-  const fileObj = reactive<UploaderFile>({
-    uid: uid(),
-    size: uploadFile.size,
-    name: uploadFile.name,
-    status: 'loading',
-    raw: uploadFile
-  })
-  uploadFlifes.value.push(fileObj)
+  formData.append(readyFile.name, readyFile.raw)
+  readyFile.status = 'loading'
   axios
     .post(props.url, formData, {
       headers: {
@@ -65,11 +58,11 @@ function postFile(uploadFile: File) {
       }
     })
     .then((res: any) => {
-      fileObj.status = 'success'
-      fileObj.response = res.data
+      readyFile.status = 'success'
+      readyFile.response = res.data
     })
     .catch(() => {
-      fileObj.status = 'error'
+      readyFile.status = 'error'
     })
     .finally(() => {
       if (fileInput.value) {
@@ -87,7 +80,7 @@ function uploadFiles(files: null | FileList) {
         result
           .then((res) => {
             if (res instanceof File) {
-              postFile(res)
+              addFileToList(res)
             } else {
               throw new Error('beforeUpload Promise should return File object')
             }
@@ -96,12 +89,33 @@ function uploadFiles(files: null | FileList) {
             console.log(error)
           })
       } else if (result === true) {
-        postFile(uploadFile)
+        addFileToList(uploadFile)
       }
     } else {
-      postFile(uploadFile)
+      addFileToList(uploadFile)
     }
   }
+}
+function addFileToList(uploadFile: File) {
+  const fileObj = reactive<UploaderFile>({
+    uid: uid(),
+    size: uploadFile.size,
+    name: uploadFile.name,
+    status: 'ready',
+    raw: uploadFile
+  })
+  fileList.value.push(fileObj)
+  if (props.autoUpload) {
+    fileList.value.forEach((file) => (file.status = 'loading'))
+    postFile(fileObj)
+  }
+}
+
+function uploadToFile(e: Event) {
+  e.stopPropagation()
+  fileList.value
+    .filter((file) => file.status === 'ready')
+    .forEach((readyFile) => postFile(readyFile))
 }
 
 function handleFileChange(e: Event) {
@@ -110,7 +124,7 @@ function handleFileChange(e: Event) {
 }
 
 function removeFile(id: string) {
-  uploadFlifes.value = uploadFlifes.value.filter((file) => file.uid !== id)
+  fileList.value = fileList.value.filter((file) => file.uid !== id)
 }
 
 function handleDrag(e: DragEvent, over: boolean) {
@@ -142,15 +156,13 @@ function handleDrop(e: DragEvent) {
       </slot>
       <slot v-else name="default">
         <button>点击上传</button>
+        <button v-if="!props.autoUpload" @click="uploadToFile">点击提交</button>
       </slot>
+      <slot> </slot>
     </div>
     <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
     <ul class="upload-list">
-      <li
-        :class="`upoaded-file upload-${file.status}`"
-        v-for="file in uploadFlifes"
-        :key="file.uid"
-      >
+      <li :class="`upoaded-file upload-${file.status}`" v-for="file in fileList" :key="file.uid">
         <span v-if="file.status === 'loading'" class="file-icon"><LoadingOutlined /></span>
         <span v-else class="file-icon"><FileOutlined /></span>
         <span class="filename">{{ file.name }}</span>
@@ -200,4 +212,24 @@ function handleDrop(e: DragEvent) {
     color: #f5222d;
   }
 }
+.file-upload .upload-area {
+  background: #efefef;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 20px;
+  width: 360px;
+  height: 180px;
+  text-align: center;
+  &:hover {
+    border: 1px dashed #1890ff;
+  }
+  &.is-dragover {
+    border: 2px dashed #1890ff;
+    background: rgba(#1890ff, 0.2);
+  }
+}
+// .upload-area img{
+
+// }
 </style>
