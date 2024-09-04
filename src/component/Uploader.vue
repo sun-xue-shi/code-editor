@@ -101,7 +101,6 @@ function uploadFiles(files: null | FileList) {
     } else {
       postFile(uploadFile)
     }
-    postFile(uploadFile)
   }
 }
 
@@ -111,7 +110,7 @@ function handleFileChange(e: Event) {
 }
 
 function removeFile(id: string) {
-  uploadFlifes.value = uploadFlifes.value.filter((file) => file.uid === id)
+  uploadFlifes.value = uploadFlifes.value.filter((file) => file.uid !== id)
 }
 
 function handleDrag(e: DragEvent, over: boolean) {
