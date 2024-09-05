@@ -170,14 +170,3 @@ describe('Uploader comp', () => {
     expect(firstImg.attributes('src')).toEqual('test.url')
   })
 })
-
-
-// <li data-v-d955a624="" class="upoaded-file upload-ready">
-//   <!--v-if-->
-//   <div data-v-d955a624="" class="file-handle">
-// <span data-v-d955a624="" class="file-icon"><!----></span>
-// <span data-v-d955a624="" class="filename">test.png</span>
-// <button data-v-d955a624="" class="delete-file">       
-//       <!---->
-//     </button></div>
-// </li>
