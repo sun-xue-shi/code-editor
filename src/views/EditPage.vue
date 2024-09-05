@@ -60,12 +60,10 @@ import EditWrapper from '@/component/EditWrapper.vue'
 import { computed } from 'vue'
 import type { CompData } from '@/types/edit.'
 import PropsTable from '@/component/PropsTable.vue'
+
 const editStore = useEditStore()
-
 const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent } = editStore
-
 const elements = editInfo.components
-
 const currentElement = computed<undefined | CompData>(() => getCurrentElement(editInfo))
 
 const handleAddItem = (data: Partial<TextComponentProps>) => {
