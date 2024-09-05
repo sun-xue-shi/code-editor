@@ -17,5 +17,14 @@ export interface ActionType {
   listType?: FileListType
   showUploadList?: boolean
 }
+
 export type CheckUpload = (file: File) => boolean | Promise<File>
 export type FileListType = 'picture' | 'text'
+
+export interface UploadResponse {
+  code: number
+  message: string
+  data: {
+    url: string
+  }
+}

@@ -1,3 +1,5 @@
+import type { ImageComponentProps, TextComponentProps } from './props'
+
 export interface EditorData {
   /**编辑器渲染数组 */
   components: CompData[]
@@ -6,7 +8,7 @@ export interface EditorData {
 
 export interface CompData {
   /**元素属性 */
-  props: { [key: string]: any }
+  props: Partial<TextComponentProps & ImageComponentProps>
   id: string
   /**业务组件名称 */
   name: string

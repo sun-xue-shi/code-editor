@@ -33,6 +33,14 @@ const testData: CompData[] = [
       actionType: 'url',
       backgroundColor: 'red'
     }
+  },
+  {
+    id: v4(),
+    name: 'div',
+    props: {
+      src: 'https://imgs.699pic.com/images/500/618/976.jpg!seo.v1',
+      width: '100px'
+    }
   }
 ]
 
@@ -51,13 +59,8 @@ export const useEditStore = defineStore(
       editInfo.value = {} as EditorData
     }
 
-    const addEditInfo = (props: Partial<TextComponentProps>) => {
-      const newData: CompData = {
-        id: v4(),
-        name: 'div',
-        props
-      }
-      editInfo.value.components.push(newData)
+    const addEditInfo = (componentData: CompData) => {
+      editInfo.value.components.push(componentData)
     }
 
     function setActive(editInfo: EditorData, currentId: string) {

@@ -1,4 +1,9 @@
-import type { CommonComponentProps, TextComponentProps } from '@/types/props'
+import type {
+  CommonComponentProps,
+  ImageComponentProps,
+  ShapeComponentProps,
+  TextComponentProps
+} from '@/types/props'
 import { mapValues, without } from 'lodash-es'
 
 export const commonDefaultProps: CommonComponentProps = {
@@ -44,16 +49,6 @@ export const textDefaultProps: TextComponentProps = {
   ...commonDefaultProps
 }
 
-export interface ImageComponentProps extends CommonComponentProps {
-  src: string
-}
-
-export interface ShapeComponentProps extends CommonComponentProps {
-  backgroundColor: string
-}
-
-export type AllComponentProps = TextComponentProps & ImageComponentProps & ShapeComponentProps
-
 export const imageDefaultProps: ImageComponentProps = {
   src: 'test.url',
   ...commonDefaultProps
@@ -87,7 +82,7 @@ export const imageStylePropsNames = without(
 
 export const shapeStylePropsNames = without(Object.keys(imageDefaultProps), 'actionType', 'url')
 
-export const transformToComponentProps = (props: TextComponentProps) => {
+export const transformToComponentProps = (props: TextComponentProps & ImageComponentProps) => {
   const mapProps = mapValues(props, (item) => {
     return {
       type: (item as any).constructor as StringConstructor,
