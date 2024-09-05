@@ -147,4 +147,26 @@ describe('Uploader comp', () => {
     expect(callback).toHaveBeenCalled()
   })
 
+  it.only('图片预览应该正常显示', async () => {
+    mockedAxios.post.mockRejectedValueOnce({ data: { url: 'xxx.url' } })
+    window.URL.createObjectURL = vitest.fn(() => {
+      return 'test.url'
+    })
+    const wrapper = mount(Uploader, {
+      props: {
+        url: 'test.url',
+        listType: 'picture'
+      }
+    })
+
+    expect(wrapper.get('ul').classes()).toContain('upload-list-picture')
+    const fileInput = wrapper.get('input').element as HTMLInputElement
+    setInputValue(fileInput)
+    await wrapper.get('input').trigger('change')
+    expect(wrapper.findAll('li').length).toBe(1)
+
+    expect(wrapper.find('li:first-child').exists()).toBeTruthy()
+    const firstImg = wrapper.find('li:first-child img')
+    expect(firstImg.attributes('src')).toEqual('test.url')
+  })
 })

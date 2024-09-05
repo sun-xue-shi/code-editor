@@ -6,7 +6,16 @@ import axios from 'axios'
 import { DeleteOutlined, FileOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import { last } from 'lodash-es'
 
-const props = defineProps<ActionType>()
+const props = withDefaults(defineProps<ActionType>(), {
+  drag: true,
+  listType: 'picture',
+  showUploadList: true,
+  autoUpload: true
+})
+
+const emit = defineEmits<{
+  success: [data: any]
+}>()
 
 const fileInput = ref<null | HTMLInputElement>(null)
 const fileList = ref<UploaderFile[]>([])
@@ -23,6 +32,7 @@ const lastFileData = computed(() => {
   }
   return false
 })
+
 const isDragOver = ref(false)
 let events: { [key: string]: (e: DragEvent) => void } = {
   click: triggerUpload
@@ -60,6 +70,7 @@ function postFile(readyFile: UploaderFile) {
     .then((res: any) => {
       readyFile.status = 'success'
       readyFile.response = res.data
+      emit('success', res.data)
     })
     .catch(() => {
       readyFile.status = 'error'
@@ -102,8 +113,22 @@ function addFileToList(uploadFile: File) {
     size: uploadFile.size,
     name: uploadFile.name,
     status: 'ready',
-    raw: uploadFile
+    raw: uploadFile,
+    url: ''
   })
+
+  if (props.listType === 'picture') {
+    try {
+      fileObj.url = URL.createObjectURL(uploadFile)
+      // const fileReader = new FileReader()
+      // fileReader.readAsDataURL(uploadFile)
+      // fileReader.addEventListener('load', () => {
+      //   fileObj.url = fileReader.result as string
+      // })
+    } catch (error) {
+      console.log('上传失败', error)
+    }
+  }
   fileList.value.push(fileObj)
   if (props.autoUpload) {
     fileList.value.forEach((file) => (file.status = 'loading'))
@@ -145,28 +170,30 @@ function handleDrop(e: DragEvent) {
   <div class="file-upload">
     <div v-on="events" class="upload-area" :class="{ 'is-dragover': drag && isDragOver }">
       <slot v-if="isUploading" name="loading">
-        <button disabled>正在上传</button>
+        <a-button disabled size="small">正在上传</a-button>
       </slot>
       <slot
         name="uploaded"
         v-else-if="lastFileData && lastFileData.loaded"
         :uploadedData="lastFileData.data"
       >
-        <button>点击上传</button>
+        <a-button size="small">点击上传</a-button>
       </slot>
       <slot v-else name="default">
-        <button>点击上传</button>
-        <button v-if="!props.autoUpload" @click="uploadToFile">点击提交</button>
+        <a-button size="small">点击上传</a-button>
+        <a-button v-if="!props.autoUpload" @click="uploadToFile" size="small">点击提交</a-button>
       </slot>
-      <slot> </slot>
     </div>
     <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
-    <ul class="upload-list">
+    <ul v-if="showUploadList" :class="`upload-list upload-list-${listType}`">
       <li :class="`upoaded-file upload-${file.status}`" v-for="file in fileList" :key="file.uid">
-        <span v-if="file.status === 'loading'" class="file-icon"><LoadingOutlined /></span>
-        <span v-else class="file-icon"><FileOutlined /></span>
-        <span class="filename">{{ file.name }}</span>
-        <button @click="removeFile(file.uid)" class="delete-file"><DeleteOutlined /></button>
+        <img :src="file.url" :alt="file.name" class="preview-picture" />
+        <div :class="`file-handle ${file.url}`">
+          <span v-if="file.status === 'loading'" class="file-icon"><LoadingOutlined /></span>
+          <span v-else class="file-icon"><FileOutlined /></span>
+          <span class="filename">{{ file.name }}</span>
+          <button @click="removeFile(file.uid)" class="delete-file"><DeleteOutlined /></button>
+        </div>
       </li>
     </ul>
   </div>
@@ -174,8 +201,6 @@ function handleDrop(e: DragEvent) {
 
 <style scoped lang="less">
 .upload-list {
-  margin: 0;
-  padding: 0;
   list-style: none;
   li {
     transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
@@ -190,15 +215,24 @@ function handleDrop(e: DragEvent) {
     }
   }
 }
-.file-icon {
-  svg {
-    margin-left: 5px;
-    color: rgba(0, 0, 0, 0.45);
-  }
-}
+
 .filename {
   margin-left: 5px;
   margin-right: 40px;
+}
+
+.preview-picture {
+  width: 20%;
+  height: 50px;
+  margin-right: 5px;
+}
+.upoaded-file {
+  display: flex;
+  justify-content: left;
+  padding: 8px;
+}
+.upoaded-file:hover {
+  background-color: #ccc;
 }
 .uplod-uploading {
   color: yellow;
@@ -213,13 +247,13 @@ function handleDrop(e: DragEvent) {
   }
 }
 .file-upload .upload-area {
-  background: #efefef;
+  background: #eaedf0;
   border: 1px dashed #ccc;
   border-radius: 4px;
   cursor: pointer;
   padding: 20px;
-  width: 360px;
-  height: 180px;
+  width: 200px;
+  height: 100px;
   text-align: center;
   &:hover {
     border: 1px dashed #1890ff;
@@ -229,7 +263,10 @@ function handleDrop(e: DragEvent) {
     background: rgba(#1890ff, 0.2);
   }
 }
-// .upload-area img{
 
-// }
+.upload-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
 </style>

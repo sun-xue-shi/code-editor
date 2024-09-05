@@ -2,7 +2,7 @@
 import { RouterLink } from 'vue-router'
 import { useTemplateStore } from '@/stores/template'
 import { UserOutlined } from '@ant-design/icons-vue'
-import Uploader from './Uploader.vue'
+
 
 const templateStore = useTemplateStore()
 const list = templateStore.templateInfo
@@ -10,7 +10,7 @@ const list = templateStore.templateInfo
 
 <template>
   <div class="template-list-component">
-    <Uploader url="http://local.test:7001/api/upload" />
+
     <ARow :gutter="16">
       <ACol :span="6" v-for="item in list" :key="item.id" class="poster-item">
         <router-link to="/edit">

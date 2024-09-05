@@ -16,8 +16,6 @@ const emit = defineEmits<{
 }>()
 
 const onChange = (color: string) => {
-  console.log('color', color)
-
   emit('change', color)
 }
 </script>

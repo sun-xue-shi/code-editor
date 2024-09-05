@@ -13,7 +13,9 @@
 
     <ALayout>
       <ALayoutSider width="300" style="background: #fff">
-        <div class="sidebar-container"><ListComp @addItem="handleAddItem" /></div>
+        <div class="sidebar-container">
+          <ListComp @addItem="handleAddItem" />
+        </div>
       </ALayoutSider>
       <ALayout style="padding: 0 24px 24px">
         <ALayoutContent class="preview-container">
@@ -27,6 +29,10 @@
               :active="ele.id === (currentElement && currentElement.id)"
             >
               <TextComp :tag="ele.name" v-bind="ele.props" />
+
+              <div class="img" v-if="ele.props.src">
+                <ImageComp v-bind="ele.props" />
+              </div>
             </EditWrapper>
           </div>
         </ALayoutContent>
@@ -54,23 +60,22 @@
 <script setup lang="ts">
 import TextComp from '@/component/TextComp.vue'
 import ListComp from '@/component/ListComp.vue'
+import ImageComp from '@/component/ImageComp.vue'
 import { useEditStore } from '@/stores/edit'
-import type { TextComponentProps } from '@/types/props'
 import EditWrapper from '@/component/EditWrapper.vue'
 import { computed } from 'vue'
 import type { CompData } from '@/types/edit.'
 import PropsTable from '@/component/PropsTable.vue'
+
 const editStore = useEditStore()
-
 const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent } = editStore
-
 const elements = editInfo.components
-
 const currentElement = computed<undefined | CompData>(() => getCurrentElement(editInfo))
 
-const handleAddItem = (data: Partial<TextComponentProps>) => {
-  addEditInfo(data)
+const handleAddItem = (newData: CompData) => {
+  addEditInfo(newData)
 }
+
 function handleSetActive(id: string) {
   setActive(editInfo, id)
 }

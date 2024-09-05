@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import TextComp from './TextComp.vue'
+import SuperUploader from './SuperUploader.vue'
+import type { TextComponentProps } from '@/types/props'
+import type { CompData } from '@/types/edit.'
+import { v4 } from 'uuid'
+import type { UploadResponse } from '@/types/upload'
+import { imageDefaultProps } from '@/common/defaultProps'
+import { message } from 'ant-design-vue'
+import { getImageSize } from '@/utils/upload'
+import { MAX_EDIT_WIDTH } from '@/common/constants'
 
 const textPropsList = [
   {
@@ -70,11 +79,36 @@ const textPropsList = [
 ]
 
 const emit = defineEmits<{
-  (e: 'add-item', val: Record<string, any>): void
+  (e: 'add-item', newData: CompData): void
+  (e: 'image-upload', newData: CompData): void
 }>()
 
-const addItem = (item: Record<string, any>) => {
-  emit('add-item', item)
+const addItem = (props: Partial<TextComponentProps>) => {
+  const newData: CompData = {
+    id: v4(),
+    name: 'ListComp',
+    props
+  }
+  emit('add-item', newData)
+}
+
+const imageUpload = (response: UploadResponse) => {
+  const newData: CompData = {
+    id: v4(),
+    name: 'img',
+    props: {
+      ...imageDefaultProps
+    }
+  }
+  message.success('上传成功')
+  newData.props.src = response.data.url
+  getImageSize(response.data.url).then(({ naturalWidth }) => {
+    newData.props.width = (naturalWidth > MAX_EDIT_WIDTH
+      ? MAX_EDIT_WIDTH
+      : naturalWidth) as unknown as string
+
+    emit('add-item', newData)
+  })
 }
 </script>
 
@@ -83,6 +117,11 @@ const addItem = (item: Record<string, any>) => {
     <div class="list-item" v-for="item in textPropsList" :key="item.tag">
       <TextComp v-bind="item" @click="addItem(item)" />
     </div>
+    <SuperUploader
+      url="http://local.test:7001/api/upload/"
+      listType="picture"
+      @uploadSuccess="imageUpload"
+    />
   </div>
 </template>
 
