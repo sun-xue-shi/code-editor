@@ -14,7 +14,8 @@ export interface ActionType {
   beforeUpload?: CheckUpload
   drag?: boolean
   autoUpload?: boolean
-  listType: FileListType
+  listType?: FileListType
+  showUploadList?: boolean
 }
 export type CheckUpload = (file: File) => boolean | Promise<File>
 export type FileListType = 'picture' | 'text'

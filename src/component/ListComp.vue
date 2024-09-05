@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import TextComp from './TextComp.vue'
+import SuperUploader from './SuperUploader.vue'
 
 const textPropsList = [
   {
@@ -83,6 +84,7 @@ const addItem = (item: Record<string, any>) => {
     <div class="list-item" v-for="item in textPropsList" :key="item.tag">
       <TextComp v-bind="item" @click="addItem(item)" />
     </div>
+    <SuperUploader url="http://local.test:7001/api/upload/" listType="picture" />
   </div>
 </template>
 

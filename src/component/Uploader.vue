@@ -7,9 +7,15 @@ import { DeleteOutlined, FileOutlined, LoadingOutlined } from '@ant-design/icons
 import { last } from 'lodash-es'
 
 const props = withDefaults(defineProps<ActionType>(), {
-  drag: false,
-  listType: 'picture'
+  drag: true,
+  listType: 'picture',
+  showUploadList: true,
+  autoUpload: true
 })
+
+const emit = defineEmits<{
+  success: [data: any]
+}>()
 
 const fileInput = ref<null | HTMLInputElement>(null)
 const fileList = ref<UploaderFile[]>([])
@@ -64,6 +70,7 @@ function postFile(readyFile: UploaderFile) {
     .then((res: any) => {
       readyFile.status = 'success'
       readyFile.response = res.data
+      emit('success', res.data)
     })
     .catch(() => {
       readyFile.status = 'error'
@@ -123,10 +130,10 @@ function addFileToList(uploadFile: File) {
     }
   }
   fileList.value.push(fileObj)
-  // if (props.autoUpload) {
-  //   fileList.value.forEach((file) => (file.status = 'loading'))
-  //   postFile(fileObj)
-  // }
+  if (props.autoUpload) {
+    fileList.value.forEach((file) => (file.status = 'loading'))
+    postFile(fileObj)
+  }
 }
 
 function uploadToFile(e: Event) {
@@ -163,23 +170,22 @@ function handleDrop(e: DragEvent) {
   <div class="file-upload">
     <div v-on="events" class="upload-area" :class="{ 'is-dragover': drag && isDragOver }">
       <slot v-if="isUploading" name="loading">
-        <button disabled>正在上传</button>
+        <a-button disabled size="small">正在上传</a-button>
       </slot>
       <slot
         name="uploaded"
         v-else-if="lastFileData && lastFileData.loaded"
         :uploadedData="lastFileData.data"
       >
-        <button>点击上传</button>
+        <a-button size="small">点击上传</a-button>
       </slot>
       <slot v-else name="default">
-        <button>点击上传</button>
-        <button v-if="!props.autoUpload" @click="uploadToFile">点击提交</button>
+        <a-button size="small">点击上传</a-button>
+        <a-button v-if="!props.autoUpload" @click="uploadToFile" size="small">点击提交</a-button>
       </slot>
-      <slot> </slot>
     </div>
     <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
-    <ul :class="`upload-list upload-list-${listType}`">
+    <ul v-if="showUploadList" :class="`upload-list upload-list-${listType}`">
       <li :class="`upoaded-file upload-${file.status}`" v-for="file in fileList" :key="file.uid">
         <img :src="file.url" :alt="file.name" class="preview-picture" />
         <div :class="`file-handle ${file.url}`">
@@ -195,8 +201,6 @@ function handleDrop(e: DragEvent) {
 
 <style scoped lang="less">
 .upload-list {
-  margin: 0;
-  padding: 0;
   list-style: none;
   li {
     transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
@@ -211,21 +215,15 @@ function handleDrop(e: DragEvent) {
     }
   }
 }
-.file-icon {
-  svg {
-    margin-left: 5px;
 
-    color: rgba(0, 0, 0, 0.45);
-  }
-}
 .filename {
   margin-left: 5px;
   margin-right: 40px;
 }
 
 .preview-picture {
-  width: 20px;
-  height: 20px;
+  width: 20%;
+  height: 50px;
   margin-right: 5px;
 }
 .upoaded-file {
@@ -249,13 +247,13 @@ function handleDrop(e: DragEvent) {
   }
 }
 .file-upload .upload-area {
-  background: #efefef;
+  background: #eaedf0;
   border: 1px dashed #ccc;
   border-radius: 4px;
   cursor: pointer;
   padding: 20px;
-  width: 360px;
-  height: 180px;
+  width: 200px;
+  height: 100px;
   text-align: center;
   &:hover {
     border: 1px dashed #1890ff;
@@ -266,7 +264,9 @@ function handleDrop(e: DragEvent) {
   }
 }
 
-// .upload-area img{
-
-// }
+.upload-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
 </style>
