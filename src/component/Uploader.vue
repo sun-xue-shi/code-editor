@@ -6,7 +6,10 @@ import axios from 'axios'
 import { DeleteOutlined, FileOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import { last } from 'lodash-es'
 
-const props = defineProps<ActionType>()
+const props = withDefaults(defineProps<ActionType>(), {
+  drag: false,
+  listType: 'picture'
+})
 
 const fileInput = ref<null | HTMLInputElement>(null)
 const fileList = ref<UploaderFile[]>([])
@@ -23,6 +26,7 @@ const lastFileData = computed(() => {
   }
   return false
 })
+
 const isDragOver = ref(false)
 let events: { [key: string]: (e: DragEvent) => void } = {
   click: triggerUpload
@@ -102,13 +106,27 @@ function addFileToList(uploadFile: File) {
     size: uploadFile.size,
     name: uploadFile.name,
     status: 'ready',
-    raw: uploadFile
+    raw: uploadFile,
+    url: ''
   })
-  fileList.value.push(fileObj)
-  if (props.autoUpload) {
-    fileList.value.forEach((file) => (file.status = 'loading'))
-    postFile(fileObj)
+
+  if (props.listType === 'picture') {
+    try {
+      fileObj.url = URL.createObjectURL(uploadFile)
+      // const fileReader = new FileReader()
+      // fileReader.readAsDataURL(uploadFile)
+      // fileReader.addEventListener('load', () => {
+      //   fileObj.url = fileReader.result as string
+      // })
+    } catch (error) {
+      console.log('上传失败', error)
+    }
   }
+  fileList.value.push(fileObj)
+  // if (props.autoUpload) {
+  //   fileList.value.forEach((file) => (file.status = 'loading'))
+  //   postFile(fileObj)
+  // }
 }
 
 function uploadToFile(e: Event) {
@@ -161,12 +179,15 @@ function handleDrop(e: DragEvent) {
       <slot> </slot>
     </div>
     <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
-    <ul class="upload-list">
+    <ul :class="`upload-list upload-list-${listType}`">
       <li :class="`upoaded-file upload-${file.status}`" v-for="file in fileList" :key="file.uid">
-        <span v-if="file.status === 'loading'" class="file-icon"><LoadingOutlined /></span>
-        <span v-else class="file-icon"><FileOutlined /></span>
-        <span class="filename">{{ file.name }}</span>
-        <button @click="removeFile(file.uid)" class="delete-file"><DeleteOutlined /></button>
+        <img :src="file.url" :alt="file.name" class="preview-picture" />
+        <div :class="`file-handle ${file.url}`">
+          <span v-if="file.status === 'loading'" class="file-icon"><LoadingOutlined /></span>
+          <span v-else class="file-icon"><FileOutlined /></span>
+          <span class="filename">{{ file.name }}</span>
+          <button @click="removeFile(file.uid)" class="delete-file"><DeleteOutlined /></button>
+        </div>
       </li>
     </ul>
   </div>
@@ -193,12 +214,27 @@ function handleDrop(e: DragEvent) {
 .file-icon {
   svg {
     margin-left: 5px;
+
     color: rgba(0, 0, 0, 0.45);
   }
 }
 .filename {
   margin-left: 5px;
   margin-right: 40px;
+}
+
+.preview-picture {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+.upoaded-file {
+  display: flex;
+  justify-content: left;
+  padding: 8px;
+}
+.upoaded-file:hover {
+  background-color: #ccc;
 }
 .uplod-uploading {
   color: yellow;
@@ -229,6 +265,7 @@ function handleDrop(e: DragEvent) {
     background: rgba(#1890ff, 0.2);
   }
 }
+
 // .upload-area img{
 
 // }
