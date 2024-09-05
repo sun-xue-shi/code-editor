@@ -24,3 +24,18 @@ export function commonUploadCheck(file: File) {
 
   return passed
 }
+
+export function getImageSize(url: string) {
+  return new Promise<{ naturalHeight: number; naturalWidth: number }>((resolve, reject) => {
+    const img = new Image()
+    img.src = url
+    img.addEventListener('load', () => {
+      const { naturalHeight, naturalWidth } = img
+      resolve({ naturalHeight, naturalWidth })
+    })
+
+    img.addEventListener('error', () => {
+      reject(new Error('获取文件信息失败'))
+    })
+  })
+}

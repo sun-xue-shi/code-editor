@@ -7,6 +7,8 @@ import { v4 } from 'uuid'
 import type { UploadResponse } from '@/types/upload'
 import { imageDefaultProps } from '@/common/defaultProps'
 import { message } from 'ant-design-vue'
+import { getImageSize } from '@/utils/upload'
+import { MAX_EDIT_WIDTH } from '@/common/constants'
 
 const textPropsList = [
   {
@@ -100,7 +102,13 @@ const imageUpload = (response: UploadResponse) => {
   }
   message.success('上传成功')
   newData.props.src = response.data.url
-  emit('add-item', newData)
+  getImageSize(response.data.url).then(({ naturalWidth }) => {
+    newData.props.width = (naturalWidth > MAX_EDIT_WIDTH
+      ? MAX_EDIT_WIDTH
+      : naturalWidth) as unknown as string
+
+    emit('add-item', newData)
+  })
 }
 </script>
 
