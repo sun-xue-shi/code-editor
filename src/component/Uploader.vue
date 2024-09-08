@@ -45,7 +45,7 @@ if (props.drag) {
       handleDrag(e, true)
     },
     dragleave: (e: DragEvent) => {
-      handleDrag(e, true)
+      handleDrag(e, false)
     },
     drop: handleDrop
   }
