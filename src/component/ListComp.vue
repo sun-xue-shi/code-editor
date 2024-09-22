@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import TextComp from './TextComp.vue'
+// import TextComp from './TextComp.vue'
+import { TextComp } from 'editor-components-sw'
 import SuperUploader from './SuperUploader.vue'
 import type { TextComponentProps } from '@/types/props'
 import type { CompData } from '@/types/edit.'
