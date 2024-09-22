@@ -29,9 +29,7 @@ const testData: CompData[] = [
     name: 'div',
     props: {
       text: 'test2',
-      fontSize: '40px',
-      actionType: 'url',
-      backgroundColor: 'red'
+      color: 'blue'
     }
   },
   {

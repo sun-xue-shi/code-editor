@@ -58,7 +58,8 @@
 </template>
 
 <script setup lang="ts">
-import TextComp from '@/component/TextComp.vue'
+// import TextComp from '@/component/TextComp.vue'
+import { TextComp } from 'editor-components-sw'
 import ListComp from '@/component/ListComp.vue'
 import ImageComp from '@/component/ImageComp.vue'
 import { useEditStore } from '@/stores/edit'
