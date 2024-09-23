@@ -5,9 +5,12 @@ import type { TextComponentProps } from '@/types/props'
 import type { CompData } from '@/types/edit.'
 import { v4 } from 'uuid'
 import type { UploadResponse } from '@/types/upload'
-import { message } from 'ant-design-vue'
+import { message, type UploadChangeParam, type UploadProps } from 'ant-design-vue'
 import { getImageSize } from '@/utils/upload'
 import { MAX_EDIT_WIDTH } from '@/common/constants'
+import { ref } from 'vue'
+import { commonUploadCheck } from '@/utils/upload'
+import { useEditStore } from '@/stores/edit'
 
 const textPropsList = [
   {
@@ -109,6 +112,41 @@ const imageUpload = (response: UploadResponse) => {
     emit('add-item', newData)
   })
 }
+
+// const fileList = ref<UploadProps['fileList']>([{}])
+const editStore = useEditStore()
+function handleChange(info: UploadChangeParam) {
+  const { status } = info.file
+  if (status === 'done') {
+    console.log(info.file.response.data)
+    const imageData = {
+      id: v4(),
+      name: 'image-comp',
+      props: {
+        src: info.file.response.data.url[0],
+        width: '100px'
+      }
+    }
+
+    console.log('imageData', imageData)
+
+    let imageCount = 0
+    editStore.editInfo.components.forEach((component) => {
+      if (component.name === 'image-comp') imageCount++
+    })
+
+    if (imageCount >= 3) {
+      message.warn('画布区最多只能上传三张图片!')
+      return
+    }
+    editStore.addEditInfo(imageData)
+
+    // updateUserInfo.value.headPic = info.file.response.data;
+    message.success(info.file.name + '文件上传成功')
+  } else if (status === 'error') {
+    message.error(info.file.name + '文件上传失败')
+  }
+}
 </script>
 
 <template>
@@ -116,11 +154,16 @@ const imageUpload = (response: UploadResponse) => {
     <div class="list-item" v-for="item in textPropsList" :key="item.tag">
       <TextComp v-bind="item" @click="addItem(item)" />
     </div>
-    <SuperUploader
-      url="http://local.test:7001/api/upload/"
-      listType="picture"
-      @uploadSuccess="imageUpload"
-    />
+    <a-upload-dragger
+      name="files"
+      list-type="picture"
+      action="http://localhost:3000/file/upload"
+      @change="handleChange"
+      :maxCount="1"
+    >
+      <a-button> upload </a-button>
+      <p>最多只能上传三张图片</p>
+    </a-upload-dragger>
   </div>
 </template>
 

@@ -19,7 +19,7 @@ function handleSuccess(data: any) {
 <template>
   <div class="styled-upload-component">
     <Uploader
-      url="http://local.test:7001/api/upload/"
+      url="http://localhost:3000/file/upload"
       :beforeUpload="commonUploadCheck"
       @success="
         (data) => {

@@ -145,6 +145,8 @@ function uploadToFile(e: Event) {
 
 function handleFileChange(e: Event) {
   const target = e.target as HTMLInputElement
+  console.log(target.files)
+
   uploadFiles(target.files)
 }
 

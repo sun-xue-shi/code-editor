@@ -3,9 +3,12 @@ import { ref, h, watch, nextTick } from 'vue'
 import { ScissorOutlined } from '@ant-design/icons-vue'
 import Cropper from 'cropperjs'
 
+const props = defineProps<{ value: string }>()
+
 let cropper: Cropper
 const isShowModal = ref(false)
 const cropperImage = ref<HTMLImageElement | null>(null)
+
 watch(isShowModal, async (newVal) => {
   if (newVal) {
     await nextTick()
@@ -21,24 +24,24 @@ watch(isShowModal, async (newVal) => {
     }
   }
 })
+
+function handleModal() {
+  console.log(props)
+
+  isShowModal.value = true
+}
 </script>
 
 <template>
   <div class="image-cropper">
     <a-modal v-model:open="isShowModal" title="裁剪图片" ok-text="确认" cancel-text="取消">
       <div>
-        <img
-          id="image"
-          src="https://imgs.699pic.com/images/500/618/976.jpg!seo.v1"
-          ref="cropperImage"
-        />
+        <img id="image" :src="value" ref="cropperImage" />
       </div>
     </a-modal>
 
     <div class="handle-image">
-      <a-button type="primary" :icon="h(ScissorOutlined)" @click="isShowModal = true"
-        >裁剪图片</a-button
-      >
+      <a-button type="primary" :icon="h(ScissorOutlined)" @click="handleModal">裁剪图片</a-button>
     </div>
   </div>
 </template>

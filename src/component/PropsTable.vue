@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { TextComponentProps, FormProp } from '@/types/props'
+import type { TextComponentProps, FormProp, AllComponentProps } from '@/types/props'
 import RenderVNode from '@/hooks/RenderVNode'
-import { mapPropsToForms } from '@/common/propsMap';
+import { mapPropsToForms } from '@/common/propsMap'
 
 interface PropsType {
-  type?: TextComponentProps
+  type?: AllComponentProps
   props: Record<string, any>
 }
 const props = defineProps<PropsType>()
@@ -16,7 +16,7 @@ const emit = defineEmits<{
 const finalProps = computed(() => {
   const result: Record<string, FormProp> = {}
   Object.keys(props.props).map((key) => {
-    const item = mapPropsToForms[key as keyof TextComponentProps]
+    const item = mapPropsToForms[key as keyof AllComponentProps]
     if (item) {
       const value = props.props[key]
       const { valueProp = 'value', envenName = 'change', initailTransform, afterTransform } = item
@@ -32,9 +32,11 @@ const finalProps = computed(() => {
         }
       }
 
-      result[key as keyof TextComponentProps] = newItem
+      result[key as keyof AllComponentProps] = newItem
     }
   })
+
+  console.log(result)
 
   return result
 })

@@ -6,7 +6,7 @@ import { v4 } from 'uuid'
 import type { EditorData, CompData } from '@/types/edit.'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { TextComponentProps } from '@/types/props'
+import type { AllComponentProps, TextComponentProps } from '@/types/props'
 
 const testData: CompData[] = [
   {
@@ -84,7 +84,7 @@ export const useEditStore = defineStore(
         (component) => component.id === editInfo2.currentElement
       )
       if (update) {
-        update.props[key as keyof TextComponentProps] = value
+        update.props[key as keyof AllComponentProps] = value
       }
     }
 
