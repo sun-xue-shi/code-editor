@@ -23,7 +23,7 @@ const onChange = (color: string) => {
 <template>
   <div class="color-picker">
     <div class="color-container">
-      <input type="color" :value="value" @input="onChange($event.target.value)" />
+      <input type="color" :value="value" @input="onChange($event.target?.value)" />
     </div>
     <ul class="default-color-list">
       <li

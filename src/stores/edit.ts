@@ -11,30 +11,37 @@ import type { TextComponentProps } from '@/types/props'
 const testData: CompData[] = [
   {
     id: v4(),
-    name: 'div',
+    name: 'text-comp',
     props: {
       text: 'test',
       fontSize: '10px',
       color: '#000000',
-      actionType: 'url'
+      tag: 'span'
     }
   },
   {
     id: v4(),
-    name: 'div',
-    props: { text: 'test1', fontSize: '20px', actionType: 'url', url: 'https://www.baidu.com' }
+    name: 'text-comp',
+    props: {
+      text: 'test1',
+      fontSize: '20px',
+      actionType: 'url',
+      url: 'https://www.baidu.com',
+      tag: 'div'
+    }
   },
   {
     id: v4(),
-    name: 'div',
+    name: 'text-comp',
     props: {
       text: 'test2',
-      color: 'blue'
+      color: 'blue',
+      tag: 'div'
     }
   },
   {
     id: v4(),
-    name: 'div',
+    name: 'image-comp',
     props: {
       src: 'https://imgs.699pic.com/images/500/618/976.jpg!seo.v1',
       width: '100px'

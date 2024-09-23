@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { TextComponentProps, FormProp } from '@/types/props'
-import { mapPropsToForms } from '@/types/props'
 import RenderVNode from '@/hooks/RenderVNode'
+import { mapPropsToForms } from '@/common/propsMap';
 
 interface PropsType {
   type?: TextComponentProps

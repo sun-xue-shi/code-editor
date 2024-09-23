@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import TextComp from './TextComp.vue'
+import { imageDefaultProps, TextComp } from 'editor-components-sw'
 import SuperUploader from './SuperUploader.vue'
 import type { TextComponentProps } from '@/types/props'
 import type { CompData } from '@/types/edit.'
 import { v4 } from 'uuid'
 import type { UploadResponse } from '@/types/upload'
-import { imageDefaultProps } from '@/common/defaultProps'
 import { message } from 'ant-design-vue'
 import { getImageSize } from '@/utils/upload'
 import { MAX_EDIT_WIDTH } from '@/common/constants'

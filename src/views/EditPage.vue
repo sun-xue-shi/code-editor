@@ -28,7 +28,7 @@
               @setActive="handleSetActive"
               :active="ele.id === (currentElement && currentElement.id)"
             >
-              <TextComp :tag="ele.name" v-bind="ele.props" />
+              <TextComp v-bind="ele.props" />
 
               <div class="img" v-if="ele.props.src">
                 <ImageComp v-bind="ele.props" />
@@ -58,10 +58,8 @@
 </template>
 
 <script setup lang="ts">
-// import TextComp from '@/component/TextComp.vue'
-import { TextComp } from 'editor-components-sw'
+import { TextComp, ImageComp } from 'editor-components-sw'
 import ListComp from '@/component/ListComp.vue'
-import ImageComp from '@/component/ImageComp.vue'
 import { useEditStore } from '@/stores/edit'
 import EditWrapper from '@/component/EditWrapper.vue'
 import { computed } from 'vue'
