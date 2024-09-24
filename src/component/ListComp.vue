@@ -129,8 +129,6 @@ function handleChange(info: UploadChangeParam) {
       }
     }
 
-    console.log('imageData', imageData)
-
     let imageCount = 0
     editStore.editInfo.components.forEach((component) => {
       if (component.name === 'image-comp') imageCount++
@@ -142,7 +140,6 @@ function handleChange(info: UploadChangeParam) {
     }
     editStore.addEditInfo(imageData)
 
-    // updateUserInfo.value.headPic = info.file.response.data;
     message.success(info.file.name + '文件上传成功')
   } else if (status === 'error') {
     message.error(info.file.name + '文件上传失败')
