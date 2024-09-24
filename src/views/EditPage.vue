@@ -80,11 +80,13 @@ import PropsTable from '@/component/PropsTable.vue'
 import EditWrapper from '@/component/EditWrapper.vue'
 import LayerSetting from '@/component/LayerSetting.vue'
 
-const activeKey = ref('component')
 const editStore = useEditStore()
 const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent } = editStore
-const elements = editInfo.components
+
+const activeKey = ref('component')
+
 const currentElement = computed<undefined | ComponentData>(() => getCurrentElement(editInfo))
+const elements = editInfo.components
 
 const handleAddItem = (newData: ComponentData) => {
   addEditInfo(newData)
@@ -93,6 +95,7 @@ const handleAddItem = (newData: ComponentData) => {
 function handleSetActive(id: string) {
   setActive(editInfo, id)
 }
+
 function handleChange(e: any) {
   updateComponent(editInfo, e)
 }

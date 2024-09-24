@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { type ComponentData } from 'editor-components-sw'
 import {
   UnlockOutlined,
   EyeInvisibleOutlined,
   EyeOutlined,
   LockOutlined
 } from '@ant-design/icons-vue'
+import { type ComponentData } from 'editor-components-sw'
 import InlineEditor from './InlineEditor.vue'
 
 defineProps<{

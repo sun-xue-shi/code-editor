@@ -1,7 +1,7 @@
+import { Textarea, InputNumber, Select, Slider, RadioGroup, RadioButton } from 'ant-design-vue'
 import { h } from 'vue'
 import ColorPicker from '@/component/ColorPicker.vue'
 import ImageCropper from '@/component/ImageCropper.vue'
-import { Textarea, InputNumber, Select, Slider, RadioGroup, RadioButton } from 'ant-design-vue'
 import type { PropToForms } from '@/types/props'
 
 const fontFamilyArr = [

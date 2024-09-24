@@ -1,10 +1,9 @@
 /**
  * 用户数据
  */
-
-import { type UserInfo } from '@/types/user'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { type UserInfo } from '@/types/user'
 
 export const useUserStore = defineStore(
   'user',

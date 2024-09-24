@@ -1,20 +1,24 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { FormProp, AllComponentProps } from '@/types/props'
-import RenderVNode from '@/hooks/RenderVNode'
 import { mapPropsToForms } from '@/common/propsMap'
+import RenderVNode from '@/hooks/RenderVNode'
+
 
 interface PropsType {
   type?: AllComponentProps
   props: Record<string, any>
 }
+
 const props = defineProps<PropsType>()
+
 const emit = defineEmits<{
   (e: 'change', value: Record<string, any>): void
 }>()
 
 const finalProps = computed(() => {
   const result: Record<string, FormProp> = {}
+
   Object.keys(props.props).map((key) => {
     const item = mapPropsToForms[key as keyof AllComponentProps]
     if (item) {

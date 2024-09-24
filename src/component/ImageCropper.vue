@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, h, watch, nextTick } from 'vue'
 import { ScissorOutlined } from '@ant-design/icons-vue'
+import { ref, h, watch, nextTick } from 'vue'
 import Cropper from 'cropperjs'
 import { uploadCropper } from '@/request/file'
 
@@ -11,10 +11,11 @@ const emit = defineEmits<{
 }>()
 
 let cropper: Cropper
-const isShowModal = ref(false)
-const cropperImage = ref<HTMLImageElement | null>(null)
 let cropperData = ref({})
 let cropperUrl = ref('')
+
+const isShowModal = ref(false)
+const cropperImage = ref<HTMLImageElement | null>(null)
 
 watch(isShowModal, async (newVal) => {
   if (newVal) {

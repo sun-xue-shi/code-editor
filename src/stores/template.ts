@@ -1,10 +1,9 @@
 /**
  * 模版数据
  */
-
-import { type templateInfo } from '@/types/template'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { type templateInfo } from '@/types/template'
 
 const testData: templateInfo[] = [
   { author: 'xx1', copiedCount: 6, coverImg: 'xxx2', id: 1, title: 'xx1' },

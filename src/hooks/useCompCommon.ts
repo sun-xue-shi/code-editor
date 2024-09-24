@@ -1,6 +1,6 @@
-import type { AllComponentProps } from '@/types/props'
 import { pick } from 'lodash-es'
 import { computed } from 'vue'
+import type { AllComponentProps } from '@/types/props'
 
 export const useCompCommon = (props: AllComponentProps, styleNames: string[]) => {
   const styleProps = computed(() => pick(props, styleNames))

@@ -1,5 +1,4 @@
 import type { VNode } from 'vue'
-import { h } from 'vue'
 
 /**元素通用属性 */
 export interface CommonComponentProps {

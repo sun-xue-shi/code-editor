@@ -1,13 +1,12 @@
 /**
  * 模版数据
  */
-
 import { v4 } from 'uuid'
-import type { EditorData } from '@/types/edit.'
-import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { AllComponentProps } from '@/types/props'
+import { defineStore } from 'pinia'
 import { type ComponentData } from 'editor-components-sw'
+import type { EditorData } from '@/types/edit.'
+import type { AllComponentProps } from '@/types/props'
 
 const testData: ComponentData[] = [
   {
@@ -32,8 +31,8 @@ const testData: ComponentData[] = [
     props: {
       text: 'test1',
       fontSize: '20px',
-      actionType: 'url',
-      url: 'https://www.baidu.com',
+      // actionType: 'url',
+      // url: 'https://www.baidu.com',
       tag: 'div'
     }
   },
@@ -47,17 +46,6 @@ const testData: ComponentData[] = [
       text: 'test2',
       color: 'blue',
       tag: 'div'
-    }
-  },
-  {
-    id: v4(),
-    name: 'image-comp',
-    layerName: '图层4',
-    isHidden: true,
-    isLocked: false,
-    props: {
-      src: 'https://imgs.699pic.com/images/500/618/976.jpg!seo.v1',
-      width: '100px'
     }
   }
 ]

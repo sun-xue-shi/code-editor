@@ -6,14 +6,14 @@ export interface Props {
   colors: string[]
 }
 
+const emit = defineEmits<{
+  change: [color: string]
+}>()
+
 withDefaults(defineProps<Props>(), {
   colors: () => DEFAULT_COLOR,
   value: ''
 })
-
-const emit = defineEmits<{
-  change: [color: string]
-}>()
 
 const onChange = (color: string) => {
   emit('change', color)

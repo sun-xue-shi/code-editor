@@ -1,9 +1,8 @@
 <script setup lang="ts">
+import { message } from 'ant-design-vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { useKeypress } from '@/hooks/useKeyPress'
-import { message } from 'ant-design-vue'
-
-import { computed, nextTick, ref, watch } from 'vue'
 
 const props = defineProps<{
   value: string
@@ -12,14 +11,19 @@ const props = defineProps<{
 const emit = defineEmits<{
   change: [value: string]
 }>()
+
 const innerValue = ref(props.value)
 const isEditing = ref(false)
+
 const inlineWapper = ref<null | HTMLElement>(null)
 const inputRef = ref<null | HTMLElement>(null)
+
 const isOutside = useClickOutside(inlineWapper)
+
 const validateCheck = computed(() => {
   return innerValue.value.trim() !== ''
 })
+
 const handleClick = async () => {
   isEditing.value = true
   await nextTick()
