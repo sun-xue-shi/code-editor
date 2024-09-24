@@ -3,15 +3,19 @@
  */
 
 import { v4 } from 'uuid'
-import type { EditorData, CompData } from '@/types/edit.'
+import type { EditorData } from '@/types/edit.'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { AllComponentProps, TextComponentProps } from '@/types/props'
+import type { AllComponentProps } from '@/types/props'
+import { type ComponentData } from 'editor-components-sw'
 
-const testData: CompData[] = [
+const testData: ComponentData[] = [
   {
     id: v4(),
     name: 'text-comp',
+    isHidden: true,
+    isLocked: false,
+    layerName: '图层1',
     props: {
       text: 'test',
       fontSize: '10px',
@@ -22,6 +26,9 @@ const testData: CompData[] = [
   {
     id: v4(),
     name: 'text-comp',
+    layerName: '图层2',
+    isHidden: false,
+    isLocked: false,
     props: {
       text: 'test1',
       fontSize: '20px',
@@ -33,6 +40,9 @@ const testData: CompData[] = [
   {
     id: v4(),
     name: 'text-comp',
+    layerName: '图层3',
+    isHidden: true,
+    isLocked: true,
     props: {
       text: 'test2',
       color: 'blue',
@@ -42,6 +52,9 @@ const testData: CompData[] = [
   {
     id: v4(),
     name: 'image-comp',
+    layerName: '图层4',
+    isHidden: true,
+    isLocked: false,
     props: {
       src: 'https://imgs.699pic.com/images/500/618/976.jpg!seo.v1',
       width: '100px'
@@ -64,7 +77,7 @@ export const useEditStore = defineStore(
       editInfo.value = {} as EditorData
     }
 
-    const addEditInfo = (componentData: CompData) => {
+    const addEditInfo = (componentData: ComponentData) => {
       editInfo.value.components.push(componentData)
     }
 
@@ -72,19 +85,22 @@ export const useEditStore = defineStore(
       editInfo.currentElement = currentId
     }
 
-    function getCurrentElement(editInfo1: EditorData) {
-      const comp = editInfo1.components.find(
-        (component) => component.id === editInfo1.currentElement
-      )
+    function getCurrentElement(editData: EditorData) {
+      const comp = editData.components.find((component) => component.id === editData.currentElement)
       return comp
     }
 
-    function updateComponent(editInfo2: EditorData, { key, value }) {
-      const update = editInfo2.components.find(
-        (component) => component.id === editInfo2.currentElement
+    function updateComponent(editData: EditorData, { key, id, value, isRoot }) {
+      const updateComponent = editData.components.find(
+        (component) => component.id === (id || editData.currentElement)
       )
-      if (update) {
-        update.props[key as keyof AllComponentProps] = value
+
+      if (updateComponent) {
+        if (isRoot) {
+          updateComponent[key as keyof ComponentData] = value
+        } else {
+          updateComponent.props[key as keyof AllComponentProps] = value
+        }
       }
     }
 

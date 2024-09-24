@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { TextComponentProps, FormProp, AllComponentProps } from '@/types/props'
+import type { FormProp, AllComponentProps } from '@/types/props'
 import RenderVNode from '@/hooks/RenderVNode'
 import { mapPropsToForms } from '@/common/propsMap'
 
@@ -35,8 +35,6 @@ const finalProps = computed(() => {
       result[key as keyof AllComponentProps] = newItem
     }
   })
-
-  console.log(result)
 
   return result
 })

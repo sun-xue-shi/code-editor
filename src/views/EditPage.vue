@@ -38,16 +38,30 @@
         </ALayoutContent>
       </ALayout>
       <ALayoutSider width="300" style="background: #fff" class="settings-panel">
-        <ATabs type="card">
+        <ATabs type="card" v-model:activeKey="activeKey">
           <ATabPane key="component" tab="属性设置" class="no-top-radius">
-            <PropsTable
-              v-if="currentElement && currentElement.props"
-              :props="currentElement?.props"
-              @change="handleChange"
-            />
+            <div v-if="currentElement">
+              <PropsTable
+                v-if="!currentElement.isLocked"
+                :props="currentElement?.props"
+                @change="handleChange"
+              />
+              <div v-else>
+                <a-empty description="该元素已被锁定,无法编辑" />
+              </div>
+            </div>
+
+            {{ currentElement }}
             {{ currentElement && currentElement.props }}
           </ATabPane>
-          <ATabPane key="layer" tab="图层设置"> 图层设置内容 </ATabPane>
+          <ATabPane key="layer" tab="图层设置">
+            <layerSetting
+              :list="elements"
+              @change="handleChange"
+              :select-id="currentElement && currentElement.id"
+              @select="(id: string) => handleSetActive(id)"
+            />
+          </ATabPane>
           <ATabPane key="page" tab="页面设置">
             <div class="page-settings">页面设置content</div>
           </ATabPane>
@@ -58,20 +72,21 @@
 </template>
 
 <script setup lang="ts">
-import { TextComp, ImageComp } from 'editor-components-sw'
-import ListComp from '@/component/ListComp.vue'
+import { computed, ref } from 'vue'
+import { TextComp, ImageComp, type ComponentData } from 'editor-components-sw'
 import { useEditStore } from '@/stores/edit'
-import EditWrapper from '@/component/EditWrapper.vue'
-import { computed } from 'vue'
-import type { CompData } from '@/types/edit.'
+import ListComp from '@/component/ListComp.vue'
 import PropsTable from '@/component/PropsTable.vue'
+import EditWrapper from '@/component/EditWrapper.vue'
+import LayerSetting from '@/component/LayerSetting.vue'
 
+const activeKey = ref('component')
 const editStore = useEditStore()
 const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent } = editStore
 const elements = editInfo.components
-const currentElement = computed<undefined | CompData>(() => getCurrentElement(editInfo))
+const currentElement = computed<undefined | ComponentData>(() => getCurrentElement(editInfo))
 
-const handleAddItem = (newData: CompData) => {
+const handleAddItem = (newData: ComponentData) => {
   addEditInfo(newData)
 }
 
