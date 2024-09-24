@@ -28,7 +28,8 @@ watch(showModal, async (newValue) => {
       cropper = new Cropper(cropperImg.value, {
         aspectRatio: 16 / 9,
         viewMode: 1,
-        checkCrossOrigin: false
+        checkCrossOrigin: false,
+        checkOrientation: false
       })
       console.log(cropper.getCroppedCanvas(), 'getCanvasData')
 
