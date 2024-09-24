@@ -4,6 +4,7 @@ import { ScissorOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import Cropper from 'cropperjs'
 import axios from 'axios'
 import SuperUploader from './SuperUploader.vue'
+
 const emit = defineEmits<{
   (e: 'change', value: string): void
 }>()
@@ -21,6 +22,7 @@ const showModal = ref(false)
 const backgroundUrl = computed(() => `url(${props.value})`)
 const showDelete = ref(false)
 let cropper: Cropper
+let cropperData = ref({})
 watch(showModal, async (newValue) => {
   if (newValue) {
     await nextTick()
@@ -29,24 +31,15 @@ watch(showModal, async (newValue) => {
         aspectRatio: 16 / 9,
         viewMode: 1,
         checkCrossOrigin: false,
-        checkOrientation: false
-      })
-      console.log(cropper.getCroppedCanvas(), 'getCanvasData')
-
-      cropper.getCroppedCanvas().toBlob((blob) => {
-        if (blob) {
-          const formData = new FormData()
-          formData.append('croppedImage', blob, 'name')
-          axios
-            .post('http://localhost:3000/file/upload', formData, {
-              headers: {
-                'Content-Type': 'multipart/form-data'
-              }
-            })
-            .then((res) => {
-              emit('change', res.data?.data.url)
-              showModal.value = false
-            })
+        checkOrientation: false,
+        crop(event) {
+          const { height, width, x, y } = event.detail
+          cropperData.value = {
+            height: Math.floor(height),
+            width: Math.floor(width),
+            x: Math.floor(x),
+            y: Math.floor(y)
+          }
         }
       })
     }
@@ -60,6 +53,33 @@ watch(showModal, async (newValue) => {
 function handleDelete() {
   emit('change', '')
 }
+function handlleOk() {
+  if (cropperData.value) {
+    cropper.getCroppedCanvas().toBlob((blob) => {
+      if (blob) {
+        const formData = new FormData()
+        formData.append('files', blob, 'image.png')
+        cropper.getCroppedCanvas().toBlob((blob) => {
+          if (blob) {
+            const formData = new FormData()
+            formData.append('croppedImage', blob, 'name')
+            axios
+              .post('http://localhost:3000/file/upload', formData, {
+                headers: {
+                  'Content-Type': 'multipart/form-data'
+                }
+              })
+              .then((res) => {
+                emit('change', res.data)
+                console.log(res, 'res')
+                showModal.value = false
+              })
+          }
+        })
+      }
+    })
+  }
+}
 </script>
 
 <template>
@@ -67,7 +87,7 @@ function handleDelete() {
     <a-modal
       :open="showModal"
       title="裁剪图片"
-      @ok="showModal = false"
+      @ok="handlleOk"
       @cancel="showModal = false"
       okText="确认"
       cancelText="取消"
