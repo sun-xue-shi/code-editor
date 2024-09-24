@@ -36,10 +36,6 @@ watch(isShowModal, async (newVal) => {
         checkCrossOrigin: false,
         checkOrientation: false
       })
-    } else {
-      if (cropper) {
-        cropper.destroy()
-      }
     }
   }
 })
@@ -54,6 +50,7 @@ function handlleOk() {
           emit('change', res.data?.data.url[0])
           cropperUrl.value = res.data?.data.url[0]
           isShowModal.value = false
+          cropper.destroy()
         })
       }
     })
@@ -68,7 +65,6 @@ function handlleOk() {
     ok-text="确认"
     cancel-text="取消"
     @ok="handlleOk"
-    destroyOnClose
   >
     <div>
       <img id="image" :src="value" ref="cropperImage" crossorigin="anonymous" />
