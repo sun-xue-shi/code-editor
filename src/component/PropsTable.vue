@@ -73,8 +73,11 @@ const finalProps = computed(() => {
   display: flex;
   padding-left: 15px;
   padding-bottom: 10px;
+
   .label {
     display: inline-block;
+    text-align: center;
+    line-height: 30px;
     width: 25%;
   }
 }

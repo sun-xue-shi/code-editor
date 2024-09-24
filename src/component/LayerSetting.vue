@@ -6,6 +6,7 @@ import {
   EyeOutlined,
   LockOutlined
 } from '@ant-design/icons-vue'
+import InlineEditor from './InlineEditor.vue'
 
 defineProps<{
   list: ComponentData[]
@@ -17,7 +18,7 @@ const emit = defineEmits<{
   select: [id: string]
 }>()
 
-function handleChange(id: string, key: string, value: boolean) {
+function handleChange(id: string, key: string, value: boolean | string) {
   const data = {
     id,
     key,
@@ -54,7 +55,11 @@ function handleClick(id: string) {
           <template #icon v-else> <LockOutlined /> </template>
         </a-button>
       </a-tooltip>
-      <span>{{ item.layerName }}</span>
+
+      <InlineEditor
+        :value="item.layerName"
+        @change="(value) => handleChange(item.id, 'layerName', value)"
+      />
     </li>
   </ul>
 </template>

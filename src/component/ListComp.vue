@@ -88,26 +88,6 @@ const addItem = (props: Partial<TextComponentProps>) => {
   emit('add-item', newData)
 }
 
-// const imageUpload = (response: UploadResponse) => {
-//   const newData: CompData = {
-//     id: v4(),
-//     name: 'img',
-//     props: {
-//       ...imageDefaultProps
-//     }
-//   }
-//   message.success('上传成功')
-//   newData.props.src = response.data.url
-//   getImageSize(response.data.url).then(({ naturalWidth }) => {
-//     newData.props.width = (naturalWidth > MAX_EDIT_WIDTH
-//       ? MAX_EDIT_WIDTH
-//       : naturalWidth) as unknown as string
-
-//     emit('add-item', newData)
-//   })
-// }
-
-// const fileList = ref<UploadProps['fileList']>([{}])
 const editStore = useEditStore()
 function handleChange(info: UploadChangeParam) {
   const { status } = info.file
@@ -117,6 +97,9 @@ function handleChange(info: UploadChangeParam) {
     const imageData = {
       id: v4(),
       name: 'image-comp',
+      isHidden: false,
+      isLocked: false,
+      layerName: '默认图层',
       props: {
         src: info.file.response.data.url[0],
         width: '100px'
@@ -124,7 +107,7 @@ function handleChange(info: UploadChangeParam) {
     }
 
     let imageCount = 0
-    editStore.editInfo.components.forEach((component) => {
+    editStore.editInfo.components.forEach((component: ComponentData) => {
       if (component.name === 'image-comp') imageCount++
     })
 
@@ -146,18 +129,24 @@ function handleChange(info: UploadChangeParam) {
     <div class="list-item" v-for="item in textPropsList" :key="item.tag">
       <TextComp v-bind="item" @click="addItem(item)" />
     </div>
-    <a-upload-dragger
-      name="files"
-      list-type="picture"
-      action="http://localhost:3000/file/upload"
-      @change="handleChange"
-      :maxCount="1"
-      headers="'X-Requested-With' : null"
-    >
-      <a-button> upload </a-button>
-      <p>最多只能上传三张图片</p>
-    </a-upload-dragger>
+    <div class="uploader">
+      <a-upload-dragger
+        name="files"
+        list-type="picture"
+        action="http://localhost:3000/file/upload"
+        @change="handleChange"
+        :maxCount="1"
+        headers="'X-Requested-With' : null"
+      >
+        <a-button> upload </a-button>
+        <p>最多只能上传三张图片</p>
+      </a-upload-dragger>
+    </div>
   </div>
 </template>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+.list-comp > * {
+  margin-top: 10px;
+}
+</style>

@@ -1,4 +1,3 @@
-// import type { AllComponentProps, ImageComponentProps, TextComponentProps } from './props'
 import { type ComponentData } from 'editor-components-sw'
 
 export interface EditorData {

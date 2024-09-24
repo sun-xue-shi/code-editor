@@ -1,4 +1,4 @@
-import type { AllComponentProps, ImageComponentProps, TextComponentProps } from '@/types/props'
+import type { AllComponentProps } from '@/types/props'
 import { pick } from 'lodash-es'
 import { computed } from 'vue'
 

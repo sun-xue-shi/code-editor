@@ -72,6 +72,12 @@ export const mapPropsToForms: PropToForms = {
     initailTransform: (v: string) => parseInt(v),
     afterTransform: (e: number) => (e ? `${e}px` : '')
   },
+  height: {
+    component: InputNumber,
+    text: '高度',
+    initailTransform: (v: string) => parseInt(v),
+    afterTransform: (e: number) => (e ? `${e}px` : '')
+  },
   src: {
     component: ImageCropper
   }
