@@ -117,8 +117,9 @@ const imageUpload = (response: UploadResponse) => {
 const editStore = useEditStore()
 function handleChange(info: UploadChangeParam) {
   const { status } = info.file
+
   if (status === 'done') {
-    console.log(info.file.response.data)
+    console.log(info.file)
     const imageData = {
       id: v4(),
       name: 'image-comp',
@@ -160,6 +161,7 @@ function handleChange(info: UploadChangeParam) {
       action="http://localhost:3000/file/upload"
       @change="handleChange"
       :maxCount="1"
+      headers="'X-Requested-With' : null"
     >
       <a-button> upload </a-button>
       <p>最多只能上传三张图片</p>

@@ -13,11 +13,18 @@ watch(isShowModal, async (newVal) => {
   if (newVal) {
     await nextTick()
     console.log('cropperImage.value', cropperImage.value)
+
     if (cropperImage.value) {
+      console.log(111)
+
       cropper = new Cropper(cropperImage.value, {
-        crop(e) {
-          console.log(e)
-        }
+        crop(event) {
+          console.log('event', event)
+        },
+        aspectRatio: 16 / 9,
+        viewMode: 1,
+        checkCrossOrigin: false,
+        checkOrientation: false
       })
     } else {
       cropper && cropper.destroy()
@@ -26,20 +33,18 @@ watch(isShowModal, async (newVal) => {
 })
 
 function handleModal() {
-  console.log(props)
-
   isShowModal.value = true
 }
 </script>
 
 <template>
+  <a-modal v-model:open="isShowModal" title="裁剪图片" ok-text="确认" cancel-text="取消">
+    <div>
+      <img id="image" :src="value" ref="cropperImage" />
+    </div>
+  </a-modal>
+  <img :src="value" alt="" />
   <div class="image-cropper">
-    <a-modal v-model:open="isShowModal" title="裁剪图片" ok-text="确认" cancel-text="取消">
-      <div>
-        <img id="image" :src="value" ref="cropperImage" />
-      </div>
-    </a-modal>
-
     <div class="handle-image">
       <a-button type="primary" :icon="h(ScissorOutlined)" @click="handleModal">裁剪图片</a-button>
     </div>
@@ -50,5 +55,9 @@ function handleModal() {
 img {
   display: block;
   max-width: 100%;
+}
+
+.ant-modal div[aria-hidden='true'] {
+  display: none !important;
 }
 </style>

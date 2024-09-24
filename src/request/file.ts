@@ -1,5 +1,5 @@
 import Request from './index'
 
-export function fileUpload() {
-  return Request.post('file/upload')
+export async function presignedUrl(fileName: string) {
+  return Request.get(`/minio/presignedUrl?name=${fileName}`)
 }
