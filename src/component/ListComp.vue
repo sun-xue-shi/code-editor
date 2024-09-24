@@ -119,7 +119,7 @@ const imageUpload = (response: UploadResponse) => {
       <TextComp v-bind="item" @click="addItem(item)" />
     </div>
     <SuperUploader
-      url="http://local.test:7001/api/upload/"
+      url="http://localhost:3000/file/upload"
       listType="picture"
       @uploadSuccess="imageUpload"
     />

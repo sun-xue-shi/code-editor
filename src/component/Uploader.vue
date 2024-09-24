@@ -59,8 +59,9 @@ function triggerUpload(e: Event) {
 
 function postFile(readyFile: UploaderFile) {
   const formData = new FormData()
-  formData.append(readyFile.name, readyFile.raw)
+  formData.append('files', readyFile.raw)
   readyFile.status = 'loading'
+
   axios
     .post(props.url, formData, {
       headers: {
@@ -70,6 +71,8 @@ function postFile(readyFile: UploaderFile) {
     .then((res: any) => {
       readyFile.status = 'success'
       readyFile.response = res.data
+      console.log(res.data, 'res.data')
+
       emit('success', res.data)
     })
     .catch(() => {

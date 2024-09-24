@@ -3,7 +3,7 @@ import Uploader from './Uploader.vue'
 import { commonUploadCheck } from '@/utils/upload'
 import { FileImageOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 
-const props = withDefaults(defineProps<{ text?: string }>(), {
+const props = withDefaults(defineProps<{ text?: string; url: string }>(), {
   text: '上传图片'
 })
 
@@ -19,7 +19,7 @@ function handleSuccess(data: any) {
 <template>
   <div class="styled-upload-component">
     <Uploader
-      url="http://local.test:7001/api/upload/"
+      :url="props.url"
       :beforeUpload="commonUploadCheck"
       @success="
         (data) => {

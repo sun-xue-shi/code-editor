@@ -1,13 +1,24 @@
 import ColorPicker from '@/component/ColorPicker.vue'
-import { Textarea, InputNumber, Select, Slider, RadioGroup, RadioButton } from 'ant-design-vue'
+import {
+  Textarea,
+  InputNumber,
+  Select,
+  Slider,
+  RadioGroup,
+  RadioButton,
+  Input,
+  Image
+} from 'ant-design-vue'
 import type { VNode } from 'vue'
 import { h } from 'vue'
+import imageProesser from '@/component/imageProesser.vue'
 
 /**元素通用属性 */
 export interface CommonComponentProps {
   // actions
   actionType?: string
   url?: string
+  src?: string
   // size
   height?: string
   width?: string
@@ -46,7 +57,7 @@ export interface TextComponentProps extends CommonComponentProps {
   tag?: string
 }
 export interface ImageComponentProps extends CommonComponentProps {
-  src: string,
+  src: string
 }
 
 export interface ShapeComponentProps extends CommonComponentProps {
@@ -132,6 +143,15 @@ export const mapPropsToForms: PropToForms = {
   color: {
     component: ColorPicker,
     text: '文本颜色'
+  },
+  width: {
+    component: Input,
+    text: '宽度',
+    afterTransform: (e: any) => e.target.value
+  },
+  src: {
+    component: imageProesser,
+    text: '',
   }
 }
 
