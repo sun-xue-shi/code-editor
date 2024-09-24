@@ -2,24 +2,34 @@
 import { ref, h, watch, nextTick } from 'vue'
 import { ScissorOutlined } from '@ant-design/icons-vue'
 import Cropper from 'cropperjs'
+import { uploadCropper } from '@/request/file'
 
 const props = defineProps<{ value: string }>()
+
+const emit = defineEmits<{
+  change: [value: string]
+}>()
 
 let cropper: Cropper
 const isShowModal = ref(false)
 const cropperImage = ref<HTMLImageElement | null>(null)
+let cropperData = ref({})
+let cropperUrl = ref('')
 
 watch(isShowModal, async (newVal) => {
   if (newVal) {
     await nextTick()
-    console.log('cropperImage.value', cropperImage.value)
 
     if (cropperImage.value) {
-      console.log(111)
-
       cropper = new Cropper(cropperImage.value, {
         crop(event) {
-          console.log('event', event)
+          const { height, width, x, y } = event.detail
+          cropperData.value = {
+            height: Math.floor(height),
+            width: Math.floor(width),
+            x: Math.floor(x),
+            y: Math.floor(y)
+          }
         },
         aspectRatio: 16 / 9,
         viewMode: 1,
@@ -27,26 +37,54 @@ watch(isShowModal, async (newVal) => {
         checkOrientation: false
       })
     } else {
-      cropper && cropper.destroy()
+      if (cropper) {
+        cropper.destroy()
+      }
     }
   }
 })
 
-function handleModal() {
-  isShowModal.value = true
+function handlleOk() {
+  if (cropperData.value) {
+    cropper.getCroppedCanvas().toBlob((blob) => {
+      if (blob) {
+        const formData = new FormData()
+        formData.append('files', blob, 'image.png')
+        uploadCropper(formData).then((res) => {
+          emit('change', res.data?.data.url[0])
+          cropperUrl.value = res.data?.data.url[0]
+          isShowModal.value = false
+        })
+      }
+    })
+  }
 }
 </script>
 
 <template>
-  <a-modal v-model:open="isShowModal" title="裁剪图片" ok-text="确认" cancel-text="取消">
+  <a-modal
+    v-model:open="isShowModal"
+    title="裁剪图片"
+    ok-text="确认"
+    cancel-text="取消"
+    @ok="handlleOk"
+    destroyOnClose
+  >
     <div>
-      <img id="image" :src="value" ref="cropperImage" />
+      <img id="image" :src="value" ref="cropperImage" crossorigin="anonymous" />
     </div>
   </a-modal>
-  <img :src="value" alt="" />
+
+  <div class="review-image">
+    <img v-if="cropperUrl" :src="cropperUrl" />
+    <img v-else :src="value" />
+  </div>
+
   <div class="image-cropper">
     <div class="handle-image">
-      <a-button type="primary" :icon="h(ScissorOutlined)" @click="handleModal">裁剪图片</a-button>
+      <a-button type="primary" :icon="h(ScissorOutlined)" @click="isShowModal = true"
+        >裁剪图片</a-button
+      >
     </div>
   </div>
 </template>
