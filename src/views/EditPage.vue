@@ -28,7 +28,7 @@
               @setActive="handleSetActive"
               :active="ele.id === (currentElement && currentElement.id)"
             >
-              <TextComp :tag="ele.name" v-bind="ele.props" />
+              <TextComp v-bind="ele.props" />
 
               <div class="img" v-if="ele.props.src">
                 <ImageComp v-bind="ele.props" />
@@ -38,16 +38,30 @@
         </ALayoutContent>
       </ALayout>
       <ALayoutSider width="300" style="background: #fff" class="settings-panel">
-        <ATabs type="card">
+        <ATabs type="card" v-model:activeKey="activeKey">
           <ATabPane key="component" tab="属性设置" class="no-top-radius">
-            <PropsTable
-              v-if="currentElement && currentElement.props"
-              :props="currentElement?.props"
-              @change="handleChange"
-            />
+            <div v-if="currentElement">
+              <PropsTable
+                v-if="!currentElement.isLocked"
+                :props="currentElement?.props"
+                @change="handleChange"
+              />
+              <div v-else>
+                <a-empty description="该元素已被锁定,无法编辑" />
+              </div>
+            </div>
+
+            {{ currentElement }}
             {{ currentElement && currentElement.props }}
           </ATabPane>
-          <ATabPane key="layer" tab="图层设置"> 图层设置内容 </ATabPane>
+          <ATabPane key="layer" tab="图层设置">
+            <layerSetting
+              :list="elements"
+              @change="handleChange"
+              :select-id="currentElement && currentElement.id"
+              @select="(id: string) => handleSetActive(id)"
+            />
+          </ATabPane>
           <ATabPane key="page" tab="页面设置">
             <div class="page-settings">页面设置content</div>
           </ATabPane>
@@ -58,28 +72,30 @@
 </template>
 
 <script setup lang="ts">
-// import TextComp from '@/component/TextComp.vue'
-import { TextComp } from 'editor-components-sw'
-import ListComp from '@/component/ListComp.vue'
-import ImageComp from '@/component/ImageComp.vue'
+import { computed, ref } from 'vue'
+import { TextComp, ImageComp, type ComponentData } from 'editor-components-sw'
 import { useEditStore } from '@/stores/edit'
-import EditWrapper from '@/component/EditWrapper.vue'
-import { computed } from 'vue'
-import type { CompData } from '@/types/edit.'
+import ListComp from '@/component/ListComp.vue'
 import PropsTable from '@/component/PropsTable.vue'
+import EditWrapper from '@/component/EditWrapper.vue'
+import LayerSetting from '@/component/LayerSetting.vue'
 
 const editStore = useEditStore()
 const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent } = editStore
-const elements = editInfo.components
-const currentElement = computed<undefined | CompData>(() => getCurrentElement(editInfo))
 
-const handleAddItem = (newData: CompData) => {
+const activeKey = ref('component')
+
+const currentElement = computed<undefined | ComponentData>(() => getCurrentElement(editInfo))
+const elements = editInfo.components
+
+const handleAddItem = (newData: ComponentData) => {
   addEditInfo(newData)
 }
 
 function handleSetActive(id: string) {
   setActive(editInfo, id)
 }
+
 function handleChange(e: any) {
   updateComponent(editInfo, e)
 }

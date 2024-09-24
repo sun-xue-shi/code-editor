@@ -6,14 +6,14 @@ export interface Props {
   colors: string[]
 }
 
+const emit = defineEmits<{
+  change: [color: string]
+}>()
+
 withDefaults(defineProps<Props>(), {
   colors: () => DEFAULT_COLOR,
   value: ''
 })
-
-const emit = defineEmits<{
-  change: [color: string]
-}>()
 
 const onChange = (color: string) => {
   emit('change', color)
@@ -23,7 +23,7 @@ const onChange = (color: string) => {
 <template>
   <div class="color-picker">
     <div class="color-container">
-      <input type="color" :value="value" @input="onChange($event.target.value)" />
+      <input type="color" :value="value" @input="onChange($event.target?.value)" />
     </div>
     <ul class="default-color-list">
       <li

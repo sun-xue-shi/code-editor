@@ -1,4 +1,5 @@
 import './styles/reset.css'
+import 'cropperjs/dist/cropper.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
