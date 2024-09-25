@@ -28,6 +28,9 @@ export const mapPropsToForms: PropToForms = {
   fontSize: {
     component: InputNumber,
     text: '字号',
+    extraProps: {
+      min: 0
+    },
     initailTransform: (v: string) => parseInt(v),
     afterTransform: (e: number) => (e ? `${e}px` : '')
   },
@@ -36,7 +39,7 @@ export const mapPropsToForms: PropToForms = {
     text: '行高',
     extraProps: {
       min: 0,
-      max: 3,
+      max: 10,
       step: 1,
       style: {
         width: '150px'
@@ -60,7 +63,12 @@ export const mapPropsToForms: PropToForms = {
     component: Select,
     subComponent: RadioButton,
     text: '字体',
-    options: [{ value: '', text: '无' }, ...fontFamilyOptions]
+    extraProps: {
+      style: {
+        width: '100px'
+      }
+    },
+    options: [...fontFamilyOptions]
   },
   color: {
     component: ColorPicker,
@@ -69,16 +77,85 @@ export const mapPropsToForms: PropToForms = {
   width: {
     component: InputNumber,
     text: '宽度',
+    extraProps: {
+      min: 0
+    },
     initailTransform: (v: string) => parseInt(v),
     afterTransform: (e: number) => (e ? `${e}px` : '')
   },
   height: {
     component: InputNumber,
     text: '高度',
+    extraProps: {
+      min: 0
+    },
     initailTransform: (v: string) => parseInt(v),
     afterTransform: (e: number) => (e ? `${e}px` : '')
   },
   src: {
     component: ImageCropper
+  },
+  backgroundColor: {
+    component: ColorPicker,
+    text: '背景颜色'
+  },
+  borderWidth: {
+    component: InputNumber,
+    text: '边框宽度',
+    extraProps: {
+      min: 0
+    },
+    initailTransform: (v: string) => parseInt(v),
+    afterTransform: (e: number) => (e ? `${e}px` : '')
+  },
+  paddingTop: {
+    component: InputNumber,
+    text: '内上边距',
+    extraProps: {
+      min: 0
+    },
+    initailTransform: (v: string) => parseInt(v),
+    afterTransform: (e: number) => (e ? `${e}px` : '')
+  },
+  paddingBottom: {
+    component: InputNumber,
+    text: '内下边距',
+    extraProps: {
+      min: 0
+    },
+    initailTransform: (v: string) => parseInt(v),
+    afterTransform: (e: number) => (e ? `${e}px` : '')
+  },
+  paddingLeft: {
+    component: InputNumber,
+    text: '内左边距',
+    extraProps: {
+      min: 0
+    },
+    initailTransform: (v: string) => parseInt(v),
+    afterTransform: (e: number) => (e ? `${e}px` : '')
+  },
+  paddingRight: {
+    component: InputNumber,
+    text: '内右边距',
+    extraProps: {
+      min: 0
+    },
+    initailTransform: (v: string) => parseInt(v),
+    afterTransform: (e: number) => (e ? `${e}px` : '')
+  },
+  opacity: {
+    component: Slider,
+    text: '透明度',
+    extraProps: {
+      min: 0,
+      max: 1,
+      step: 0.1,
+      style: {
+        width: '150px'
+      }
+    },
+    initailTransform: (v: string) => parseFloat(v),
+    afterTransform: (e: number) => e.toString()
   }
 }

@@ -85,8 +85,9 @@ function handleClick(id: string) {
   border-bottom-color: #f0f0f0;
 }
 .ant-list-item .handle {
+  position: absolute;
   cursor: move;
-  margin-left: 30%;
+  // margin-left: 30%;
 }
 .ant-list-item.active {
   border: 1px solid #1890ff;

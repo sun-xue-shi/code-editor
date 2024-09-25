@@ -66,7 +66,7 @@ useKeypress('Escape', () => {
 </script>
 
 <template>
-  <span class="inline-editor" ref="inlineWapper" @click="handleClick">
+  <div class="inline-editor" ref="inlineWapper" @click="handleClick">
     <a-input
       v-model:value="innerValue"
       v-if="isEditing"
@@ -75,10 +75,19 @@ useKeypress('Escape', () => {
       ref="inputRef"
     />
     <slot v-else>{{ innerValue }}</slot>
-  </span>
+  </div>
 </template>
 
 <style scoped lang="less">
+.ant-input {
+  width: 100%;
+}
+
+.inline-editor {
+  display: inline-block;
+  width: 120px;
+}
+
 .input-error {
   border: 1px solid #f5222d;
 }

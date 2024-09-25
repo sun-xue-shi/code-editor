@@ -4,7 +4,7 @@
 import { v4 } from 'uuid'
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { type ComponentData } from 'editor-components-sw'
+import { type ComponentData, textDefaultProps } from 'editor-components-sw'
 import type { EditorData } from '@/types/edit.'
 import type { AllComponentProps } from '@/types/props'
 
@@ -16,10 +16,13 @@ const testData: ComponentData[] = [
     isLocked: false,
     layerName: '图层1',
     props: {
+      ...textDefaultProps,
       text: 'test',
       fontSize: '10px',
       color: '#000000',
-      tag: 'span'
+      width: '50px',
+      height: '20px',
+      position: ''
     }
   },
   {
@@ -29,11 +32,15 @@ const testData: ComponentData[] = [
     isHidden: false,
     isLocked: false,
     props: {
+      ...textDefaultProps,
       text: 'test1',
       fontSize: '20px',
       // actionType: 'url',
       // url: 'https://www.baidu.com',
-      tag: 'div'
+      tag: 'div',
+      width: '50px',
+      height: '20px',
+      position: ''
     }
   },
   {
@@ -43,9 +50,13 @@ const testData: ComponentData[] = [
     isHidden: true,
     isLocked: true,
     props: {
+      ...textDefaultProps,
       text: 'test2',
       color: 'blue',
-      tag: 'div'
+      tag: 'div',
+      width: '50px',
+      height: '20px',
+      position: ''
     }
   }
 ]

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { v4 } from 'uuid'
 import { message, type UploadChangeParam } from 'ant-design-vue'
-import { TextComp, type ComponentData } from 'editor-components-sw'
+import { TextComp, type ComponentData, imageDefaultProps } from 'editor-components-sw'
 import type { TextComponentProps } from '@/types/props'
 import { useEditStore } from '@/stores/edit'
 import { TextPropsList } from '@/common/constants'
@@ -34,8 +34,10 @@ function handleChange(info: UploadChangeParam) {
       isLocked: false,
       layerName: '默认图层',
       props: {
+        ...imageDefaultProps,
         src: info.file.response.data.url[0],
-        width: '100px'
+        width: '100px',
+        position: ''
       }
     }
 

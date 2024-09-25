@@ -41,7 +41,7 @@
         <ATabs type="card" v-model:activeKey="activeKey">
           <ATabPane key="component" tab="属性设置" class="no-top-radius">
             <div v-if="currentElement">
-              <PropsTable
+              <GroupProps
                 v-if="!currentElement.isLocked"
                 :props="currentElement?.props"
                 @change="handleChange"
@@ -51,8 +51,8 @@
               </div>
             </div>
 
-            {{ currentElement }}
-            {{ currentElement && currentElement.props }}
+            <!-- {{ currentElement }}
+            {{ currentElement && currentElement.props }} -->
           </ATabPane>
           <ATabPane key="layer" tab="图层设置">
             <layerSetting
@@ -76,9 +76,9 @@ import { computed, ref } from 'vue'
 import { TextComp, ImageComp, type ComponentData } from 'editor-components-sw'
 import { useEditStore } from '@/stores/edit'
 import ListComp from '@/component/ListComp.vue'
-import PropsTable from '@/component/PropsTable.vue'
 import EditWrapper from '@/component/EditWrapper.vue'
 import LayerSetting from '@/component/LayerSetting.vue'
+import GroupProps from '@/component/GroupProps.vue'
 
 const editStore = useEditStore()
 const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent } = editStore
