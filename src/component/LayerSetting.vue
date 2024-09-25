@@ -3,14 +3,14 @@ import {
   UnlockOutlined,
   EyeInvisibleOutlined,
   EyeOutlined,
-  LockOutlined
+  LockOutlined,
+  DragOutlined
 } from '@ant-design/icons-vue'
-import { reactive } from 'vue'
-import * as arrayMove from 'array-move'
+import draggable from 'vuedraggable'
 import { type ComponentData } from 'editor-components-sw'
 import InlineEditor from './InlineEditor.vue'
 
-const props = defineProps<{
+defineProps<{
   list: ComponentData[]
   selectId: string
 }>()
@@ -20,14 +20,6 @@ const emit = defineEmits<{
   select: [id: string]
   drop: [start: number, end: number]
 }>()
-
-let start = 0
-let end = 0
-
-const dragData = reactive({
-  currentDragElementId: '',
-  currentIndex: -1
-})
 
 function handleChange(id: string, key: string, value: boolean | string) {
   const data = {
@@ -42,68 +34,45 @@ function handleChange(id: string, key: string, value: boolean | string) {
 function handleClick(id: string) {
   emit('select', id)
 }
-
-function onDragStart(event: DragEvent, id: string, index: number) {
-  dragData.currentDragElementId = id
-  dragData.currentIndex = index
-}
-
-function onDragEnter(index: number) {
-  if (dragData.currentIndex !== index) {
-    arrayMove.arrayMoveMutable(props.list, dragData.currentIndex, index)
-    dragData.currentIndex = index
-    end = index
-  }
-}
-
-function onDrop() {
-  emit('drop', start, end)
-  dragData.currentDragElementId = ''
-}
-
-function onDropOver(e: DragEvent) {
-  e.preventDefault()
-}
 </script>
 
 <template>
-  <ul :list="list">
-    <li
-      v-for="(item, index) in list"
-      :key="item.id"
-      class="ant-list-item"
-      @click="handleClick(item.id)"
-      :class="{
-        active: item.id === selectId,
-        tranparent: item.id === dragData.currentDragElementId
-      }"
-      draggable="true"
-      @dragstart="onDragStart($event, item.id, index)"
-      @drop="onDrop"
-      @dragover="onDropOver"
-      @dragenter="onDragEnter(index)"
-      :data-index="index"
-    >
-      <a-tooltip :title="item.isHidden ? '显示' : '隐藏'">
-        <a-button shape="circle" @click="handleChange(item.id, 'isHidden', !item.isHidden)">
-          <template #icon v-if="item.isHidden"><EyeOutlined /> </template>
-          <template #icon v-else><EyeInvisibleOutlined /> </template>
-        </a-button>
-      </a-tooltip>
+  <draggable :list="list" ghost-class="ghost" handle=".handle" animation="1000">
+    <template #item="{ element }">
+      <li
+        class="ant-list-item"
+        @click="handleClick(element.id)"
+        :class="{
+          active: element.id === selectId
+        }"
+      >
+        <a-tooltip :title="element.isHidden ? '显示' : '隐藏'">
+          <a-button shape="circle" @click="handleChange(element.id, 'isHidden', !element.isHidden)">
+            <template #icon v-if="element.isHidden"><EyeOutlined /> </template>
+            <template #icon v-else><EyeInvisibleOutlined /> </template>
+          </a-button>
+        </a-tooltip>
 
-      <a-tooltip :title="item.isLocked ? '解锁' : '锁定'">
-        <a-button shape="circle" @click="handleChange(item.id, 'isLocked', !item.isLocked)">
-          <template #icon v-if="item.isLocked"><UnlockOutlined /></template>
-          <template #icon v-else> <LockOutlined /> </template>
-        </a-button>
-      </a-tooltip>
+        <a-tooltip :title="element.isLocked ? '解锁' : '锁定'">
+          <a-button shape="circle" @click="handleChange(element.id, 'isLocked', !element.isLocked)">
+            <template #icon v-if="element.isLocked"><UnlockOutlined /></template>
+            <template #icon v-else> <LockOutlined /> </template>
+          </a-button>
+        </a-tooltip>
 
-      <InlineEditor
-        :value="item.layerName"
-        @change="(value) => handleChange(item.id, 'layerName', value)"
-      />
-    </li>
-  </ul>
+        <InlineEditor
+          class="inline-editor"
+          :value="element.layerName"
+          @change="(value) => handleChange(element.id, 'layerName', value)"
+        />
+        <a-tooltip title="拖动排序">
+          <a-button shape="circle" class="handle">
+            <template #icon><DragOutlined /> </template>
+          </a-button>
+        </a-tooltip>
+      </li>
+    </template>
+  </draggable>
 </template>
 
 <style scoped lang="less">
@@ -117,7 +86,7 @@ function onDropOver(e: DragEvent) {
 }
 .ant-list-item .handle {
   cursor: move;
-  margin-left: auto;
+  margin-left: 30%;
 }
 .ant-list-item.active {
   border: 1px solid #1890ff;
@@ -132,7 +101,7 @@ function onDropOver(e: DragEvent) {
   font-size: 12px;
 }
 
-.tranparent {
+.ghost {
   opacity: 0.5;
 }
 </style>

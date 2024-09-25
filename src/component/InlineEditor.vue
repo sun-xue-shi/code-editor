@@ -13,6 +13,13 @@ const emit = defineEmits<{
 }>()
 
 const innerValue = ref(props.value)
+
+watch(
+  () => props.value,
+  (newVal) => {
+    innerValue.value = newVal
+  }
+)
 const isEditing = ref(false)
 
 const inlineWapper = ref<null | HTMLElement>(null)
@@ -72,9 +79,6 @@ useKeypress('Escape', () => {
 </template>
 
 <style scoped lang="less">
-.ant-input {
-  width: 160px;
-}
 .input-error {
   border: 1px solid #f5222d;
 }
