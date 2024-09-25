@@ -17,6 +17,7 @@
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
     "ant-design-vue": "4.x",
+    "array-move": "^4.0.0",
     "axios": "^1.7.7",
     "cropperjs": "^1.6.2",
     "editor-components-sw": "^1.4.0",

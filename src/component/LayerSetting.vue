@@ -5,10 +5,12 @@ import {
   EyeOutlined,
   LockOutlined
 } from '@ant-design/icons-vue'
+import { reactive } from 'vue'
+import * as arrayMove from 'array-move'
 import { type ComponentData } from 'editor-components-sw'
 import InlineEditor from './InlineEditor.vue'
 
-defineProps<{
+const props = defineProps<{
   list: ComponentData[]
   selectId: string
 }>()
@@ -16,7 +18,16 @@ defineProps<{
 const emit = defineEmits<{
   change: [value: Object]
   select: [id: string]
+  drop: [start: number, end: number]
 }>()
+
+let start = 0
+let end = 0
+
+const dragData = reactive({
+  currentDragElementId: '',
+  currentIndex: -1
+})
 
 function handleChange(id: string, key: string, value: boolean | string) {
   const data = {
@@ -31,16 +42,47 @@ function handleChange(id: string, key: string, value: boolean | string) {
 function handleClick(id: string) {
   emit('select', id)
 }
+
+function onDragStart(event: DragEvent, id: string, index: number) {
+  dragData.currentDragElementId = id
+  dragData.currentIndex = index
+}
+
+function onDragEnter(index: number) {
+  if (dragData.currentIndex !== index) {
+    arrayMove.arrayMoveMutable(props.list, dragData.currentIndex, index)
+    dragData.currentIndex = index
+    end = index
+  }
+}
+
+function onDrop() {
+  emit('drop', start, end)
+  dragData.currentDragElementId = ''
+}
+
+function onDropOver(e: DragEvent) {
+  e.preventDefault()
+}
 </script>
 
 <template>
   <ul :list="list">
     <li
-      v-for="item in list"
+      v-for="(item, index) in list"
       :key="item.id"
       class="ant-list-item"
       @click="handleClick(item.id)"
-      :class="{ active: item.id === selectId }"
+      :class="{
+        active: item.id === selectId,
+        tranparent: item.id === dragData.currentDragElementId
+      }"
+      draggable="true"
+      @dragstart="onDragStart($event, item.id, index)"
+      @drop="onDrop"
+      @dragover="onDropOver"
+      @dragenter="onDragEnter(index)"
+      :data-index="index"
     >
       <a-tooltip :title="item.isHidden ? '显示' : '隐藏'">
         <a-button shape="circle" @click="handleChange(item.id, 'isHidden', !item.isHidden)">
@@ -88,5 +130,9 @@ function handleClick(id: string) {
 }
 .ant-list-item button {
   font-size: 12px;
+}
+
+.tranparent {
+  opacity: 0.5;
 }
 </style>
