@@ -17,8 +17,6 @@ export function checkUpload(file: File, checkOption: CheckOption) {
 }
 
 export function commonUploadCheck(file: File) {
-  console.log(file)
-
   const result = checkUpload(file, { format: ['image/png', 'image/jpeg'], size: 1 })
   const { error, passed } = result
   if (error === 'formatError') message.error('上传图片只能是JPG/PNG格式')

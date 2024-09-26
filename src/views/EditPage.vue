@@ -12,15 +12,15 @@
     <AModal title="发布成功" width="700px" :footer="null"> 发布成功弹窗 </AModal>
 
     <ALayout>
-      <ALayoutSider width="300" style="background: #fff">
+      <ALayoutSider width="350" style="background: #fff">
         <div class="sidebar-container">
           <ListComp @addItem="handleAddItem" />
         </div>
       </ALayoutSider>
       <ALayout style="padding: 0 24px 24px">
         <ALayoutContent class="preview-container">
-          <p>画布区域</p>
-          <div class="preview-list">
+          <p>{{ pageData.props }}</p>
+          <div class="preview-list" :style="pageData.props">
             <EditWrapper
               v-for="ele in elements"
               :key="ele.id"
@@ -37,7 +37,7 @@
           </div>
         </ALayoutContent>
       </ALayout>
-      <ALayoutSider width="300" style="background: #fff" class="settings-panel">
+      <ALayoutSider width="350" style="background: #fff" class="settings-panel">
         <ATabs type="card" v-model:activeKey="activeKey">
           <ATabPane key="component" tab="属性设置" class="no-top-radius">
             <div v-if="currentElement">
@@ -51,8 +51,8 @@
               </div>
             </div>
 
-            <!-- {{ currentElement }}
-            {{ currentElement && currentElement.props }} -->
+            {{ currentElement }}
+            {{ currentElement && currentElement.props }}
           </ATabPane>
           <ATabPane key="layer" tab="图层设置">
             <layerSetting
@@ -63,7 +63,10 @@
             />
           </ATabPane>
           <ATabPane key="page" tab="页面设置">
-            <div class="page-settings">页面设置content</div>
+            <div class="page-settings">
+              <PropsTable :props="pageData?.props" @change="handleChangePage" />
+            </div>
+            {{ pageData?.props }}
           </ATabPane>
         </ATabs>
       </ALayoutSider>
@@ -79,14 +82,17 @@ import ListComp from '@/component/ListComp.vue'
 import EditWrapper from '@/component/EditWrapper.vue'
 import LayerSetting from '@/component/LayerSetting.vue'
 import GroupProps from '@/component/GroupProps.vue'
+import PropsTable from '@/component/PropsTable.vue'
 
 const editStore = useEditStore()
-const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent } = editStore
+const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent, updatePage } =
+  editStore
 
 const activeKey = ref('component')
 
 const currentElement = computed<undefined | ComponentData>(() => getCurrentElement(editInfo))
 const elements = editInfo.components
+const pageData = computed(() => editInfo.pageData)
 
 const handleAddItem = (newData: ComponentData) => {
   addEditInfo(newData)
@@ -98,6 +104,10 @@ function handleSetActive(id: string) {
 
 function handleChange(e: any) {
   updateComponent(editInfo, e)
+}
+
+function handleChangePage(e: any) {
+  updatePage(editInfo, e)
 }
 </script>
 
@@ -142,6 +152,7 @@ function handleChange(e: any) {
   position: absolute;
   margin-top: 50px;
   max-height: 80vh;
+  /* background-image: url('http://localhost:3000/uploads\\1727348674567-864472985-å¾®ä¿¡å¾ç_20240217222511.jpg'); */
 }
 .preview-list.active {
   border: 1px solid #1890ff;

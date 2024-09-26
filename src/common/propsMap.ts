@@ -2,6 +2,7 @@ import { Textarea, InputNumber, Select, Slider, RadioGroup, RadioButton } from '
 import { h } from 'vue'
 import ColorPicker from '@/component/ColorPicker.vue'
 import ImageCropper from '@/component/ImageCropper.vue'
+import BackImageCropper from '@/component/BackImageCropper.vue'
 import type { PropToForms } from '@/types/props'
 
 const fontFamilyArr = [
@@ -157,5 +158,22 @@ export const mapPropsToForms: PropToForms = {
     },
     initailTransform: (v: string) => parseFloat(v),
     afterTransform: (e: number) => e.toString()
+  },
+  backgroundImage: {
+    component: BackImageCropper,
+    text: '背景图片',
+    initailTransform(v) {
+      if (v) {
+        const reg = /\(["'](.+)["']\)/g
+        const res = reg.exec(v)
+        if (res && res.length >= 1) {
+          return res
+        } else {
+          return ''
+        }
+      } else {
+        return ''
+      }
+    }
   }
 }

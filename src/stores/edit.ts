@@ -61,10 +61,33 @@ const testData: ComponentData[] = [
   }
 ]
 
+const pageDefaultData = {
+  backgroundColor: '#fff',
+  backgroundImage: '',
+  height: '560px',
+  backgroundRepeat: 'no-repeat',
+  backgroundSize: 'cover'
+}
+
+interface UpdateData {
+  key: string
+  id?: string
+  value: string
+  isRoot?: boolean
+  isPage?: boolean
+}
+
 export const useEditStore = defineStore(
   'edit',
   () => {
-    const editInfo = ref<EditorData>({ components: testData, currentElement: '' })
+    const editInfo = ref<EditorData>({
+      components: testData,
+      currentElement: '',
+      pageData: {
+        props: pageDefaultData,
+        title: 'test'
+      }
+    })
 
     //存储模版信息
     const setEditInfo = (template: EditorData) => {
@@ -89,7 +112,9 @@ export const useEditStore = defineStore(
       return comp
     }
 
-    function updateComponent(editData: EditorData, { key, id, value, isRoot }) {
+    function updateComponent(editData: EditorData, updateData: UpdateData) {
+      const { id, isRoot, key, value } = updateData
+
       const updateComponent = editData.components.find(
         (component) => component.id === (id || editData.currentElement)
       )
@@ -97,10 +122,23 @@ export const useEditStore = defineStore(
       if (updateComponent) {
         if (isRoot) {
           updateComponent[key as keyof ComponentData] = value
+        }
+        //传入更新的value为空 --- 删除画布区图片
+        else if (!updateData.value && updateData.key === 'src') {
+          const deleteCompIndex = editData.components.findIndex(
+            (component) => component.id === updateComponent.id
+          )
+
+          editData.components.splice(deleteCompIndex, 1)
         } else {
           updateComponent.props[key as keyof AllComponentProps] = value
         }
       }
+    }
+
+    function updatePage(editData: EditorData, updateData: UpdateData) {
+      const { key, value } = updateData
+      editData.pageData.props[key as keyof AllComponentProps] = value
     }
 
     return {
@@ -110,7 +148,8 @@ export const useEditStore = defineStore(
       addEditInfo,
       setActive,
       getCurrentElement,
-      updateComponent
+      updateComponent,
+      updatePage
     }
   },
   // pinia定制化

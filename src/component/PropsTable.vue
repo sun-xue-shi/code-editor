@@ -4,7 +4,6 @@ import type { FormProp, AllComponentProps } from '@/types/props'
 import { mapPropsToForms } from '@/common/propsMap'
 import RenderVNode from '@/hooks/RenderVNode'
 
-
 interface PropsType {
   type?: AllComponentProps
   props: Record<string, any>

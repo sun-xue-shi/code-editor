@@ -3,8 +3,18 @@ import { ScissorOutlined } from '@ant-design/icons-vue'
 import { ref, h, watch, nextTick } from 'vue'
 import Cropper from 'cropperjs'
 import { uploadCropper } from '@/request/file'
+import { useEditStore } from '@/stores/edit'
 
-defineProps<{ value: string }>()
+const editStore = useEditStore()
+const { editInfo, updatePage } = editStore
+
+const props = withDefaults(
+  defineProps<{ value: string; isPageCropper: boolean; showDelete: boolean }>(),
+  {
+    isPageCropper: false,
+    showDelete: true
+  }
+)
 
 const emit = defineEmits<{
   change: [value: string]
@@ -48,6 +58,15 @@ function handlleOk() {
         const formData = new FormData()
         formData.append('files', blob, 'image.png')
         uploadCropper(formData).then((res) => {
+          const imageUrl = res.data?.data.url[0].replace('\\', '\\\\')
+
+          if (props.isPageCropper) {
+            const data = {
+              key: 'backgroundImage',
+              value: `url('${imageUrl}')`
+            }
+            updatePage(editInfo, data)
+          }
           emit('change', res.data?.data.url[0])
           cropperUrl.value = res.data?.data.url[0]
           isShowModal.value = false
@@ -56,6 +75,18 @@ function handlleOk() {
       }
     })
   }
+}
+
+function handelDelete() {
+  if (props.isPageCropper) {
+    const data = {
+      key: 'backgroundImage',
+      value: ''
+    }
+    updatePage(editInfo, data)
+  }
+
+  emit('change', '')
 }
 </script>
 
@@ -72,18 +103,25 @@ function handlleOk() {
     </div>
   </a-modal>
 
-  <div class="cropper">
+  <div class="cropper" v-if="value">
     <div class="review-image">
       <img v-if="cropperUrl" :src="cropperUrl" width="100%" />
       <img v-else :src="value" width="100%" />
     </div>
 
     <div class="image-cropper">
-      <div class="btn">
-        <a-button type="primary" :icon="h(ScissorOutlined)" @click="isShowModal = true"
-          >裁剪图片</a-button
-        >
-      </div>
+      <a-button
+        type="primary"
+        class="cropper-btn"
+        size="small"
+        :icon="h(ScissorOutlined)"
+        @click="isShowModal = true"
+        >裁剪图片</a-button
+      >
+
+      <a-button type="primary" size="small" :icon="h(ScissorOutlined)" @click="handelDelete"
+        >删除图片
+      </a-button>
     </div>
   </div>
 </template>
@@ -95,8 +133,9 @@ img {
 }
 
 .review-image {
-  display: inline-block;
-  width: 100px;
+  // display: inline-block;
+  width: 120px;
+  margin-left: 5px;
 }
 
 .cropper {
@@ -105,10 +144,15 @@ img {
 }
 
 .image-cropper {
-  display: flex;
-  justify-content: center;
+  flex-direction: column;
+  margin-left: 30px;
+  margin-top: 10px;
+  justify-content: space-between;
   align-items: center;
-  margin-left: 20px;
+}
+
+.cropper-btn {
+  margin-bottom: 5px;
 }
 
 .ant-modal div[aria-hidden='true'] {
