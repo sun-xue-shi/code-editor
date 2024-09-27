@@ -23,6 +23,7 @@ const testData: ComponentData[] = [
       width: '100px',
       height: '100px',
       lineHeight: '1',
+      boxSizing: 'border-box',
       position: 'absolute',
       textAlign: 'left',
       top: '10px',

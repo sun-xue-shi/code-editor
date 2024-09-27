@@ -30,10 +30,10 @@
               @setActive="handleSetActive"
               :active="ele.id === (currentElement && currentElement.id)"
             >
-              <TextComp v-bind="ele.props" :style="{ position: 'static' }" />
+              <TextComp v-bind="ele.props" />
 
               <div v-if="ele.props.src">
-                <ImageComp v-bind="ele.props" :style="{ position: 'static' }" />
+                <ImageComp v-bind="ele.props" />
               </div>
             </EditWrapper>
           </div>
@@ -85,6 +85,7 @@ import EditWrapper from '@/component/EditWrapper.vue'
 import LayerSetting from '@/component/LayerSetting.vue'
 import GroupProps from '@/component/GroupProps.vue'
 import PropsTable from '@/component/PropsTable.vue'
+import { forEach, pickBy } from 'lodash-es'
 
 const editStore = useEditStore()
 const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent, updatePage } =
@@ -112,10 +113,13 @@ function handleChangePage(e: any) {
   updatePage(e)
 }
 
-function updatePosition(data: { innerTop: number; innerLeft: number; id: string }) {
-  const { id, innerLeft, innerTop } = data
-  updateComponent({ key: 'left', value: innerLeft + 'px', id })
-  updateComponent({ key: 'top', value: innerTop + 'px', id })
+function updatePosition(data: Record<string, any>) {
+  const { id } = data
+  const updateData = pickBy(data, (val, key) => key !== 'id')
+
+  forEach(updateData, (val, key) => {
+    updateComponent({ key, value: val + 'px', id })
+  })
 }
 </script>
 
@@ -146,7 +150,7 @@ function updatePosition(data: { innerTop: number; innerLeft: number; id: string 
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
+  /* position: relative; 如果设置了定位 那么子元素的offset拿到的就是相对于这个元素的便宜值 */
 }
 .preview-list {
   padding: 0;

@@ -7,7 +7,7 @@ import { computed, ref } from 'vue'
 const props = defineProps<EditWrapper>()
 const emit = defineEmits<{
   setActive: [id: string]
-  updatePosition: [{ id: string; innerTop: number; innerLeft: number }]
+  updatePosition: [value: Record<string, any>]
 }>()
 
 let isMoved = false
@@ -28,12 +28,12 @@ function calcPosition(e: MouseEvent) {
 
   const { x, y } = container.getBoundingClientRect()
 
-  const innerLeft = e.clientX - offsetData.x - x
-  const innerTop = e.clientY - offsetData.y - y
+  const left = e.clientX - offsetData.x - x
+  const top = e.clientY - offsetData.y - y + container.scrollTop //有滚动条要加上滚动的距离
 
   return {
-    innerLeft,
-    innerTop
+    left,
+    top
   }
 }
 
@@ -53,10 +53,10 @@ function startMove(e: MouseEvent) {
       isMoved = true
       console.log(isMoved)
 
-      const { innerLeft, innerTop } = calcPosition(e)
+      const { left, top } = calcPosition(e)
       if (currentElement) {
-        currentElement.style.top = innerTop + 'px'
-        currentElement.style.left = innerLeft + 'px'
+        currentElement.style.top = top + 'px'
+        currentElement.style.left = left + 'px'
       }
     }
 
@@ -68,8 +68,8 @@ function startMove(e: MouseEvent) {
       console.log('delete move event')
 
       if (isMoved) {
-        const { innerLeft, innerTop } = calcPosition(e)
-        emit('updatePosition', { innerLeft, innerTop, id: props.id })
+        const { left, top } = calcPosition(e)
+        emit('updatePosition', { left, top, id: props.id })
         isMoved = false
       }
       nextTick(() => {
@@ -80,6 +80,82 @@ function startMove(e: MouseEvent) {
     document.addEventListener('mousemove', handleMove)
     document.addEventListener('mouseup', handleMouseUp)
   }
+}
+
+function calcSize(
+  location: string,
+  e: MouseEvent,
+  originalPosition: { top: number; left: number; right: number; bottom: number }
+) {
+  const container = document.getElementById('canvas-area') as HTMLElement
+  const { bottom, left, right, top } = originalPosition
+  const { clientX, clientY } = e
+
+  const upHeight = bottom - clientY
+  const downHeight = clientY - top
+  const rightWidth = clientX - left
+  const leftWidth = right - clientX
+  const leftOffset = clientX - container.offsetLeft
+  const topOffset = clientY - container.offsetTop + container.scrollTop //有滚动条时要加上滚动的距离
+
+  switch (location) {
+    case 'top-left':
+      return {
+        width: leftWidth,
+        height: upHeight,
+        top: topOffset,
+        left: leftOffset
+      }
+
+    case 'top-right':
+      return {
+        width: rightWidth,
+        height: upHeight,
+        top: topOffset
+      }
+
+    case 'bottom-left':
+      return {
+        width: leftWidth,
+        height: downHeight,
+        left: leftOffset
+      }
+
+    case 'bottom-right':
+      return {
+        width: rightWidth,
+        height: downHeight
+      }
+  }
+}
+
+function startResize(location: string) {
+  const currentElement = editWapper.value as HTMLElement
+  const { left, top, bottom, right } = currentElement.getBoundingClientRect()
+
+  const handleMove = (e: MouseEvent) => {
+    const size = calcSize(location, e, { left, right, top, bottom })
+
+    const { style } = currentElement
+    if (size) {
+      style.width = size.width + 'px'
+      style.height = size.height + 'px'
+      size.left && (style.left = size.left + 'px')
+      size.top && (style.top = size.top + 'px')
+    }
+  }
+
+  const handleMouseUp = (e: MouseEvent) => {
+    document.removeEventListener('mousemove', handleMove)
+    const size = calcSize(location, e, { left, right, top, bottom })
+    emit('updatePosition', { ...size, id: props.id })
+    nextTick(() => {
+      document.removeEventListener('mouseup', handleMouseUp)
+    })
+  }
+
+  document.addEventListener('mouseup', handleMouseUp)
+  document.addEventListener('mousemove', handleMove)
 }
 </script>
 
@@ -93,6 +169,12 @@ function startMove(e: MouseEvent) {
     :class="{ active: props.active }"
   >
     <slot></slot>
+    <div class="resizers">
+      <div class="resizer top-left" @mousedown.stop="startResize('top-left')"></div>
+      <div class="resizer top-right" @mousedown.stop="startResize('top-right')"></div>
+      <div class="resizer bottom-left" @mousedown.stop="startResize('bottom-left')"></div>
+      <div class="resizer bottom-right" @mousedown.stop="startResize('bottom-right')"></div>
+    </div>
   </div>
 </template>
 
@@ -107,16 +189,19 @@ function startMove(e: MouseEvent) {
 .edit-wrapper:hover {
   border: 1px dashed #ccc;
 }
+
 .edit-wrapper.active {
-  border: 1px solid #1890ff;
+  border: 2px solid #1890ff;
   user-select: none;
   z-index: 1500;
 }
-.edit-wrapper .l-text-component,
-.edit-wrapper .l-image-component,
-.edit-wrapper .l-shape-component {
+
+.edit-wrapper > * {
+  width: 100% !important;
+  height: 100% !important;
   position: static !important;
 }
+
 .edit-wrapper.active .resizers .resizer {
   width: 10px;
   height: 10px;
@@ -129,7 +214,7 @@ function startMove(e: MouseEvent) {
 .edit-wrapper .resizers .resizer.top-left {
   left: -5px;
   top: -5px;
-  cursor: nwse-resize; /*resizer cursor*/
+  cursor: nwse-resize;
 }
 .edit-wrapper .resizers .resizer.top-right {
   right: -5px;
