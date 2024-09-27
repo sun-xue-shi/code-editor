@@ -20,17 +20,19 @@
       <ALayout style="padding: 0 24px 24px">
         <ALayoutContent class="preview-container">
           <p>{{ pageData.props }}</p>
-          <div class="preview-list" :style="pageData.props">
+          <div class="preview-list" :style="pageData.props" id="canvas-area">
             <EditWrapper
               v-for="ele in elements"
+              @update-position="updatePosition"
               :key="ele.id"
               :id="ele.id"
+              :props="ele.props"
               @setActive="handleSetActive"
               :active="ele.id === (currentElement && currentElement.id)"
             >
-              <TextComp v-bind="ele.props" />
+              <TextComp v-bind="ele.props" :style="{ position: 'static' }" />
 
-              <div class="img" v-if="ele.props.src">
+              <div class="position" v-if="ele.props.src">
                 <ImageComp v-bind="ele.props" />
               </div>
             </EditWrapper>
@@ -109,6 +111,12 @@ function handleChange(e: any) {
 function handleChangePage(e: any) {
   updatePage(editInfo, e)
 }
+
+function updatePosition(data: { innerTop: number; innerLeft: number; id: string }) {
+  const { id, innerLeft, innerTop } = data
+  updateComponent(editInfo, { key: 'left', value: innerLeft + 'px', id })
+  updateComponent(editInfo, { key: 'top', value: innerTop + 'px', id })
+}
 </script>
 
 <style scoped>
@@ -166,6 +174,7 @@ function handleChangePage(e: any) {
   position: absolute;
   max-height: none;
 }
+
 .sidebar-container {
   padding: 20px;
 }

@@ -20,45 +20,50 @@ const testData: ComponentData[] = [
       text: 'test',
       fontSize: '10px',
       color: '#000000',
-      width: '50px',
-      height: '20px',
-      position: ''
-    }
-  },
-  {
-    id: v4(),
-    name: 'text-comp',
-    layerName: '图层2',
-    isHidden: false,
-    isLocked: false,
-    props: {
-      ...textDefaultProps,
-      text: 'test1',
-      fontSize: '20px',
-      // actionType: 'url',
-      // url: 'https://www.baidu.com',
-      tag: 'div',
-      width: '50px',
-      height: '20px',
-      position: ''
-    }
-  },
-  {
-    id: v4(),
-    name: 'text-comp',
-    layerName: '图层3',
-    isHidden: true,
-    isLocked: true,
-    props: {
-      ...textDefaultProps,
-      text: 'test2',
-      color: 'blue',
-      tag: 'div',
-      width: '50px',
-      height: '20px',
-      position: ''
+      width: '100px',
+      height: '100px',
+      lineHeight: '1',
+      position: 'absolute',
+      textAlign: 'left',
+      top: '10px',
+      left: '10px',
+      backgroundColor: '#efefef'
     }
   }
+  // {
+  //   id: v4(),
+  //   name: 'text-comp',
+  //   layerName: '图层2',
+  //   isHidden: false,
+  //   isLocked: false,
+  //   props: {
+  //     ...textDefaultProps,
+  //     text: 'test1',
+  //     fontSize: '20px',
+  //     // actionType: 'url',
+  //     // url: 'https://www.baidu.com',
+  //     tag: 'div',
+  //     width: '50px',
+  //     height: '20px',
+  //     position: ''
+  //   }
+  // },
+  // {
+  //   id: v4(),
+  //   name: 'text-comp',
+  //   layerName: '图层3',
+  //   isHidden: true,
+  //   isLocked: true,
+  //   props: {
+  //     ...textDefaultProps,
+  //     text: 'test2',
+  //     color: 'blue',
+  //     tag: 'div',
+  //     width: '50px',
+  //     height: '20px',
+  //     position: ''
+  //   }
+  // }
 ]
 
 const pageDefaultData = {

@@ -16,4 +16,5 @@ export interface PageData {
 export interface EditWrapper {
   id: string
   active: boolean
+  props: Record<string, any>
 }
