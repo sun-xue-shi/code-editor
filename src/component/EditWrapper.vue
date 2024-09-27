@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { useClickOutside } from '@/hooks/useClickOutside'
 import type { EditWrapper } from '@/types/edit.'
 import { pick } from 'lodash-es'
-import { computed, ref, watch, nextTick } from 'vue'
+import { computed, ref, nextTick } from 'vue'
 
 const props = defineProps<EditWrapper>()
 const emit = defineEmits<{
@@ -17,12 +16,12 @@ const offsetData = {
   y: 0
 }
 
-const isOutside = useClickOutside(editWapper)
-watch(isOutside, (newVal) => {
-  if (newVal) {
-    emit('setActive', '')
-  }
-})
+// const isOutside = useClickOutside(editWapper)
+// watch(isOutside, (newVal) => {
+//   if (newVal) {
+//     emit('setActive', '')
+//   }
+// })
 
 function onItemClick(id: string) {
   emit('setActive', id)
