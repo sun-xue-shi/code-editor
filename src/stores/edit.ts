@@ -7,6 +7,8 @@ import { defineStore } from 'pinia'
 import { type ComponentData, textDefaultProps } from 'editor-components-sw'
 import type { EditorData } from '@/types/edit.'
 import type { AllComponentProps } from '@/types/props'
+import { message } from 'ant-design-vue'
+import { cloneDeep } from 'lodash-es'
 
 const testData: ComponentData[] = [
   {
@@ -92,7 +94,8 @@ export const useEditStore = defineStore(
       pageData: {
         props: pageDefaultData,
         title: 'test'
-      }
+      },
+      copyComponent: null
     })
 
     //存储模版信息
@@ -149,6 +152,40 @@ export const useEditStore = defineStore(
       editInfo.value.pageData.props[key as keyof AllComponentProps] = value
     }
 
+    function copyComponent(id: string) {
+      const copyComponent = editInfo.value.components.find(
+        (component: ComponentData) => component.id === (id || editInfo.value.currentElement)
+      )
+      if (copyComponent) {
+        console.log('copyComponent', copyComponent)
+        editInfo.value.copyComponent = copyComponent
+        message.success('当前图层复制成功！')
+      }
+    }
+
+    function pasteComponent() {
+      if (editInfo.value.copyComponent) {
+        const cloneComponent = cloneDeep(editInfo.value.copyComponent)
+        cloneComponent.id = v4()
+        cloneComponent.layerName = '默认图层(副本)'
+        editInfo.value.components.push(cloneComponent)
+        message.success('已粘贴复制图层')
+      } else {
+        message.warn('当前未复制图层!')
+      }
+    }
+
+    function deleteComponent(id: string) {
+      const deleteCompIndex = editInfo.value.components.findIndex(
+        (component: ComponentData) => component.id === id
+      )
+
+      if (deleteCompIndex !== -1) {
+        editInfo.value.components.splice(deleteCompIndex, 1)
+        message.success('已删除选中图层')
+      }
+    }
+
     return {
       editInfo,
       setEditInfo,
@@ -157,7 +194,10 @@ export const useEditStore = defineStore(
       setActive,
       getCurrentElement,
       updateComponent,
-      updatePage
+      updatePage,
+      copyComponent,
+      pasteComponent,
+      deleteComponent
     }
   },
   // pinia定制化

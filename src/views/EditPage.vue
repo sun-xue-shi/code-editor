@@ -53,8 +53,8 @@
               </div>
             </div>
 
-            {{ currentElement }}
-            {{ currentElement && currentElement.props }}
+            <!-- {{ currentElement }}
+            {{ currentElement && currentElement.props }} -->
           </ATabPane>
           <ATabPane key="layer" tab="图层设置">
             <layerSetting
@@ -86,6 +86,9 @@ import LayerSetting from '@/component/LayerSetting.vue'
 import GroupProps from '@/component/GroupProps.vue'
 import PropsTable from '@/component/PropsTable.vue'
 import { forEach, pickBy } from 'lodash-es'
+import { initFastKeys } from '@/plugin/hotKeys'
+
+initFastKeys()
 
 const editStore = useEditStore()
 const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent, updatePage } =

@@ -6,6 +6,7 @@ export interface EditorData {
   components: ComponentData[]
   currentElement: string
   pageData: PageData
+  copyComponent: ComponentData
 }
 
 export interface PageData {

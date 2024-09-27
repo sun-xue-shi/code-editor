@@ -29,6 +29,9 @@ importers:
       flush-promises:
         specifier: ^1.0.2
         version: 1.0.2
+      hotkeys-js:
+        specifier: ^3.13.7
+        version: 3.13.7
       less:
         specifier: ^4.2.0
         version: 4.2.0
@@ -1337,6 +1340,9 @@ packages:
   he@1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
+
+  hotkeys-js@3.13.7:
+    resolution: {integrity: sha512-ygFIdTqqwG4fFP7kkiYlvayZppeIQX2aPpirsngkv1xM1lP0piDY5QEh68nQnIKvz64hfocxhBaD/uK3sSK1yQ==}
 
   html-encoding-sniffer@4.0.0:
     resolution: {integrity: sha512-Y22oTqIU4uuPgEemfz7NDJz6OeKf12Lsu+QC+s3BVpda64lTiMYCyGwg5ki4vFxkMwQdeZDl2adZoqUgdFuTgQ==}
@@ -3661,6 +3667,8 @@ snapshots:
   has-flag@4.0.0: {}
 
   he@1.2.0: {}
+
+  hotkeys-js@3.13.7: {}
 
   html-encoding-sniffer@4.0.0:
     dependencies:
