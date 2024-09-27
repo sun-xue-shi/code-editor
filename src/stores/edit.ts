@@ -108,20 +108,22 @@ export const useEditStore = defineStore(
       editInfo.value.components.push(componentData)
     }
 
-    function setActive(editInfo: EditorData, currentId: string) {
-      editInfo.currentElement = currentId
+    function setActive(currentId: string) {
+      editInfo.value.currentElement = currentId
     }
 
-    function getCurrentElement(editData: EditorData) {
-      const comp = editData.components.find((component) => component.id === editData.currentElement)
+    function getCurrentElement() {
+      const comp = editInfo.value.components.find(
+        (component: ComponentData) => component.id === editInfo.value.currentElement
+      )
       return comp
     }
 
-    function updateComponent(editData: EditorData, updateData: UpdateData) {
+    function updateComponent(updateData: UpdateData) {
       const { id, isRoot, key, value } = updateData
 
-      const updateComponent = editData.components.find(
-        (component) => component.id === (id || editData.currentElement)
+      const updateComponent = editInfo.value.components.find(
+        (component: ComponentData) => component.id === (id || editInfo.value.currentElement)
       )
 
       if (updateComponent) {
@@ -130,20 +132,20 @@ export const useEditStore = defineStore(
         }
         //传入更新的value为空 --- 删除画布区图片
         else if (!updateData.value && updateData.key === 'src') {
-          const deleteCompIndex = editData.components.findIndex(
-            (component) => component.id === updateComponent.id
+          const deleteCompIndex = editInfo.value.components.findIndex(
+            (component: ComponentData) => component.id === updateComponent.id
           )
 
-          editData.components.splice(deleteCompIndex, 1)
+          editInfo.value.components.splice(deleteCompIndex, 1)
         } else {
           updateComponent.props[key as keyof AllComponentProps] = value
         }
       }
     }
 
-    function updatePage(editData: EditorData, updateData: UpdateData) {
+    function updatePage(updateData: UpdateData) {
       const { key, value } = updateData
-      editData.pageData.props[key as keyof AllComponentProps] = value
+      editInfo.value.pageData.props[key as keyof AllComponentProps] = value
     }
 
     return {

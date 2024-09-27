@@ -48,7 +48,11 @@ function startMove(e: MouseEvent) {
     offsetData.y = e.clientY - top
 
     const handleMove = (e: MouseEvent) => {
+      console.log('moving')
+
       isMoved = true
+      console.log(isMoved)
+
       const { innerLeft, innerTop } = calcPosition(e)
       if (currentElement) {
         currentElement.style.top = innerTop + 'px'
@@ -57,8 +61,13 @@ function startMove(e: MouseEvent) {
     }
 
     const handleMouseUp = (e: MouseEvent) => {
+      console.log('endmove')
+
+      document.removeEventListener('mousemove', handleMove)
+
+      console.log('delete move event')
+
       if (isMoved) {
-        document.removeEventListener('mousemove', handleMove)
         const { innerLeft, innerTop } = calcPosition(e)
         emit('updatePosition', { innerLeft, innerTop, id: props.id })
         isMoved = false

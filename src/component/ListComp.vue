@@ -13,7 +13,13 @@ const addItem = (props: Partial<TextComponentProps>) => {
   const newData: ComponentData = {
     id: v4(),
     name: 'ListComp',
-    props
+    layerName: '默认图层',
+    isLocked: false,
+    isHidden: false,
+    props: {
+      ...props,
+      position: 'absolute'
+    }
   }
   emit('add-item', newData)
 }

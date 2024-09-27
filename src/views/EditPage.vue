@@ -32,8 +32,8 @@
             >
               <TextComp v-bind="ele.props" :style="{ position: 'static' }" />
 
-              <div class="position" v-if="ele.props.src">
-                <ImageComp v-bind="ele.props" />
+              <div v-if="ele.props.src">
+                <ImageComp v-bind="ele.props" :style="{ position: 'static' }" />
               </div>
             </EditWrapper>
           </div>
@@ -92,7 +92,7 @@ const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent, up
 
 const activeKey = ref('component')
 
-const currentElement = computed<undefined | ComponentData>(() => getCurrentElement(editInfo))
+const currentElement = computed<undefined | ComponentData>(() => getCurrentElement())
 const elements = editInfo.components
 const pageData = computed(() => editInfo.pageData)
 
@@ -101,21 +101,21 @@ const handleAddItem = (newData: ComponentData) => {
 }
 
 function handleSetActive(id: string) {
-  setActive(editInfo, id)
+  setActive(id)
 }
 
 function handleChange(e: any) {
-  updateComponent(editInfo, e)
+  updateComponent(e)
 }
 
 function handleChangePage(e: any) {
-  updatePage(editInfo, e)
+  updatePage(e)
 }
 
 function updatePosition(data: { innerTop: number; innerLeft: number; id: string }) {
   const { id, innerLeft, innerTop } = data
-  updateComponent(editInfo, { key: 'left', value: innerLeft + 'px', id })
-  updateComponent(editInfo, { key: 'top', value: innerTop + 'px', id })
+  updateComponent({ key: 'left', value: innerLeft + 'px', id })
+  updateComponent({ key: 'top', value: innerTop + 'px', id })
 }
 </script>
 
@@ -160,7 +160,6 @@ function updatePosition(data: { innerTop: number; innerLeft: number; id: string 
   position: absolute;
   margin-top: 50px;
   max-height: 80vh;
-  /* background-image: url('http://localhost:3000/uploads\\1727348674567-864472985-å¾®ä¿¡å¾ç_20240217222511.jpg'); */
 }
 .preview-list.active {
   border: 1px solid #1890ff;

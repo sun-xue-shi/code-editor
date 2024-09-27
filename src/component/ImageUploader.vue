@@ -33,7 +33,8 @@ function handleChange(info: UploadChangeParam) {
           ...imageDefaultProps,
           src: info.file.response.data.url[0],
           width: '100px',
-          position: ''
+          height: '100px',
+          position: 'absolute'
         }
       }
 
@@ -54,7 +55,7 @@ function handleChange(info: UploadChangeParam) {
         value: `url('${imageUrl}')`,
         isPage: true
       }
-      updatePage(editInfo, data)
+      updatePage( data)
     }
 
     message.success(info.file.name + '文件上传成功')

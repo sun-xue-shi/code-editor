@@ -6,7 +6,7 @@ import { uploadCropper } from '@/request/file'
 import { useEditStore } from '@/stores/edit'
 
 const editStore = useEditStore()
-const { editInfo, updatePage } = editStore
+const { updatePage } = editStore
 
 const props = withDefaults(
   defineProps<{ value: string; isPageCropper: boolean; showDelete: boolean }>(),
@@ -65,7 +65,7 @@ function handlleOk() {
               key: 'backgroundImage',
               value: `url('${imageUrl}')`
             }
-            updatePage(editInfo, data)
+            updatePage(data)
           }
           emit('change', res.data?.data.url[0])
           cropperUrl.value = res.data?.data.url[0]
@@ -83,7 +83,7 @@ function handelDelete() {
       key: 'backgroundImage',
       value: ''
     }
-    updatePage(editInfo, data)
+    updatePage(data)
   }
 
   emit('change', '')
