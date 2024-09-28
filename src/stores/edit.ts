@@ -78,7 +78,7 @@ const pageDefaultData = {
 }
 
 interface UpdateData {
-  key: string
+  key?: string
   id?: string
   value: string
   isRoot?: boolean
@@ -109,6 +109,7 @@ export const useEditStore = defineStore(
     }
 
     const addEditInfo = (componentData: ComponentData) => {
+      componentData.layerName = '图层' + (editInfo.value.components.length + 1)
       editInfo.value.components.push(componentData)
     }
 
@@ -121,6 +122,52 @@ export const useEditStore = defineStore(
         (component: ComponentData) => component.id === editInfo.value.currentElement
       )
       return comp
+    }
+
+    function moveComponent(direction: string, updatedata: UpdateData) {
+      const { id, value } = updatedata
+      const currentComponent = editInfo.value.components.find(
+        (component: ComponentData) => component.id === (id || editInfo.value.currentElement)
+      )
+
+      if (currentComponent) {
+        const preTop = parseInt(currentComponent.props.top)
+        const preLeft = parseInt(currentComponent.props.left)
+
+        switch (direction) {
+          case 'up':
+            {
+              const distance = preTop - parseInt(value) + 'px'
+              updateComponent({ id, key: 'top', value: distance })
+            }
+
+            break
+          case 'down':
+            {
+              const distance = preTop + parseInt(value) + 'px'
+              updateComponent({ id, key: 'top', value: distance })
+            }
+
+            break
+          case 'left':
+            {
+              const distance = preLeft - parseInt(value) + 'px'
+              updateComponent({ id, key: 'left', value: distance })
+            }
+
+            break
+          case 'right':
+            {
+              const distance = preLeft + parseInt(value) + 'px'
+              updateComponent({ id, key: 'left', value: distance })
+            }
+
+            break
+
+          default:
+            break
+        }
+      }
     }
 
     function updateComponent(updateData: UpdateData) {
@@ -197,7 +244,8 @@ export const useEditStore = defineStore(
       updatePage,
       copyComponent,
       pasteComponent,
-      deleteComponent
+      deleteComponent,
+      moveComponent
     }
   },
   // pinia定制化

@@ -188,6 +188,7 @@ function startResize(location: string) {
 .edit-wrapper {
   padding: 0px;
   cursor: pointer;
+  overflow: hidden;
   border: 1px solid transparent;
   user-select: none;
 }

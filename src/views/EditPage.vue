@@ -53,8 +53,8 @@
               </div>
             </div>
 
-            <!-- {{ currentElement }}
-            {{ currentElement && currentElement.props }} -->
+            {{ currentElement }}
+            {{ currentElement && currentElement.props }}
           </ATabPane>
           <ATabPane key="layer" tab="图层设置">
             <layerSetting
