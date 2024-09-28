@@ -55,7 +55,7 @@ function handleChange(info: UploadChangeParam) {
         value: `url('${imageUrl}')`,
         isPage: true
       }
-      updatePage( data)
+      updatePage(data)
     }
 
     message.success(info.file.name + '文件上传成功')

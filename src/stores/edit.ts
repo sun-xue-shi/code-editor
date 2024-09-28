@@ -5,7 +5,7 @@ import { v4 } from 'uuid'
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { type ComponentData, textDefaultProps } from 'editor-components-sw'
-import type { EditorData } from '@/types/edit.'
+import type { EditorData, UpdateData } from '@/types/edit.'
 import type { AllComponentProps } from '@/types/props'
 import { message } from 'ant-design-vue'
 import { cloneDeep } from 'lodash-es'
@@ -77,14 +77,6 @@ const pageDefaultData = {
   backgroundSize: 'cover'
 }
 
-interface UpdateData {
-  key?: string
-  id?: string
-  value: string
-  isRoot?: boolean
-  isPage?: boolean
-}
-
 export const useEditStore = defineStore(
   'edit',
   () => {
@@ -95,7 +87,9 @@ export const useEditStore = defineStore(
         props: pageDefaultData,
         title: 'test'
       },
-      copyComponent: null
+      copyComponent: null,
+      history: [],
+      historyIndex: -1
     })
 
     //存储模版信息
@@ -111,6 +105,12 @@ export const useEditStore = defineStore(
     const addEditInfo = (componentData: ComponentData) => {
       componentData.layerName = '图层' + (editInfo.value.components.length + 1)
       editInfo.value.components.push(componentData)
+      editInfo.value.history.push({
+        id: v4(),
+        componentId: componentData.id,
+        data: cloneDeep(componentData),
+        type: 'add'
+      })
     }
 
     function setActive(currentId: string) {
@@ -189,7 +189,15 @@ export const useEditStore = defineStore(
 
           editInfo.value.components.splice(deleteCompIndex, 1)
         } else {
-          updateComponent.props[key as keyof AllComponentProps] = value
+          const preData = (updateComponent.props[
+            key as keyof AllComponentProps
+          ].updateComponent.props[key as keyof AllComponentProps] = value)
+          editInfo.value.history.push({
+            id: v4(),
+            type: 'update',
+            componentId: id || updateComponent.id,
+            data: { key, preData, newData: value }
+          })
         }
       }
     }
@@ -216,6 +224,12 @@ export const useEditStore = defineStore(
         cloneComponent.id = v4()
         cloneComponent.layerName = '默认图层(副本)'
         editInfo.value.components.push(cloneComponent)
+        editInfo.value.history.push({
+          id: v4(),
+          componentId: cloneComponent.id,
+          data: cloneDeep(cloneComponent),
+          type: 'add'
+        })
         message.success('已粘贴复制图层')
       } else {
         message.warn('当前未复制图层!')
@@ -223,11 +237,22 @@ export const useEditStore = defineStore(
     }
 
     function deleteComponent(id: string) {
+      const currentComponent = editInfo.value.components.find(
+        (component: ComponentData) => component.id === id
+      )
+
       const deleteCompIndex = editInfo.value.components.findIndex(
         (component: ComponentData) => component.id === id
       )
 
       if (deleteCompIndex !== -1) {
+        editInfo.value.history.push({
+          id: v4(),
+          componentId: currentComponent.id,
+          type: 'delete',
+          index: deleteCompIndex,
+          data: currentComponent
+        })
         editInfo.value.components.splice(deleteCompIndex, 1)
         message.success('已删除选中图层')
       }
