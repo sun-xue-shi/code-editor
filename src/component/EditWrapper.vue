@@ -162,6 +162,7 @@ function startResize(location: string) {
   <div
     class="edit-wrapper"
     :style="styles"
+    :data-component-id="id"
     @click="onItemClick(props.id)"
     @mousedown="startMove"
     ref="editWapper"

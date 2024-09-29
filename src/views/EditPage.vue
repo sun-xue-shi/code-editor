@@ -88,9 +88,11 @@ import GroupProps from '@/component/GroupProps.vue'
 import PropsTable from '@/component/PropsTable.vue'
 import HistoryOperate from './HistoryOperate.vue'
 import { pickBy } from 'lodash-es'
-import { initFastKeys } from '@/plugin/hotKeys'
+import { initFastKeys } from '@/plugin/initHotKeys'
+import { initRightMenu } from '@/plugin/initRightMenu'
 
 initFastKeys()
+initRightMenu()
 
 const editStore = useEditStore()
 const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent, updatePage } =
