@@ -54,10 +54,7 @@ function startMove(e: MouseEvent) {
     offsetData.y = e.clientY - top
 
     const handleMove = (e: MouseEvent) => {
-      console.log('moving')
-
       isMoved = true
-      console.log(isMoved)
 
       const { left, top } = calcPosition(e)
       if (currentElement) {
@@ -67,11 +64,7 @@ function startMove(e: MouseEvent) {
     }
 
     const handleMouseUp = (e: MouseEvent) => {
-      console.log('endmove')
-
       document.removeEventListener('mousemove', handleMove)
-
-      console.log('delete move event')
 
       if (isMoved) {
         const { left, top } = calcPosition(e)
@@ -188,7 +181,6 @@ function startResize(location: string) {
 .edit-wrapper {
   padding: 0px;
   cursor: pointer;
-  overflow: hidden;
   border: 1px solid transparent;
   user-select: none;
 }
@@ -212,7 +204,7 @@ function startResize(location: string) {
 .edit-wrapper.active .resizers .resizer {
   width: 10px;
   height: 10px;
-  border-radius: 50%; /*magic to turn square into circle*/
+  border-radius: 50%;
   background: white;
   border: 3px solid #1890ff;
   position: absolute;

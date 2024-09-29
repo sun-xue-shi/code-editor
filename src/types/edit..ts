@@ -2,9 +2,9 @@ import { type ComponentData } from 'editor-components-sw'
 import type { AllComponentProps } from './props'
 
 export interface UpdateData {
-  key?: string
+  key?: string | string[]
   id?: string
-  value: string
+  value: string | string[]
   isRoot?: boolean
   isPage?: boolean
 }

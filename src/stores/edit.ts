@@ -5,7 +5,7 @@ import { v4 } from 'uuid'
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { type ComponentData, textDefaultProps } from 'editor-components-sw'
-import type { EditorData, UpdateData } from '@/types/edit.'
+import type { EditorData, HistoryData, UpdateData } from '@/types/edit.'
 import type { AllComponentProps } from '@/types/props'
 import { message } from 'ant-design-vue'
 import { cloneDeep } from 'lodash-es'
@@ -77,6 +77,23 @@ const pageDefaultData = {
   backgroundSize: 'cover'
 }
 
+function updateHistory(history: HistoryData, components: ComponentData[], type: 'undo' | 'redo') {
+  const { data, componentId } = history
+  const { newData, key, preData } = data
+  const updateComponent = components.find(
+    (component: ComponentData) => component.id === componentId
+  )
+
+  if (updateComponent) {
+    const data = type === 'redo' ? newData : preData
+    if (Array.isArray(key) && Array.isArray(newData)) {
+      key.map((item, index) => (updateComponent.props[item] = data[index]))
+    } else {
+      updateComponent.props[key] = data
+    }
+  }
+}
+
 export const useEditStore = defineStore(
   'edit',
   () => {
@@ -137,28 +154,28 @@ export const useEditStore = defineStore(
         switch (direction) {
           case 'up':
             {
-              const distance = preTop - parseInt(value) + 'px'
+              const distance = preTop - parseInt(value as string) + 'px'
               updateComponent({ id, key: 'top', value: distance })
             }
 
             break
           case 'down':
             {
-              const distance = preTop + parseInt(value) + 'px'
+              const distance = preTop + parseInt(value as string) + 'px'
               updateComponent({ id, key: 'top', value: distance })
             }
 
             break
           case 'left':
             {
-              const distance = preLeft - parseInt(value) + 'px'
+              const distance = preLeft - parseInt(value as string) + 'px'
               updateComponent({ id, key: 'left', value: distance })
             }
 
             break
           case 'right':
             {
-              const distance = preLeft + parseInt(value) + 'px'
+              const distance = preLeft + parseInt(value as string) + 'px'
               updateComponent({ id, key: 'left', value: distance })
             }
 
@@ -177,34 +194,57 @@ export const useEditStore = defineStore(
         (component: ComponentData) => component.id === (id || editInfo.value.currentElement)
       )
 
+      console.log('updateComponent', updateComponent)
+
       if (updateComponent) {
         if (isRoot) {
           updateComponent[key as keyof ComponentData] = value
         }
         //传入更新的value为空 --- 删除画布区图片
-        else if (!updateData.value && updateData.key === 'src') {
+        else if (!value && key === 'src') {
+          const preData = updateComponent.props[key as keyof AllComponentProps]
           const deleteCompIndex = editInfo.value.components.findIndex(
             (component: ComponentData) => component.id === updateComponent.id
           )
 
           editInfo.value.components.splice(deleteCompIndex, 1)
-        } else {
-          const preData = (updateComponent.props[
-            key as keyof AllComponentProps
-          ].updateComponent.props[key as keyof AllComponentProps] = value)
           editInfo.value.history.push({
             id: v4(),
             type: 'update',
             componentId: id || updateComponent.id,
             data: { key, preData, newData: value }
           })
+          console.log('更新后历史记录', editInfo.value.history)
+        } else {
+          const preData = Array.isArray(key)
+            ? key.map((item) => updateComponent.props[item])
+            : updateComponent.props[key as keyof AllComponentProps]
+
+          console.log('preData', preData)
+
+          editInfo.value.history.push({
+            id: v4(),
+            type: 'update',
+            componentId: id || updateComponent.id,
+            data: { key, preData, newData: value }
+          })
+
+          console.log('更新后历史记录', editInfo.value.history)
+
+          if (Array.isArray(key) && Array.isArray(value)) {
+            key.forEach((item, index) => {
+              updateComponent.props[item] = value[index]
+            })
+          } else {
+            updateComponent.props[key as keyof AllComponentProps] = value
+          }
         }
       }
     }
 
     function updatePage(updateData: UpdateData) {
       const { key, value } = updateData
-      editInfo.value.pageData.props[key as keyof AllComponentProps] = value
+      editInfo.value.pageData.props[key as keyof AllComponentProps] = value as string
     }
 
     function copyComponent(id: string) {
@@ -212,8 +252,7 @@ export const useEditStore = defineStore(
         (component: ComponentData) => component.id === (id || editInfo.value.currentElement)
       )
       if (copyComponent) {
-        console.log('copyComponent', copyComponent)
-        editInfo.value.copyComponent = copyComponent
+        editInfo.value.copyComponent = cloneDeep(copyComponent)
         message.success('当前图层复制成功！')
       }
     }
@@ -222,7 +261,7 @@ export const useEditStore = defineStore(
       if (editInfo.value.copyComponent) {
         const cloneComponent = cloneDeep(editInfo.value.copyComponent)
         cloneComponent.id = v4()
-        cloneComponent.layerName = '默认图层(副本)'
+        cloneComponent.layerName = '(副本)图层' + (editInfo.value.components.length + 1)
         editInfo.value.components.push(cloneComponent)
         editInfo.value.history.push({
           id: v4(),
@@ -230,6 +269,8 @@ export const useEditStore = defineStore(
           data: cloneDeep(cloneComponent),
           type: 'add'
         })
+        console.log('粘贴添加后历史记录', editInfo.value.history)
+        console.log('粘贴添加后组件列表', editInfo.value.components)
         message.success('已粘贴复制图层')
       } else {
         message.warn('当前未复制图层!')
@@ -253,9 +294,110 @@ export const useEditStore = defineStore(
           index: deleteCompIndex,
           data: currentComponent
         })
+        console.log('删除后历史记录', editInfo.value.history)
+
         editInfo.value.components.splice(deleteCompIndex, 1)
         message.success('已删除选中图层')
       }
+    }
+
+    //撤销
+    function toLastStep() {
+      if (editInfo.value.historyIndex === -1) {
+        editInfo.value.historyIndex = editInfo.value.history.length - 1
+      } else {
+        editInfo.value.historyIndex--
+      }
+
+      const history = editInfo.value.history[editInfo.value.historyIndex]
+
+      if (history.type) {
+        switch (history.type) {
+          case 'add':
+            console.log('撤销 add --- add', history.componentId)
+            console.log('撤销前editInfo.value.components', editInfo.value.components)
+            editInfo.value.components = editInfo.value.components.filter(
+              (component: ComponentData) => component.id !== history.componentId
+            )
+            console.log('撤销后editInfo.value.components', editInfo.value.components)
+
+            break
+
+          case 'delete':
+            console.log('撤销 delete --- delete', history.index, history.data)
+            editInfo.value.components.splice(history.index, 0, history.data)
+            break
+
+          case 'update':
+            // {
+            //   console.log('撤销 update --- update', history.data.key, history.data.preData)
+
+            //   const { data, componentId } = history
+            //   const { preData, key } = data
+            //   const updateComponent = editInfo.value.components.find(
+            //     (component: ComponentData) => component.id === componentId
+            //   )
+
+            //   if (updateComponent) {
+            //     if (Array.isArray(preData) && Array.isArray(key)) {
+            //       key.map((item, index) => (updateComponent.props[item] = preData[index]))
+            //     } else {
+            //       updateComponent.props[key] = preData
+            //     }
+            //   }
+            // }
+            updateHistory(history, editInfo.value.components, 'undo')
+            break
+
+          default:
+            break
+        }
+      }
+    }
+
+    //重做
+    function toNextStep() {
+      // 从没撤销过
+      if (editInfo.value.historyIndex === -1) {
+        return
+      }
+
+      const history = editInfo.value.history[editInfo.value.historyIndex]
+
+      switch (history.type) {
+        case 'add':
+          console.log('重做 add --- add', history.data)
+
+          editInfo.value.components.push(history.data)
+          break
+        case 'delete':
+          console.log('重做 delete --- delete', history.componentId)
+          editInfo.value.components = editInfo.value.components.filter(
+            (component: ComponentData) => component.id !== history.componentId
+          )
+          break
+        case 'update':
+          // {
+          //   const { data, componentId } = history
+          //   const { newData, key, preData } = data
+          //   const updateComponent = editInfo.value.components.find(
+          //     (component: ComponentData) => component.id === componentId
+          //   )
+
+          //   if (updateComponent) {
+          //     if (Array.isArray(key) && Array.isArray(newData)) {
+          //       key.map((item, index) => (updateComponent.props[item] = newData[index]))
+          //     } else {
+          //       updateComponent.props[key] = newData
+          //     }
+          //   }
+          // }
+          updateHistory(history, editInfo.value.components, 'redo')
+          break
+        default:
+          break
+      }
+      editInfo.value.historyIndex++
     }
 
     return {
@@ -270,7 +412,9 @@ export const useEditStore = defineStore(
       copyComponent,
       pasteComponent,
       deleteComponent,
-      moveComponent
+      moveComponent,
+      toLastStep,
+      toNextStep
     }
   },
   // pinia定制化

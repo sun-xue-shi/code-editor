@@ -19,7 +19,8 @@
       </ALayoutSider>
       <ALayout style="padding: 0 24px 24px">
         <ALayoutContent class="preview-container">
-          <p>{{ pageData.props }}</p>
+          <!-- <p>{{ pageData.props }}</p> -->
+          <HistoryOperate />
           <div class="preview-list" :style="pageData.props" id="canvas-area">
             <EditWrapper
               v-for="ele in elements"
@@ -30,7 +31,7 @@
               @setActive="handleSetActive"
               :active="ele.id === (currentElement && currentElement.id)"
             >
-              <TextComp v-bind="ele.props" />
+              <TextComp v-bind="ele.props" v-if="ele.id" />
 
               <div v-if="ele.props.src">
                 <ImageComp v-bind="ele.props" />
@@ -85,7 +86,8 @@ import EditWrapper from '@/component/EditWrapper.vue'
 import LayerSetting from '@/component/LayerSetting.vue'
 import GroupProps from '@/component/GroupProps.vue'
 import PropsTable from '@/component/PropsTable.vue'
-import { forEach, pickBy } from 'lodash-es'
+import HistoryOperate from './HistoryOperate.vue'
+import { pickBy } from 'lodash-es'
 import { initFastKeys } from '@/plugin/hotKeys'
 
 initFastKeys()
@@ -97,7 +99,7 @@ const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent, up
 const activeKey = ref('component')
 
 const currentElement = computed<undefined | ComponentData>(() => getCurrentElement())
-const elements = editInfo.components
+const elements = computed(() => editInfo.components)
 const pageData = computed(() => editInfo.pageData)
 
 const handleAddItem = (newData: ComponentData) => {
@@ -120,9 +122,15 @@ function updatePosition(data: Record<string, any>) {
   const { id } = data
   const updateData = pickBy(data, (val, key) => key !== 'id')
 
-  forEach(updateData, (val, key) => {
-    updateComponent({ key, value: val + 'px', id })
-  })
+  // forEach(updateData, (val, key) => {
+  //   updateComponent({ key, value: val + 'px', id })
+  // })
+
+  const keysArr = Object.keys(updateData)
+  const valuesArr = Object.values(updateData).map((val) => val + 'px')
+  console.log('valuesArr', valuesArr)
+
+  updateComponent({ key: keysArr, value: valuesArr, id })
 }
 </script>
 
@@ -163,7 +171,7 @@ function updatePosition(data: Record<string, any>) {
   border: 1px solid #efefef;
   background: #fff;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
   position: absolute;
   margin-top: 50px;
   max-height: 80vh;
