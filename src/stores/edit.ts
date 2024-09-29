@@ -5,7 +5,7 @@ import { v4 } from 'uuid'
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { type ComponentData, textDefaultProps } from 'editor-components-sw'
-import type { EditorData, HistoryData, UpdateData } from '@/types/edit.'
+import type { EditorData, HistoryData, UpdateData, UpdateHistoryData } from '@/types/edit.'
 import type { AllComponentProps } from '@/types/props'
 import { message } from 'ant-design-vue'
 import { cloneDeep } from 'lodash-es'
@@ -94,6 +94,47 @@ function updateHistory(history: HistoryData, components: ComponentData[], type: 
   }
 }
 
+function addHistory(editInfo: EditorData, historyData: HistoryData) {
+  if (editInfo.historyIndex !== -1) {
+    editInfo.history = editInfo.history.splice(0, editInfo.historyIndex)
+    editInfo.historyIndex = -1
+  }
+
+  if (editInfo.history.length >= editInfo.maxRecordLength) {
+    editInfo.history.shift()
+    editInfo.history.push(historyData)
+  } else {
+    editInfo.history.push(historyData)
+  }
+}
+
+function addUpdateHistory(editInfo: EditorData, updateHistoryData: UpdateHistoryData) {
+  console.log('editInfo.debounceOldData', editInfo.debounceOldData)
+
+  const { id, key, newData } = updateHistoryData
+
+  addHistory(editInfo, {
+    id: v4(),
+    type: 'update',
+    componentId: id || editInfo.currentElement,
+    data: { key, preData: editInfo.debounceOldData, newData }
+  })
+  // editInfo.history.push()
+  editInfo.debounceOldData = null
+}
+
+function debounce(cb: (...args: any) => void, timeout = 1000) {
+  let timer = 0
+  return (...args: any) => {
+    clearTimeout(timer)
+    timer = window.setTimeout(() => {
+      cb(...args)
+    }, timeout)
+  }
+}
+
+const debounceAddUpdateHistory = debounce(addUpdateHistory)
+
 export const useEditStore = defineStore(
   'edit',
   () => {
@@ -106,7 +147,9 @@ export const useEditStore = defineStore(
       },
       copyComponent: null,
       history: [],
-      historyIndex: -1
+      historyIndex: -1,
+      debounceOldData: null,
+      maxRecordLength: 5
     })
 
     //存储模版信息
@@ -122,12 +165,18 @@ export const useEditStore = defineStore(
     const addEditInfo = (componentData: ComponentData) => {
       componentData.layerName = '图层' + (editInfo.value.components.length + 1)
       editInfo.value.components.push(componentData)
-      editInfo.value.history.push({
+      addHistory(editInfo.value, {
         id: v4(),
         componentId: componentData.id,
         data: cloneDeep(componentData),
         type: 'add'
       })
+      // editInfo.value.history.push({
+      //   id: v4(),
+      //   componentId: componentData.id,
+      //   data: cloneDeep(componentData),
+      //   type: 'add'
+      // })
     }
 
     function setActive(currentId: string) {
@@ -220,14 +269,26 @@ export const useEditStore = defineStore(
             ? key.map((item) => updateComponent.props[item])
             : updateComponent.props[key as keyof AllComponentProps]
 
+          if (!editInfo.value.debounceOldData) {
+            editInfo.value.debounceOldData = preData
+          }
+
           console.log('preData', preData)
 
-          editInfo.value.history.push({
-            id: v4(),
-            type: 'update',
-            componentId: id || updateComponent.id,
-            data: { key, preData, newData: value }
-          })
+          // editInfo.value.history.push({
+          //   id: v4(),
+          //   type: 'update',
+          //   componentId: id || updateComponent.id,
+          //   data: { key, preData, newData: value }
+          // })
+
+          const addHistoryData = {
+            id,
+            newData: value,
+            key
+          }
+
+          debounceAddUpdateHistory(editInfo.value, addHistoryData)
 
           console.log('更新后历史记录', editInfo.value.history)
 
@@ -287,13 +348,14 @@ export const useEditStore = defineStore(
       )
 
       if (deleteCompIndex !== -1) {
-        editInfo.value.history.push({
+        addHistory(editInfo.value, {
           id: v4(),
           componentId: currentComponent.id,
           type: 'delete',
           index: deleteCompIndex,
           data: currentComponent
         })
+        // editInfo.value.history.push()
         console.log('删除后历史记录', editInfo.value.history)
 
         editInfo.value.components.splice(deleteCompIndex, 1)
