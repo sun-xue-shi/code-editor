@@ -122,13 +122,8 @@ function updatePosition(data: Record<string, any>) {
   const { id } = data
   const updateData = pickBy(data, (val, key) => key !== 'id')
 
-  // forEach(updateData, (val, key) => {
-  //   updateComponent({ key, value: val + 'px', id })
-  // })
-
   const keysArr = Object.keys(updateData)
   const valuesArr = Object.values(updateData).map((val) => val + 'px')
-  console.log('valuesArr', valuesArr)
 
   updateComponent({ key: keysArr, value: valuesArr, id })
 }
