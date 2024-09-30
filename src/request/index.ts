@@ -2,6 +2,7 @@
 import axios from 'axios'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { message } from 'ant-design-vue'
+import { refreshToken } from './user'
 
 type Result<T> = {
   code: number
@@ -9,12 +10,15 @@ type Result<T> = {
   result: T
 }
 
+let refreshing = false
+let queue: { config: any; resolve: (value: unknown) => void }[] = []
+
 // 导出Request类，可以用来自定义传递配置来创建实例
 export class Request {
   // axios 实例
   instance: AxiosInstance
   // 基础配置，url和超时时间
-  baseConfig: AxiosRequestConfig = { baseURL: 'http://localhost:3000/', timeout: 3000 }
+  baseConfig: AxiosRequestConfig = { baseURL: 'http://localhost:3000/', timeout: 5000 }
 
   constructor(config: AxiosRequestConfig) {
     // 使用axios.create创建axios实例
@@ -25,7 +29,7 @@ export class Request {
         // 一般会请求拦截里面加token，用于后端的验证
         const token = localStorage.getItem('token') as string
         if (token) {
-          config.headers!.Authorization = token
+          config.headers!.Authorization = 'Bearer ' + token
         }
 
         return config
@@ -40,53 +44,45 @@ export class Request {
       (res: AxiosResponse) => {
         // 直接返回res，当然你也可以只返回res.data
         // 系统如果有自定义code也可以在这里处理
-        return res
+
+        return res.data
       },
-      (err: any) => {
-        // 这里用来处理http常见错误，进行全局提示
-        let msg = ''
-        switch (err.response.status) {
-          case 400:
-            msg = '请求错误(400)'
-            break
-          case 401:
-            msg = '未授权，请重新登录(401)'
-            // 这里可以做清空storage并跳转到登录页的操作
-            break
-          case 403:
-            msg = '拒绝访问(403)'
-            break
-          case 404:
-            msg = '请求出错(404)'
-            break
-          case 408:
-            msg = '请求超时(408)'
-            break
-          case 500:
-            msg = '服务器错误(500)'
-            break
-          case 501:
-            msg = '服务未实现(501)'
-            break
-          case 502:
-            msg = '网络错误(502)'
-            break
-          case 503:
-            msg = '服务不可用(503)'
-            break
-          case 504:
-            msg = '网络超时(504)'
-            break
-          case 505:
-            msg = 'HTTP版本不受支持(505)'
-            break
-          default:
-            msg = `连接出错(${err.response.status})!`
+      async (error: any) => {
+        const { data, config } = error.response
+
+        if (refreshing) {
+          return new Promise((resolve) => {
+            queue.push({
+              config,
+              resolve
+            })
+          })
         }
 
-        message.error(msg)
+        if (data.code === 401 && !config.url.includes('/user/refresh')) {
+          refreshing = true
 
-        return Promise.reject(err.response)
+          const res = await refreshToken()
+
+          refreshing = false
+
+          if (res.status === 200) {
+            queue.forEach(({ config, resolve }) => {
+              resolve(this.instance(config))
+            })
+            queue = []
+            return this.instance(config)
+          } else {
+            message.error('登录已过期,请重新登录')
+            setTimeout(() => {
+              window.location.href = '/login'
+            }, 1500)
+          }
+        } else {
+          message.error(error.response.data.message)
+
+          return Promise.reject(error.response)
+        }
       }
     )
   }
@@ -96,30 +92,19 @@ export class Request {
     return this.instance.request(config)
   }
 
-  public get<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<Result<T>>> {
+  public get(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse> {
     return this.instance.get(url, config)
   }
 
-  public post<T = any>(
-    url: string,
-    data?: any,
-    config?: AxiosRequestConfig
-  ): Promise<AxiosResponse<Result<T>>> {
+  public post(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse> {
     return this.instance.post(url, data, config)
   }
 
-  public put<T = any>(
-    url: string,
-    data?: any,
-    config?: AxiosRequestConfig
-  ): Promise<AxiosResponse<Result<T>>> {
+  public put(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse> {
     return this.instance.put(url, data, config)
   }
 
-  public delete<T = any>(
-    url: string,
-    config?: AxiosRequestConfig
-  ): Promise<AxiosResponse<Result<T>>> {
+  public delete(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse> {
     return this.instance.delete(url, config)
   }
 }

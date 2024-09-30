@@ -3,7 +3,6 @@ export const routes = [
     path: '/',
     redirect: '/home',
     component: () => import('../views/IndexPage.vue'),
-
     children: [
       {
         path: 'home',
@@ -28,6 +27,14 @@ export const routes = [
     component: () => import('@/views/EditPage.vue'),
     meta: {
       title: '编辑页'
+    }
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/UserLogin.vue'),
+    meta: {
+      title: '登录'
     }
   }
 ]
