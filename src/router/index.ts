@@ -20,4 +20,13 @@ const router = createRouter({
 //   }
 // })
 
+router.beforeEach(async (to, from) => {
+  document.title = `code-editor-${to.meta.title || ''}`
+  const token = localStorage.getItem('accessToken')
+  if (!token && to.name !== 'login') {
+    message.error('登录已过期')
+    return { name: 'login' }
+  }
+})
+
 export default router

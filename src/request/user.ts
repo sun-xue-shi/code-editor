@@ -1,14 +1,20 @@
 import Request from './index'
 
-interface LoginCaptcha {
+export interface LoginCaptcha {
   receiver: string
   type: number
 }
 
-interface EmailLoginData {
+export interface EmailLoginData {
   username: string
   email: string
   code: string
+  type: number
+}
+
+export interface PwdLoginData {
+  username: string
+  password: string
   type: number
 }
 
@@ -18,7 +24,7 @@ export async function loginCaptcha(data: LoginCaptcha) {
   })
 }
 
-export async function loginByEmail(data: EmailLoginData) {
+export async function login(data: EmailLoginData | PwdLoginData) {
   return await Request.post('user/login', data)
 }
 

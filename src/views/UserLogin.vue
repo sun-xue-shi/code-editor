@@ -11,11 +11,11 @@
       <a-col :span="12" class="login-area">
         <div class="welcome">
           <h2>欢迎登录</h2>
-          <p class="subTitle">使用和验证码登录到慕课乐高</p>
+          <p class="subTitle">使用账号或邮箱验证码登录系统</p>
         </div>
         <a-tabs v-model:activeKey="activeTabKey">
           <a-tab-pane :key="1" tab="邮箱登录">
-            <a-form :model="emailForm" ref="publishForm" layout="vertical">
+            <a-form :model="emailForm" ref="emailFormRef" layout="vertical">
               <a-form-item label="用户名" required name="username">
                 <a-input placeholder="用户名" v-model:value="emailForm.username">
                   <template v-slot:prefix>
@@ -38,15 +38,22 @@
                 </a-input>
               </a-form-item>
               <a-form-item>
-                <a-button type="primary" size="large" @click="emailLogin"> 登录 </a-button>
-                <a-button size="large" :style="{ marginLeft: '20px' }" @click="sendcode">
-                  获取验证码
+                <a-button type="primary" size="large" @click="userLogin(emailForm)">
+                  登录
+                </a-button>
+                <a-button
+                  size="large"
+                  :style="{ marginLeft: '20px' }"
+                  @click="sendcode"
+                  :disabled="btnDisabled"
+                >
+                  {{ timeSum < 60 ? `${timeSum}s后可重新发送` : '获取验证码' }}
                 </a-button>
               </a-form-item>
             </a-form>
           </a-tab-pane>
-          <a-tab-pane :key="2" tab="账号登录">
-            <a-form :model="pwdForm" ref="publishForm" layout="vertical">
+          <a-tab-pane :key="2" tab="账号密码登录">
+            <a-form :model="pwdForm" ref="pwdFormRef" layout="vertical">
               <a-form-item label="用户名" required name="username">
                 <a-input placeholder="用户名" v-model:value="pwdForm.username">
                   <template v-slot:prefix>
@@ -62,7 +69,7 @@
                 </a-input>
               </a-form-item>
               <a-form-item>
-                <a-button type="primary" size="large"> 登录 </a-button>
+                <a-button type="primary" size="large" @click="userLogin(pwdForm)"> 登录 </a-button>
               </a-form-item>
             </a-form>
           </a-tab-pane>
@@ -73,17 +80,22 @@
 </template>
 
 <script lang="ts" setup>
-import { loginByEmail, loginCaptcha } from '@/request/user'
+import { login, loginCaptcha, type EmailLoginData, type PwdLoginData } from '@/request/user'
 import { useUserStore } from '@/stores/user'
 import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { message, type FormInstance } from 'ant-design-vue'
-import { ref, reactive } from 'vue'
+import { watch } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const userStore = useUserStore()
 const activeTabKey = ref(1)
-const publishForm = ref<FormInstance>()
+const pwdFormRef = ref<FormInstance>()
+const emailFormRef = ref<FormInstance>()
+
+let btnTimer = 0
+let timeSum = ref(60)
 
 const emailForm = reactive({
   username: '',
@@ -98,23 +110,46 @@ const pwdForm = reactive({
   type: 2
 })
 
+const btnDisabled = computed(() => {
+  return !emailForm.email || timeSum.value < 60
+})
+
+const startBtnTime = () => {
+  timeSum.value--
+  btnTimer = window.setInterval(() => {
+    timeSum.value--
+  }, 1000)
+}
+
+watch(timeSum, (newvalue) => {
+  if (newvalue <= 0) {
+    clearInterval(btnTimer)
+    timeSum.value = 60
+  }
+})
+
 async function sendcode() {
   if (!emailForm.email) {
     return message.error('请输入邮箱!')
   }
   await loginCaptcha({ receiver: emailForm.email, type: 1 }).then(() => {
+    startBtnTime()
     message.success('发送成功,60s后可重新发送')
   })
 }
 
-async function emailLogin() {
-  await publishForm.value?.validate()
-  await loginByEmail(emailForm).then((res) => {
-    if (res.data) {
-      localStorage.setItem('accessToken', res.data.accessToken)
-      localStorage.setItem('refreshToken', res.data.refreshToken)
+async function userLogin(data: EmailLoginData | PwdLoginData) {
+  activeTabKey.value === 1
+    ? await emailFormRef.value?.validate()
+    : await pwdFormRef.value?.validate()
 
-      userStore.setUser(res.data.userInfo)
+  await login(data).then((res) => {
+    if (res.data) {
+      const { accessToken, refreshToken, userInfo } = res.data
+      localStorage.setItem('accessToken', accessToken)
+      localStorage.setItem('refreshToken', refreshToken)
+
+      userStore.setUser(userInfo)
 
       message.success('登录成功,2s后跳转主页')
       setTimeout(() => {
@@ -123,6 +158,29 @@ async function emailLogin() {
     }
   })
 }
+
+// async function emailLogin() {
+//
+
+//   await login(emailForm).then((res) => {
+//     if (res.data) {
+//       const { accessToken, refreshToken, userInfo } = res.data
+//       localStorage.setItem('accessToken', accessToken)
+//       localStorage.setItem('refreshToken', refreshToken)
+
+//       userStore.setUser(userInfo)
+
+//       message.success('登录成功,2s后跳转主页')
+//       setTimeout(() => {
+//         router.push('/')
+//       }, 2000)
+//     }
+//   })
+// }
+
+// async function pwdLogin() {
+//   await publishForm.value?.validate()
+// }
 </script>
 
 <style>
