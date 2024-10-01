@@ -46,6 +46,7 @@
                   :style="{ marginLeft: '20px' }"
                   @click="sendcode"
                   :disabled="btnDisabled"
+                  :loading="isLoading"
                 >
                   {{ timeSum < 60 ? `${timeSum}s后可重新发送` : '获取验证码' }}
                 </a-button>
@@ -81,6 +82,7 @@
 
 <script lang="ts" setup>
 import { login, loginCaptcha, type EmailLoginData, type PwdLoginData } from '@/request/user'
+import { useMainStore } from '@/stores/main'
 import { useUserStore } from '@/stores/user'
 import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { message, type FormInstance } from 'ant-design-vue'
@@ -91,6 +93,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const userStore = useUserStore()
 const activeTabKey = ref(1)
+const isLoading = ref(false)
 const pwdFormRef = ref<FormInstance>()
 const emailFormRef = ref<FormInstance>()
 
@@ -132,9 +135,11 @@ async function sendcode() {
   if (!emailForm.email) {
     return message.error('请输入邮箱!')
   }
+  isLoading.value = true
   await loginCaptcha({ receiver: emailForm.email, type: 1 }).then(() => {
     startBtnTime()
     message.success('发送成功,60s后可重新发送')
+    isLoading.value = false
   })
 }
 

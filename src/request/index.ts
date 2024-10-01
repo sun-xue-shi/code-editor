@@ -3,6 +3,7 @@ import axios from 'axios'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { message } from 'ant-design-vue'
 import { refreshToken } from './user'
+import { useMainStore } from '@/stores/main'
 
 type Result<T> = {
   code: number
@@ -12,6 +13,8 @@ type Result<T> = {
 
 let refreshing = false
 let queue: { config: any; resolve: (value: unknown) => void }[] = []
+
+const mainStore = useMainStore()
 
 // 导出Request类，可以用来自定义传递配置来创建实例
 export class Request {
@@ -26,6 +29,7 @@ export class Request {
 
     this.instance.interceptors.request.use(
       (config: any) => {
+        mainStore.isMainLoading = true
         // 一般会请求拦截里面加token，用于后端的验证
         const token = localStorage.getItem('token') as string
         if (token) {
@@ -44,10 +48,11 @@ export class Request {
       (res: AxiosResponse) => {
         // 直接返回res，当然你也可以只返回res.data
         // 系统如果有自定义code也可以在这里处理
-
+        mainStore.isMainLoading = false
         return res.data
       },
       async (error: any) => {
+        mainStore.isMainLoading = false
         const { data, config } = error.response
 
         if (refreshing) {
