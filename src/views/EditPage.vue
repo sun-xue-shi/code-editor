@@ -23,7 +23,7 @@
             <a-button type="primary">预览和设置</a-button>
           </a-menu-item>
           <a-menu-item key="2">
-            <a-button type="primary">保存</a-button>
+            <a-button type="primary" @click="saveWork">保存</a-button>
           </a-menu-item>
           <a-menu-item key="3">
             <a-button type="primary">发布</a-button>
@@ -114,10 +114,12 @@ import { pickBy } from 'lodash-es'
 import { initFastKeys } from '@/plugin/initHotKeys'
 import { initRightMenu } from '@/plugin/initRightMenu'
 import { onMounted } from 'vue'
-import { getWork } from '@/request/work'
+import { getWork, updateWork } from '@/request/work'
 import { useRoute } from 'vue-router'
 import type { ComponentData, WorkData } from '@/types/edit.'
 import { pageDefaultPropsData } from '@/stores/common/constants'
+import { message } from 'ant-design-vue'
+import { nextTick } from 'vue'
 
 const route = useRoute()
 const workId = route.params.id as string
@@ -128,6 +130,7 @@ const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent, up
 onMounted(() => {
   initFastKeys()
   initRightMenu()
+  nextTick()
   getWorkInfo()
 })
 
@@ -162,14 +165,14 @@ function updatePosition(data: Record<string, any>) {
   updateComponent({ key: keysArr, value: valuesArr, id })
 }
 
-async function getWorkInfo() {
+function getWorkInfo() {
   if (workId) {
-    await getWork(workId).then((res) => {
+    getWork(workId).then((res) => {
       console.log(workId, res)
       const { content, ...rest } = res.data as WorkData
       editInfo.pageData = { ...editInfo.pageData, ...rest }
       editInfo.components = content.components
-      editInfo.components[0].props = { ...textDefaultProps, ...content.components[0].props }
+
       if (content.props) {
         editInfo.pageData.props = { ...pageDefaultPropsData, ...content.props }
       }
@@ -179,6 +182,20 @@ async function getWorkInfo() {
 
 function titleChange(value: string) {
   updatePage({ key: 'title', value, isRoot: true })
+}
+
+async function saveWork() {
+  const data = {
+    ...pageData.value,
+    content: {
+      components: editInfo.components,
+      props: pageData.value.props
+    }
+  }
+  await updateWork(workId, data).then((res) => {
+    console.log(res)
+    message.success('保存成功!')
+  })
 }
 </script>
 

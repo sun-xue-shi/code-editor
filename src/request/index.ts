@@ -109,6 +109,10 @@ export class Request {
     return this.instance.put(url, data, config)
   }
 
+  public patch(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse> {
+    return this.instance.patch(url, data, config)
+  }
+
   public delete(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse> {
     return this.instance.delete(url, config)
   }

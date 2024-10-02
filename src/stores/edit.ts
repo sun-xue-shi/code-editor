@@ -42,7 +42,6 @@ export const useEditStore = defineStore(
     }
 
     const addEditInfo = (componentData: ComponentData) => {
-      console.log('editInfo.value.components', editInfo.value.components)
       componentData.layerName = '图层' + (editInfo.value.components.length + 1)
       editInfo.value.components.push(componentData)
       addHistory(editInfo.value, {
@@ -58,12 +57,10 @@ export const useEditStore = defineStore(
     }
 
     function getCurrentElement() {
-      if (editInfo.value.components.length > 0) {
-        const comp = editInfo.value.components.find(
-          (component: ComponentData) => component.id === editInfo.value.currentElement
-        )
-        return comp
-      }
+      const comp = editInfo.value.components.find(
+        (component: ComponentData) => component.id === editInfo.value.currentElement
+      )
+      return comp
     }
 
     function moveComponent(direction: string, updatedata: UpdateData) {
@@ -114,8 +111,6 @@ export const useEditStore = defineStore(
 
     function updateComponent(updateData: UpdateData) {
       const { id, isRoot, key, value } = updateData
-
-      console.log('editInfo.value.components', editInfo.value.components)
 
       const updateComponent = editInfo.value.components.find(
         (component: ComponentData) => component.id === (id || editInfo.value.currentElement)
