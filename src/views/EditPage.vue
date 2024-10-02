@@ -23,7 +23,7 @@
             <a-button type="primary">预览和设置</a-button>
           </a-menu-item>
           <a-menu-item key="2">
-            <a-button type="primary" @click="saveWork">保存</a-button>
+            <a-button type="primary" @click="saveWork"> 保存 </a-button>
           </a-menu-item>
           <a-menu-item key="3">
             <a-button type="primary">发布</a-button>
@@ -100,7 +100,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { TextComp, ImageComp, textDefaultProps } from 'editor-components-sw'
+import { TextComp, ImageComp } from 'editor-components-sw'
 import { useEditStore } from '@/stores/edit'
 import ListComp from '@/component/ListComp.vue'
 import EditWrapper from '@/component/EditWrapper.vue'
@@ -115,15 +115,19 @@ import { initFastKeys } from '@/plugin/initHotKeys'
 import { initRightMenu } from '@/plugin/initRightMenu'
 import { onMounted } from 'vue'
 import { getWork, updateWork } from '@/request/work'
-import { useRoute } from 'vue-router'
+import { onBeforeRouteLeave, useRoute } from 'vue-router'
 import type { ComponentData, WorkData } from '@/types/edit.'
 import { pageDefaultPropsData } from '@/stores/common/constants'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import { nextTick } from 'vue'
+import { onUnmounted } from 'vue'
 
+let timer = 0
+let isBtnLoading = ref(false)
 const route = useRoute()
-const workId = route.params.id as string
 const editStore = useEditStore()
+const workId = route.params.id as string
+
 const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent, updatePage } =
   editStore
 
@@ -185,6 +189,7 @@ function titleChange(value: string) {
 }
 
 async function saveWork() {
+  isBtnLoading.value = true
   const data = {
     ...pageData.value,
     content: {
@@ -192,11 +197,48 @@ async function saveWork() {
       props: pageData.value.props
     }
   }
-  await updateWork(workId, data).then((res) => {
-    console.log(res)
+
+  await updateWork(workId, data).then(() => {
     message.success('保存成功!')
+    editInfo.isdirty = false
+    isBtnLoading.value = false
   })
 }
+
+onMounted(() => {
+  timer = window.setInterval(
+    () => {
+      if (editInfo.isdirty) {
+        saveWork()
+      }
+    },
+    3 * 60 * 1000
+  )
+})
+
+onUnmounted(() => {
+  clearInterval(timer)
+})
+
+onBeforeRouteLeave((to, from, next) => {
+  if (editInfo.isdirty) {
+    Modal.confirm({
+      title: '作品还未保存',
+      okText: '保存',
+      okType: 'primary',
+      cancelText: '不保存',
+      onOk: async () => {
+        await saveWork()
+        next()
+      },
+      onCancel: () => {
+        next()
+      }
+    })
+  } else {
+    next()
+  }
+})
 </script>
 
 <style scoped>
@@ -214,6 +256,7 @@ async function saveWork() {
 }
 .page-title {
   display: flex;
+  width: 200px;
 }
 .header h4 {
   color: #ffffff;

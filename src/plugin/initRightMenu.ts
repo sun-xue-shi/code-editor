@@ -37,6 +37,8 @@ export function initRightMenu() {
   })
 
   onUnmounted(() => {
-    distoryRightMenu()
+    if (typeof distoryRightMenu === 'function') {
+      distoryRightMenu()
+    }
   })
 }

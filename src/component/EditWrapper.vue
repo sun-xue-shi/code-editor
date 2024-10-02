@@ -193,7 +193,7 @@ function startResize(location: string) {
 .edit-wrapper.active {
   border: 2px solid #1890ff;
   user-select: none;
-  z-index: 1500;
+  z-index: 2;
 }
 
 .edit-wrapper > * {

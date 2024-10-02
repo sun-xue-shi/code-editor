@@ -28,7 +28,8 @@ export const useEditStore = defineStore(
       history: [],
       historyIndex: -1,
       debounceOldData: null,
-      maxRecordLength: 5
+      maxRecordLength: 10,
+      isdirty: false
     })
 
     //存储模版信息
@@ -42,6 +43,7 @@ export const useEditStore = defineStore(
     }
 
     const addEditInfo = (componentData: ComponentData) => {
+      editInfo.value.isdirty = true
       componentData.layerName = '图层' + (editInfo.value.components.length + 1)
       editInfo.value.components.push(componentData)
       addHistory(editInfo.value, {
@@ -110,6 +112,7 @@ export const useEditStore = defineStore(
     }
 
     function updateComponent(updateData: UpdateData) {
+      editInfo.value.isdirty = true
       const { id, isRoot, key, value } = updateData
 
       const updateComponent = editInfo.value.components.find(
@@ -163,6 +166,7 @@ export const useEditStore = defineStore(
     }
 
     function updatePage(updateData: UpdateData) {
+      editInfo.value.isdirty = true
       const { key, value, isRoot } = updateData
 
       if (isRoot) {
@@ -183,6 +187,7 @@ export const useEditStore = defineStore(
     }
 
     function pasteComponent() {
+      editInfo.value.isdirty = true
       if (editInfo.value.copyComponent) {
         const cloneComponent = cloneDeep(editInfo.value.copyComponent)
         cloneComponent.id = v4()
@@ -203,6 +208,7 @@ export const useEditStore = defineStore(
     }
 
     function deleteComponent(id: string) {
+      editInfo.value.isdirty = true
       const currentComponent = editInfo.value.components.find(
         (component: ComponentData) => component.id === id
       )
@@ -227,6 +233,7 @@ export const useEditStore = defineStore(
 
     //撤销
     function toLastStep() {
+      editInfo.value.isdirty = false
       if (editInfo.value.historyIndex === -1) {
         editInfo.value.historyIndex = editInfo.value.history.length - 1
       } else {
@@ -260,6 +267,7 @@ export const useEditStore = defineStore(
 
     //重做
     function toNextStep() {
+      editInfo.value.isdirty = false
       // 从没撤销过
       if (editInfo.value.historyIndex === -1) {
         return

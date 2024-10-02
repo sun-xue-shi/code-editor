@@ -26,6 +26,7 @@ export interface EditorData {
   historyIndex: number
   debounceOldData: any
   maxRecordLength: number
+  isdirty: boolean
 }
 
 export interface PageData {
