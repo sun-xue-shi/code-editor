@@ -1,4 +1,5 @@
-import { textDefaultProps, type ComponentData } from 'editor-components-sw'
+import type { ComponentData } from '@/types/edit.'
+import { textDefaultProps } from 'editor-components-sw'
 import { v4 } from 'uuid'
 
 export const testData: ComponentData[] = [
@@ -60,7 +61,7 @@ export const testData: ComponentData[] = [
   // }
 ]
 
-export const pageDefaultData = {
+export const pageDefaultPropsData = {
   backgroundColor: '#fff',
   backgroundImage: '',
   height: '560px',

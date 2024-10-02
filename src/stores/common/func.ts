@@ -1,6 +1,5 @@
-import type { EditorData, HistoryData, UpdateHistoryData } from '@/types/edit.'
+import type { ComponentData, EditorData, HistoryData, UpdateHistoryData } from '@/types/edit.'
 import { debounce } from '@/utils/edit'
-import type { ComponentData } from 'editor-components-sw'
 import { v4 } from 'uuid'
 
 export function updateHistory(

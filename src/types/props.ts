@@ -46,10 +46,6 @@ export interface ImageComponentProps extends CommonComponentProps {
   src?: string
 }
 
-export interface ShapeComponentProps extends CommonComponentProps {
-  backgroundColor: string
-}
-
 export interface PageProps {
   backgroundColor?: string
   backgroundImage?: string
@@ -58,10 +54,7 @@ export interface PageProps {
   height?: string
 }
 
-export type AllComponentProps = TextComponentProps &
-  ImageComponentProps &
-  ShapeComponentProps &
-  PageProps
+export type AllComponentProps = TextComponentProps & ImageComponentProps & PageProps
 
 export interface PropToForm {
   component: any

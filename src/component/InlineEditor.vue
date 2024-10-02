@@ -37,7 +37,17 @@ const handleClick = async () => {
   inputRef.value?.focus()
 }
 
+// watch(isEditing, (newval) => {
+//   if (newval) {
+//     isOutside.value = false
+//   } else {
+//     isOutside.value = true
+//   }
+// })
+
 watch(isOutside, (newVal) => {
+  console.log(isOutside.value)
+
   if (!validateCheck.value) {
     return message.error('内容不能为空!')
   }

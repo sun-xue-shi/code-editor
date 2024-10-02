@@ -7,12 +7,12 @@ import {
   DragOutlined
 } from '@ant-design/icons-vue'
 import draggable from 'vuedraggable'
-import { type ComponentData } from 'editor-components-sw'
 import InlineEditor from './InlineEditor.vue'
+import type { ComponentData } from '@/types/edit.'
 
 defineProps<{
   list: ComponentData[]
-  selectId: string
+  selectId: string | undefined
 }>()
 
 const emit = defineEmits<{

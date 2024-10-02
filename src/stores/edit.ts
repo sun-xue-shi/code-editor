@@ -4,23 +4,25 @@
 import { v4 } from 'uuid'
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { type ComponentData } from 'editor-components-sw'
-import type { EditorData, UpdateData } from '@/types/edit.'
+import type { ComponentData, EditorData, PageData, UpdateData } from '@/types/edit.'
 import type { AllComponentProps } from '@/types/props'
 import { message } from 'ant-design-vue'
 import { cloneDeep } from 'lodash-es'
-import { pageDefaultData, testData } from './common/constants'
+import { pageDefaultPropsData } from './common/constants'
 import { addHistory, debounceAddUpdateHistory, updateHistory } from './common/func'
 
 export const useEditStore = defineStore(
   'edit',
   () => {
     const editInfo = ref<EditorData>({
-      components: testData,
+      components: [],
       currentElement: '',
       pageData: {
-        props: pageDefaultData,
-        title: 'test'
+        props: pageDefaultPropsData,
+        title: '',
+        id: '',
+        desc: '',
+        coverImg: ''
       },
       copyComponent: null,
       history: [],
@@ -40,6 +42,7 @@ export const useEditStore = defineStore(
     }
 
     const addEditInfo = (componentData: ComponentData) => {
+      console.log('editInfo.value.components', editInfo.value.components)
       componentData.layerName = '图层' + (editInfo.value.components.length + 1)
       editInfo.value.components.push(componentData)
       addHistory(editInfo.value, {
@@ -55,10 +58,12 @@ export const useEditStore = defineStore(
     }
 
     function getCurrentElement() {
-      const comp = editInfo.value.components.find(
-        (component: ComponentData) => component.id === editInfo.value.currentElement
-      )
-      return comp
+      if (editInfo.value.components.length > 0) {
+        const comp = editInfo.value.components.find(
+          (component: ComponentData) => component.id === editInfo.value.currentElement
+        )
+        return comp
+      }
     }
 
     function moveComponent(direction: string, updatedata: UpdateData) {
@@ -110,13 +115,15 @@ export const useEditStore = defineStore(
     function updateComponent(updateData: UpdateData) {
       const { id, isRoot, key, value } = updateData
 
+      console.log('editInfo.value.components', editInfo.value.components)
+
       const updateComponent = editInfo.value.components.find(
         (component: ComponentData) => component.id === (id || editInfo.value.currentElement)
       )
 
       if (updateComponent) {
         if (isRoot) {
-          updateComponent[key as keyof ComponentData] = value
+          ;(updateComponent[key as keyof ComponentData] as string) = value as string
         }
         //传入更新的value为空 --- 删除画布区图片
         else if (!value && key === 'src') {
@@ -161,8 +168,13 @@ export const useEditStore = defineStore(
     }
 
     function updatePage(updateData: UpdateData) {
-      const { key, value } = updateData
-      editInfo.value.pageData.props[key as keyof AllComponentProps] = value as string
+      const { key, value, isRoot } = updateData
+
+      if (isRoot) {
+        editInfo.value.pageData[key as keyof PageData] = value as string
+      } else {
+        editInfo.value.pageData.props[key as keyof AllComponentProps] = value as string
+      }
     }
 
     function copyComponent(id: string) {
@@ -207,7 +219,7 @@ export const useEditStore = defineStore(
       if (deleteCompIndex !== -1) {
         addHistory(editInfo.value, {
           id: v4(),
-          componentId: currentComponent.id,
+          componentId: currentComponent!.id,
           type: 'delete',
           index: deleteCompIndex,
           data: currentComponent
@@ -238,7 +250,7 @@ export const useEditStore = defineStore(
             break
 
           case 'delete':
-            editInfo.value.components.splice(history.index, 0, history.data)
+            editInfo.value.components.splice(history.index!, 0, history.data)
             break
 
           case 'update':

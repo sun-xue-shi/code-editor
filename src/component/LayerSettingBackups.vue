@@ -7,8 +7,8 @@ import {
 } from '@ant-design/icons-vue'
 import { reactive } from 'vue'
 import * as arrayMove from 'array-move'
-import { type ComponentData } from 'editor-components-sw'
 import InlineEditor from './InlineEditor.vue'
+import type { ComponentData } from '@/types/edit.';
 
 const props = defineProps<{
   list: ComponentData[]

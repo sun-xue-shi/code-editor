@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { useEditStore } from '@/stores/edit'
+import type { ComponentData } from '@/types/edit.'
 import { message, type UploadChangeParam } from 'ant-design-vue'
-import { imageDefaultProps, type ComponentData } from 'editor-components-sw'
+import { imageDefaultProps } from 'editor-components-sw'
 import { v4 } from 'uuid'
 
 const editStore = useEditStore()
-const { editInfo, updatePage } = editStore
+const { updatePage } = editStore
 
 const props = withDefaults(
   defineProps<{

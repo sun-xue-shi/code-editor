@@ -51,5 +51,6 @@ function logout() {
   display: flex;
   justify-content: space-between;
   width: 400px;
+  margin-top: 17px;
 }
 </style>

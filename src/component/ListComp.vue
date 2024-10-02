@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { v4 } from 'uuid'
-import { TextComp, type ComponentData } from 'editor-components-sw'
+import { TextComp, textDefaultProps } from 'editor-components-sw'
 import type { TextComponentProps } from '@/types/props'
 import { TextPropsList } from '@/common/constants'
 import ImageUploader from './ImageUploader.vue'
+import type { ComponentData } from '@/types/edit.'
 
 const emit = defineEmits<{
   (e: 'add-item', newData: ComponentData): void
@@ -12,12 +13,13 @@ const emit = defineEmits<{
 const addItem = (props: Partial<TextComponentProps>) => {
   const newData: ComponentData = {
     id: v4(),
-    name: 'ListComp',
+    name: 'text-comp',
+    layerName: '',
     isLocked: false,
     isHidden: false,
     props: {
-      ...props,
-      position: 'absolute'
+      ...textDefaultProps,
+      ...props
     }
   }
   emit('add-item', newData)

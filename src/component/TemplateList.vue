@@ -12,7 +12,7 @@ const list = templateStore.templateInfo
   <div class="template-list-component">
     <ARow :gutter="16">
       <ACol :span="6" v-for="item in list" :key="item.id" class="poster-item">
-        <router-link to="/edit">
+        <router-link :to="`/edit/${item.id}`">
           <ACard hoverable>
             <template #cover>
               <!-- <img :src="item.coverImg"  /> -->

@@ -31,7 +31,7 @@ export class Request {
       (config: any) => {
         mainStore.isMainLoading = true
         // 一般会请求拦截里面加token，用于后端的验证
-        const token = localStorage.getItem('token') as string
+        const token = localStorage.getItem('accessToken') as string
         if (token) {
           config.headers!.Authorization = 'Bearer ' + token
         }

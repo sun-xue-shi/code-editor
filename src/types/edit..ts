@@ -1,4 +1,3 @@
-import { type ComponentData } from 'editor-components-sw'
 import type { AllComponentProps } from './props'
 
 export interface UpdateData {
@@ -22,7 +21,7 @@ export interface EditorData {
   components: ComponentData[]
   currentElement: string
   pageData: PageData
-  copyComponent: ComponentData
+  copyComponent: ComponentData | null
   history: HistoryData[]
   historyIndex: number
   debounceOldData: any
@@ -30,8 +29,11 @@ export interface EditorData {
 }
 
 export interface PageData {
+  id: string
+  desc: string
   title: string
   props: AllComponentProps
+  coverImg: string
 }
 
 export interface UpdateHistoryData {
@@ -45,4 +47,20 @@ export interface EditWrapper {
   id: string
   active: boolean
   props: Record<string, any>
+}
+
+export interface WorkData extends Omit<PageData, 'props'> {
+  content: {
+    components: ComponentData[]
+    props?: AllComponentProps
+  }
+}
+
+export interface ComponentData {
+  props: Record<string, any>
+  id: string
+  name: string
+  layerName: string
+  isHidden: boolean
+  isLocked: boolean
 }

@@ -11,6 +11,29 @@
     </div> -->
     <AModal title="发布成功" width="700px" :footer="null"> 发布成功弹窗 </AModal>
 
+    <a-layout>
+      <a-layout-header class="header">
+        <div class="page-title">
+          <InlineEditor :value="pageData.title" @change="titleChange" class="title">
+            {{ pageData.title }}
+          </InlineEditor>
+        </div>
+        <a-menu :selectable="false" theme="dark" mode="horizontal" :style="{ lineHeight: '64px' }">
+          <a-menu-item key="1">
+            <a-button type="primary">预览和设置</a-button>
+          </a-menu-item>
+          <a-menu-item key="2">
+            <a-button type="primary">保存</a-button>
+          </a-menu-item>
+          <a-menu-item key="3">
+            <a-button type="primary">发布</a-button>
+          </a-menu-item>
+          <a-menu-item key="4">
+            <AboutUser />
+          </a-menu-item>
+        </a-menu>
+      </a-layout-header>
+    </a-layout>
     <ALayout>
       <ALayoutSider width="350" style="background: #fff">
         <div class="sidebar-container">
@@ -21,6 +44,7 @@
         <ALayoutContent class="preview-container">
           <!-- <p>{{ pageData.props }}</p> -->
           <HistoryOperate />
+
           <div class="preview-list" :style="pageData.props" id="canvas-area">
             <EditWrapper
               v-for="ele in elements"
@@ -33,7 +57,7 @@
             >
               <TextComp v-bind="ele.props" v-if="ele.id" />
 
-              <div v-if="ele.props.src">
+              <div v-if="ele.props?.src">
                 <ImageComp v-bind="ele.props" />
               </div>
             </EditWrapper>
@@ -53,9 +77,6 @@
                 <a-empty description="该元素已被锁定,无法编辑" />
               </div>
             </div>
-
-            {{ currentElement }}
-            {{ currentElement && currentElement.props }}
           </ATabPane>
           <ATabPane key="layer" tab="图层设置">
             <layerSetting
@@ -79,7 +100,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { TextComp, ImageComp, type ComponentData } from 'editor-components-sw'
+import { TextComp, ImageComp, textDefaultProps } from 'editor-components-sw'
 import { useEditStore } from '@/stores/edit'
 import ListComp from '@/component/ListComp.vue'
 import EditWrapper from '@/component/EditWrapper.vue'
@@ -87,19 +108,30 @@ import LayerSetting from '@/component/LayerSetting.vue'
 import GroupProps from '@/component/GroupProps.vue'
 import PropsTable from '@/component/PropsTable.vue'
 import HistoryOperate from './HistoryOperate.vue'
+import InlineEditor from '@/component/InlineEditor.vue'
+import AboutUser from '@/component/AboutUser.vue'
 import { pickBy } from 'lodash-es'
 import { initFastKeys } from '@/plugin/initHotKeys'
 import { initRightMenu } from '@/plugin/initRightMenu'
+import { onMounted } from 'vue'
+import { getWork } from '@/request/work'
+import { useRoute } from 'vue-router'
+import type { ComponentData, WorkData } from '@/types/edit.'
+import { pageDefaultPropsData } from '@/stores/common/constants'
 
-initFastKeys()
-initRightMenu()
-
+const route = useRoute()
+const workId = route.params.id as string
 const editStore = useEditStore()
 const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent, updatePage } =
   editStore
 
-const activeKey = ref('component')
+onMounted(() => {
+  initFastKeys()
+  initRightMenu()
+  getWorkInfo()
+})
 
+const activeKey = ref('component')
 const currentElement = computed<undefined | ComponentData>(() => getCurrentElement())
 const elements = computed(() => editInfo.components)
 const pageData = computed(() => editInfo.pageData)
@@ -129,9 +161,32 @@ function updatePosition(data: Record<string, any>) {
 
   updateComponent({ key: keysArr, value: valuesArr, id })
 }
+
+async function getWorkInfo() {
+  if (workId) {
+    await getWork(workId).then((res) => {
+      console.log(workId, res)
+      const { content, ...rest } = res.data as WorkData
+      editInfo.pageData = { ...editInfo.pageData, ...rest }
+      editInfo.components = content.components
+      editInfo.components[0].props = { ...textDefaultProps, ...content.components[0].props }
+      if (content.props) {
+        editInfo.pageData.props = { ...pageDefaultPropsData, ...content.props }
+      }
+    })
+  }
+}
+
+function titleChange(value: string) {
+  updatePage({ key: 'title', value, isRoot: true })
+}
 </script>
 
 <style scoped>
+.title {
+  color: #fff;
+  font-size: 16px;
+}
 .header {
   display: flex;
   justify-content: space-between;
