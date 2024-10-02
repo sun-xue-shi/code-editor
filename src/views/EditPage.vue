@@ -26,7 +26,7 @@
             <a-button type="primary" @click="saveWork"> 保存 </a-button>
           </a-menu-item>
           <a-menu-item key="3">
-            <a-button type="primary">发布</a-button>
+            <a-button type="primary" @click="publishWork">发布</a-button>
           </a-menu-item>
           <a-menu-item key="4">
             <AboutUser />
@@ -38,6 +38,7 @@
       <ALayoutSider width="350" style="background: #fff">
         <div class="sidebar-container">
           <ListComp @addItem="handleAddItem" />
+          <img width="100px" id="test-img" />
         </div>
       </ALayoutSider>
       <ALayout style="padding: 0 24px 24px">
@@ -99,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { TextComp, ImageComp } from 'editor-components-sw'
 import { useEditStore } from '@/stores/edit'
 import ListComp from '@/component/ListComp.vue'
@@ -113,14 +114,13 @@ import AboutUser from '@/component/AboutUser.vue'
 import { pickBy } from 'lodash-es'
 import { initFastKeys } from '@/plugin/initHotKeys'
 import { initRightMenu } from '@/plugin/initRightMenu'
-import { onMounted } from 'vue'
 import { getWork, updateWork } from '@/request/work'
 import { onBeforeRouteLeave, useRoute } from 'vue-router'
 import type { ComponentData, WorkData } from '@/types/edit.'
 import { pageDefaultPropsData } from '@/stores/common/constants'
 import { message, Modal } from 'ant-design-vue'
-import { nextTick } from 'vue'
-import { onUnmounted } from 'vue'
+import html2canvas from 'html2canvas'
+import { useScreenshot } from '@/hooks/useScreenshot'
 
 let timer = 0
 let isBtnLoading = ref(false)
@@ -186,6 +186,13 @@ function getWorkInfo() {
 
 function titleChange(value: string) {
   updatePage({ key: 'title', value, isRoot: true })
+}
+
+async function publishWork() {
+  setActive('')
+  await nextTick()
+  const ele = document.getElementById('canvas-area') as HTMLElement
+  useScreenshot(ele)
 }
 
 async function saveWork() {

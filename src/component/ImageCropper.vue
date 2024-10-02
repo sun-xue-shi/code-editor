@@ -2,7 +2,7 @@
 import { ScissorOutlined } from '@ant-design/icons-vue'
 import { ref, h, watch, nextTick } from 'vue'
 import Cropper from 'cropperjs'
-import { uploadCropper } from '@/request/file'
+import { uploadFile } from '@/request/file'
 import { useEditStore } from '@/stores/edit'
 
 const editStore = useEditStore()
@@ -57,7 +57,7 @@ function handlleOk() {
       if (blob) {
         const formData = new FormData()
         formData.append('files', blob, 'image.png')
-        uploadCropper(formData).then((res) => {
+        uploadFile(formData).then((res) => {
           const imageUrl = res.data?.data.url[0].replace('\\', '\\\\')
 
           if (props.isPageCropper) {
