@@ -27,6 +27,7 @@ export interface EditorData {
   debounceOldData: any
   maxRecordLength: number
   isdirty: boolean
+  channels: Channel[]
 }
 
 export interface PageData {
@@ -64,4 +65,9 @@ export interface ComponentData {
   layerName: string
   isHidden: boolean
   isLocked: boolean
+}
+
+export interface Channel {
+  name: string
+  id: string
 }

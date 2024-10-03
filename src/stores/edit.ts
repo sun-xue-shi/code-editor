@@ -29,7 +29,8 @@ export const useEditStore = defineStore(
       historyIndex: -1,
       debounceOldData: null,
       maxRecordLength: 10,
-      isdirty: false
+      isdirty: false,
+      channels: []
     })
 
     //存储模版信息
@@ -182,7 +183,7 @@ export const useEditStore = defineStore(
       )
       if (copyComponent) {
         editInfo.value.copyComponent = cloneDeep(copyComponent)
-        message.success('当前图层复制成功！')
+        message.success('当前图层复制成功！', 1)
       }
     }
 
@@ -201,9 +202,9 @@ export const useEditStore = defineStore(
           type: 'add'
         })
 
-        message.success('已粘贴复制图层')
+        message.success('已粘贴复制图层', 1)
       } else {
-        message.warn('当前未复制图层!')
+        message.warn('当前未复制图层!', 1)
       }
     }
 
@@ -227,7 +228,7 @@ export const useEditStore = defineStore(
         })
 
         editInfo.value.components.splice(deleteCompIndex, 1)
-        message.success('已删除选中图层')
+        message.success('已删除选中图层', 1)
       }
     }
 

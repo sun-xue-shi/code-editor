@@ -46,7 +46,6 @@ const handleClick = async () => {
 // })
 
 watch(isOutside, (newVal) => {
-  console.log(isOutside.value)
 
   if (!validateCheck.value) {
     return message.error('内容不能为空!')

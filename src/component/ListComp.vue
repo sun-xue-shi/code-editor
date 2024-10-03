@@ -29,7 +29,7 @@ const addItem = (props: Partial<TextComponentProps>) => {
 <template>
   <div class="list-comp">
     <div class="list-item" v-for="item in TextPropsList" :key="item.tag">
-      <TextComp v-bind="item" @click="addItem(item)" />
+      <TextComp v-bind="item" @click="addItem(item)" :style="{ position: 'static' }" />
     </div>
     <ImageUploader />
   </div>

@@ -9,8 +9,16 @@
         <div class="iframe-container">预览</div>
       </div>
     </div> -->
-    <AModal title="发布成功" width="700px" :footer="null"> 发布成功弹窗 </AModal>
-
+    <a-modal
+      title="发布成功"
+      v-model:open="showModal"
+      width="700px"
+      :footer="null"
+      :maskClosable="false"
+      :destroyOnClose="true"
+    >
+      <channel-form />
+    </a-modal>
     <a-layout>
       <a-layout-header class="header">
         <div class="page-title">
@@ -38,7 +46,6 @@
       <ALayoutSider width="350" style="background: #fff">
         <div class="sidebar-container">
           <ListComp @addItem="handleAddItem" />
-          <img width="100px" id="test-img" />
         </div>
       </ALayoutSider>
       <ALayout style="padding: 0 24px 24px">
@@ -56,11 +63,10 @@
               @setActive="handleSetActive"
               :active="ele.id === (currentElement && currentElement.id)"
             >
-              <TextComp v-bind="ele.props" v-if="ele.id" />
-
-              <div v-if="ele.props?.src">
-                <ImageComp v-bind="ele.props" />
+              <div v-if="ele.props?.src" class="img">
+                <ImageComp v-bind="ele.props" class="img" />
               </div>
+              <TextComp v-bind="ele.props" v-else-if="ele.id" />
             </EditWrapper>
           </div>
         </ALayoutContent>
@@ -114,16 +120,16 @@ import AboutUser from '@/component/AboutUser.vue'
 import { pickBy } from 'lodash-es'
 import { initFastKeys } from '@/plugin/initHotKeys'
 import { initRightMenu } from '@/plugin/initRightMenu'
-import { getWork, updateWork } from '@/request/work'
+import { createChannel, getChannels, getWork, publish, updateWork } from '@/request/work'
 import { onBeforeRouteLeave, useRoute } from 'vue-router'
 import type { ComponentData, WorkData } from '@/types/edit.'
 import { pageDefaultPropsData } from '@/stores/common/constants'
 import { message, Modal } from 'ant-design-vue'
-import html2canvas from 'html2canvas'
 import { useScreenshot } from '@/hooks/useScreenshot'
+import ChannelForm from './ChannelForm.vue'
 
 let timer = 0
-let isBtnLoading = ref(false)
+const showModal = ref(false)
 const route = useRoute()
 const editStore = useEditStore()
 const workId = route.params.id as string
@@ -172,7 +178,6 @@ function updatePosition(data: Record<string, any>) {
 function getWorkInfo() {
   if (workId) {
     getWork(workId).then((res) => {
-      console.log(workId, res)
       const { content, ...rest } = res.data as WorkData
       editInfo.pageData = { ...editInfo.pageData, ...rest }
       editInfo.components = content.components
@@ -192,11 +197,26 @@ async function publishWork() {
   setActive('')
   await nextTick()
   const ele = document.getElementById('canvas-area') as HTMLElement
-  useScreenshot(ele)
+  const url = await useScreenshot(ele)
+
+  if (url) {
+    updatePage({ key: 'coverImg', value: url as string, isRoot: true })
+    // await saveWork()
+
+    await publish(workId).then((res) => {
+      showModal.value = true
+    })
+
+    const res = await getChannels({ id: workId })
+
+    if (!res.data || res.data.list.length === 0) {
+      const newChannels = await createChannel({ name: '默认', workId })
+      console.log('newChannels', newChannels)
+    }
+  }
 }
 
 async function saveWork() {
-  isBtnLoading.value = true
   const data = {
     ...pageData.value,
     content: {
@@ -206,9 +226,8 @@ async function saveWork() {
   }
 
   await updateWork(workId, data).then(() => {
-    message.success('保存成功!')
+    message.success('保存成功!', 1)
     editInfo.isdirty = false
-    isBtnLoading.value = false
   })
 }
 
@@ -272,6 +291,10 @@ onBeforeRouteLeave((to, from, next) => {
   position: fixed;
   right: 50%;
   top: 10px;
+}
+.img > * {
+  width: 96px !important;
+  height: 96px !important;
 }
 .preview-container {
   padding: 24px;

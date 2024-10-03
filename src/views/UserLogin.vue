@@ -82,7 +82,6 @@
 
 <script lang="ts" setup>
 import { login, loginCaptcha, type EmailLoginData, type PwdLoginData } from '@/request/user'
-import { useMainStore } from '@/stores/main'
 import { useUserStore } from '@/stores/user'
 import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { message, type FormInstance } from 'ant-design-vue'
@@ -138,7 +137,7 @@ async function sendcode() {
   isLoading.value = true
   await loginCaptcha({ receiver: emailForm.email, type: 1 }).then(() => {
     startBtnTime()
-    message.success('发送成功,60s后可重新发送')
+    message.success('发送成功,60s后可重新发送', 1)
     isLoading.value = false
   })
 }

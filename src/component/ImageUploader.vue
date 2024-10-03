@@ -59,9 +59,9 @@ function handleChange(info: UploadChangeParam) {
       updatePage(data)
     }
 
-    message.success(info.file.name + '文件上传成功')
+    message.success(info.file.name + '文件上传成功', 1)
   } else if (status === 'error') {
-    message.error(info.file.name + '文件上传失败')
+    message.error(info.file.name + '文件上传失败', 1)
   }
 }
 </script>

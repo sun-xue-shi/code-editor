@@ -34,7 +34,7 @@ function logout() {
   localStorage.removeItem('accessToken')
   localStorage.removeItem('refreshToken')
   removeUser()
-  message.success('已退出登录')
+  message.success('已退出登录',1)
   router.push('/login')
 }
 </script>
