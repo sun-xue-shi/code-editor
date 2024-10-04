@@ -1,5 +1,17 @@
 import Request from './index'
 
+export interface QueryWork {
+  pageIndex?: number
+
+  pageSize?: number
+
+  title?: string
+
+  isTemplate?: string
+
+  customSort?: Record<string, any>
+}
+
 export async function getWork(id: string) {
   return await Request.get(`work/${id}`)
 }
@@ -24,6 +36,12 @@ export async function getChannels(data: { id: string }) {
 
 export async function deleteChannel(data: { id: string; workId: string }) {
   return await Request.delete(`work/delete-channel`, {
+    params: data
+  })
+}
+
+export async function getWorkList(data?: QueryWork) {
+  return await Request.get(`work/work-list`, {
     params: data
   })
 }
