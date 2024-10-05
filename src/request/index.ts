@@ -12,7 +12,7 @@ type Result<T> = {
 }
 
 let refreshing = false
-let queue: { config: any; resolve: (value: unknown) => void }[] = []
+const queue: { config: any; resolve: (value: unknown) => void }[] = []
 
 const mainStore = useMainStore()
 
@@ -55,7 +55,8 @@ export class Request {
         mainStore.isMainLoading = false
         const { data, config } = error.response
 
-        if (refreshing) {
+        if (refreshing && !config.url.includes('/user/refresh')) {
+          refreshing = false
           return new Promise((resolve) => {
             queue.push({
               config,
@@ -64,18 +65,23 @@ export class Request {
           })
         }
 
-        if (data.code === 401 && !config.url.includes('/user/refresh')) {
+        if (data.statusCode === 401 && !config.url.includes('/user/refresh')) {
+          let res: any
+
           refreshing = true
 
-          const res = await refreshToken()
+          try {
+            res = await refreshToken()
+          } catch (error) {
+            console.log('刷新token错误', error)
+          } finally {
+            refreshing = false
+          }
 
-          refreshing = false
-
-          if (res.status === 200) {
+          if (res && res.code === 200) {
             queue.forEach(({ config, resolve }) => {
               resolve(this.instance(config))
             })
-            queue = []
             return this.instance(config)
           } else {
             message.error('登录已过期,请重新登录')
@@ -84,6 +90,8 @@ export class Request {
             }, 1500)
           }
         } else {
+          console.log(5555)
+
           message.error(error.response.data.message)
 
           return Promise.reject(error.response)

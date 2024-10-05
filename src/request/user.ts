@@ -31,12 +31,14 @@ export async function login(data: EmailLoginData | PwdLoginData) {
 export async function refreshToken() {
   const res = await Request.get('/user/refresh', {
     params: {
-      refreshToken: localStorage.getItem('refreshToken')
+      token: localStorage.getItem('refreshToken')
     }
   })
 
-  localStorage.setItem('accessToken', res.data.data.accessToken)
-  localStorage.setItem('refreshToken', res.data.data.refreshToken)
+  console.log('res.data', res.data)
 
-  return res.data
+  localStorage.setItem('accessToken', res.data.accessToken)
+  localStorage.setItem('refreshToken', res.data.refreshToken)
+
+  return res
 }
