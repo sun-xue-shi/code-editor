@@ -56,6 +56,9 @@ importers:
       rgb-hex:
         specifier: ^4.1.0
         version: 4.1.0
+      spark-md5:
+        specifier: ^3.0.2
+        version: 3.0.2
       unplugin-vue-components:
         specifier: ^0.27.4
         version: 0.27.4(@babel/parser@7.25.6)(rollup@4.21.2)(vue@3.4.38(typescript@5.4.5))
@@ -87,6 +90,9 @@ importers:
       '@types/node':
         specifier: ^20.14.5
         version: 20.16.3
+      '@types/spark-md5':
+        specifier: ^3.0.4
+        version: 3.0.4
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
@@ -643,6 +649,9 @@ packages:
 
   '@types/qrcode@1.5.5':
     resolution: {integrity: sha512-CdfBi/e3Qk+3Z/fXYShipBT13OJ2fDO2Q2w5CIP5anLTLIndQG9z6P1cnm+8zCWSpm5dnxMFd/uREtb0EXuQzg==}
+
+  '@types/spark-md5@3.0.4':
+    resolution: {integrity: sha512-qtOaDz+IXiNndPgYb6t1YoutnGvFRtWSNzpVjkAPCfB2UzTyybuD4Tjgs7VgRawum3JnJNRwNQd4N//SvrHg1Q==}
 
   '@types/tough-cookie@4.0.5':
     resolution: {integrity: sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==}
@@ -2014,6 +2023,9 @@ packages:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
 
+  spark-md5@3.0.2:
+    resolution: {integrity: sha512-wcFzz9cDfbuqe0FZzfi2or1sgyIrsDwmPwfZC4hiNidPdPINjeUwNfv5kldczoEAcjl9Y1L3SM7Uz2PUEQzxQw==}
+
   stackback@0.0.2:
     resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
 
@@ -2873,6 +2885,8 @@ snapshots:
   '@types/qrcode@1.5.5':
     dependencies:
       '@types/node': 20.16.3
+
+  '@types/spark-md5@3.0.4': {}
 
   '@types/tough-cookie@4.0.5': {}
 
@@ -4402,6 +4416,8 @@ snapshots:
 
   source-map@0.6.1:
     optional: true
+
+  spark-md5@3.0.2: {}
 
   stackback@0.0.2: {}
 

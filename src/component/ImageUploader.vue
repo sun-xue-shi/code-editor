@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import { CHUNK_SIZE } from '@/common/constants'
+import { uploadBigFile, uploadFile } from '@/request/file'
 import { useEditStore } from '@/stores/edit'
 import type { ComponentData } from '@/types/edit.'
+import { getFileHash } from '@/utils/upload'
 import { message, type UploadChangeParam } from 'ant-design-vue'
+import type { UploadProps } from 'ant-design-vue/es/upload'
+import type { FileType } from 'ant-design-vue/es/upload/interface'
 import { imageDefaultProps } from 'editor-components-sw'
 import { v4 } from 'uuid'
 
@@ -16,6 +21,48 @@ const props = withDefaults(
     isPageUploader: false
   }
 )
+
+// const beforeUpload: UploadProps['beforeUpload'] = (file: FileType, files: FileType[]) => {
+//   return new Promise((resolve) => {
+//     const data = new FormData()
+//     const hash = '1213516565'
+//     data.set('name', '15615165.jpg')
+//     data.set('hash', hash)
+//     data.append('files', files)
+
+//     resolve(file)
+//   })
+// }
+
+const customRequest = async (info: any) => {
+  console.log(info)
+
+  const file = info.file as File
+
+  const hash = (await getFileHash(file)) as string
+
+  /* 文件切片 */
+  const chunks = []
+  let startPos = 0
+  while (startPos < file.size) {
+    chunks.push(file.slice(startPos, startPos + CHUNK_SIZE))
+    startPos += CHUNK_SIZE
+  }
+
+  const uploadTask: any[] = []
+  chunks.map((chunk, index) => {
+    const fileData = new FormData()
+    fileData.set('name', hash + '_' + index)
+    fileData.set('hash', hash)
+    fileData.append('files', chunk)
+    uploadTask.push(uploadBigFile(fileData))
+  })
+
+  const res = await Promise.all(uploadTask)
+  console.log('res', res)
+
+  info.onSuccess(res)
+}
 
 function handleChange(info: UploadChangeParam) {
   const { status, response } = info.file
@@ -68,13 +115,7 @@ function handleChange(info: UploadChangeParam) {
 
 <template>
   <div class="uploader">
-    <a-upload-dragger
-      name="files"
-      list-type="picture"
-      action="http://localhost:3000/file/upload"
-      @change="handleChange"
-      :maxCount="1"
-    >
+    <a-upload-dragger name="files" list-type="picture" :customRequest="customRequest" :maxCount="1">
       <a-button> upload </a-button>
       <p>最多只能上传三张图片</p>
     </a-upload-dragger>

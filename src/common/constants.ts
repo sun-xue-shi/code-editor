@@ -99,3 +99,5 @@ export const DefaultGroupProps = [
 ]
 
 export const MAX_EDIT_WIDTH = 373
+
+export const CHUNK_SIZE = 100 * 1024
