@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { CHUNK_SIZE } from '@/common/constants'
-import { uploadBigFile, uploadFile } from '@/request/file'
+import { mergeFile, uploadBigFile, uploadFile } from '@/request/file'
 import { useEditStore } from '@/stores/edit'
 import type { ComponentData } from '@/types/edit.'
 import { getFileHash } from '@/utils/upload'
@@ -52,65 +52,75 @@ const customRequest = async (info: any) => {
   const uploadTask: any[] = []
   chunks.map((chunk, index) => {
     const fileData = new FormData()
-    fileData.set('name', hash + '_' + index)
+    fileData.set('name', hash + '@' + index)
     fileData.set('hash', hash)
     fileData.append('files', chunk)
     uploadTask.push(uploadBigFile(fileData))
   })
 
-  const res = await Promise.all(uploadTask)
-  console.log('res', res)
+  await Promise.all(uploadTask).then(async (res) => {
+    const mergeRes = await mergeFile({ name: file.name, hash })
 
-  info.onSuccess(res)
+    console.log('res', res)
+
+    console.log('mergeRes', mergeRes)
+    info.onSuccess(res)
+  })
+
+  // console.log('mergeRes.data.url.length - 1', mergeRes.data.url.length - 1)
+
+  // console.log('mergeRes.data.url', mergeRes.data.url)
+
+  // const imageUrl = mergeRes.data.url[4].replace('\\', '\\\\')
+
+  // if (!props.isPageUploader) {
+  //   const imageData = {
+  //     id: v4(),
+  //     name: 'image-comp',
+  //     isHidden: false,
+  //     isLocked: false,
+  //     layerName: '默认图层',
+  //     props: {
+  //       ...imageDefaultProps,
+  //       src: mergeRes.data.url[4],
+  //       width: '100px',
+  //       height: '100px',
+  //       position: 'absolute'
+  //     }
+  //   }
+
+  //   let imageCount = 0
+  //   editStore.editInfo.components.forEach((component: ComponentData) => {
+  //     if (component.name === 'image-comp') imageCount++
+  //   })
+
+  //   if (imageCount >= 3) {
+  //     message.warn('画布区最多只能上传三张图片!')
+  //     return
+  //   }
+
+  //   editStore.addEditInfo(imageData)
+  // } else {
+  //   const data = {
+  //     key: 'backgroundImage',
+  //     value: `url('${imageUrl}')`,
+  //     isPage: true
+  //   }
+  //   updatePage(data)
+  // }
+
+  // message.success(info.file.name + '文件上传成功', 1)
 }
 
-function handleChange(info: UploadChangeParam) {
-  const { status, response } = info.file
+// function handleChange(info: UploadChangeParam) {
+//   const { status, response } = info.file
 
-  if (status === 'done') {
-    const imageUrl = response.data.url[0].replace('\\', '\\\\')
+//   if (status === 'done') {
 
-    if (!props.isPageUploader) {
-      const imageData = {
-        id: v4(),
-        name: 'image-comp',
-        isHidden: false,
-        isLocked: false,
-        layerName: '默认图层',
-        props: {
-          ...imageDefaultProps,
-          src: info.file.response.data.url[0],
-          width: '100px',
-          height: '100px',
-          position: 'absolute'
-        }
-      }
-
-      let imageCount = 0
-      editStore.editInfo.components.forEach((component: ComponentData) => {
-        if (component.name === 'image-comp') imageCount++
-      })
-
-      if (imageCount >= 3) {
-        message.warn('画布区最多只能上传三张图片!')
-        return
-      }
-
-      editStore.addEditInfo(imageData)
-    } else {
-      const data = {
-        key: 'backgroundImage',
-        value: `url('${imageUrl}')`,
-        isPage: true
-      }
-      updatePage(data)
-    }
-
-    message.success(info.file.name + '文件上传成功', 1)
-  } else if (status === 'error') {
-    message.error(info.file.name + '文件上传失败', 1)
-  }
-}
+//   } else if (status === 'error') {
+//     message.error(info.file.name + '文件上传失败', 1)
+//   }
+// }
 </script>
 
 <template>

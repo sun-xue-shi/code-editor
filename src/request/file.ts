@@ -15,3 +15,9 @@ export async function uploadBigFile(formData: FormData) {
     }
   })
 }
+
+export async function mergeFile(data: { name: string; hash: string }) {
+  return await Request.get('file/merge', {
+    params: data
+  })
+}
