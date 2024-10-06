@@ -6,12 +6,13 @@ import {
   Slider,
   RadioGroup,
   RadioButton,
-  Input,
-  Image
+  Input
 } from 'ant-design-vue'
 import type { VNode } from 'vue'
 import { h } from 'vue'
 import imageProesser from '@/component/imageProesser.vue'
+import type { PageProps } from './edit.'
+import BackgroundProcesser from '@/component/BackgroundProcesser.vue'
 
 /**元素通用属性 */
 export interface CommonComponentProps {
@@ -27,6 +28,7 @@ export interface CommonComponentProps {
   paddingTop?: string
   paddingBottom?: string
   // border type
+  boxSizing?: string
   borderStyle?: string
   borderColor?: string
   borderWidth?: string
@@ -64,7 +66,15 @@ export interface ShapeComponentProps extends CommonComponentProps {
   backgroundColor: string
 }
 
-export type AllComponentProps = TextComponentProps & ImageComponentProps & ShapeComponentProps
+export interface PageData {
+  props: PageProps
+  test: string
+}
+
+export type AllComponentProps = TextComponentProps &
+  ImageComponentProps &
+  ShapeComponentProps &
+  PageProps
 
 export interface PropToForm {
   component: any
@@ -79,7 +89,7 @@ export interface PropToForm {
 }
 
 export type PropToForms = {
-  [p in keyof TextComponentProps]?: PropToForm
+  [p in keyof AllComponentProps]?: PropToForm
 }
 
 const fontFamilyArr = [
@@ -151,7 +161,75 @@ export const mapPropsToForms: PropToForms = {
   },
   src: {
     component: imageProesser,
-    text: '',
+    text: ''
+  },
+  height: {
+    component: Input,
+    text: '高度',
+    afterTransform: (e: any) => e.target.value
+  },
+  top: {
+    component: Input,
+    text: 'top',
+    afterTransform: (e: any) => e.target.value
+  },
+  left: {
+    component: Input,
+    text: 'left',
+    afterTransform: (e: any) => e.target.value
+  },
+
+  paddingLeft: {
+    component: Input,
+    text: '左内边距',
+    afterTransform: (e: any) => e.target.value
+  },
+  boxSizing: {
+    component: Input,
+    text: '盒子模型',
+    afterTransform: (e: any) => e.target.value
+  },
+  borderStyle: {
+    component: Input,
+    text: '边框样式',
+    afterTransform: (e: any) => e.target.value
+  },
+  borderColor: {
+    component: Input,
+    text: '边框颜色',
+    afterTransform: (e: any) => e.target.value
+  },
+  boxShadow: {
+    component: Input,
+    text: '宽度',
+    afterTransform: (e: any) => e.target.value
+  },
+  position: {
+    component: Input,
+    text: '定位',
+    afterTransform: (e: any) => e.target.value
+  },
+  backgroundColor: {
+    component: ColorPicker,
+    text: '背景颜色'
+  },
+  backgroundImage: {
+    component: BackgroundProcesser,
+    initailTransform: (v: string) => {
+      if (v) {
+        const reg = /\(["'](.+)["']\)/g
+        const matches = reg.exec(v)
+        if (matches && matches.length > 1) {
+          return matches[1]
+        } else {
+          return ''
+        }
+      }
+      return ''
+    },
+    afterTransform: (e: string) => {
+      e ? `url(${e})` : ''
+    }
   }
 }
 

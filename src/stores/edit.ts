@@ -3,49 +3,71 @@
  */
 
 import { v4 } from 'uuid'
-import type { EditorData, CompData } from '@/types/edit.'
+import type {
+  EditorData,
+  CompData,
+  PageProps,
+  MoveType,
+  UpdateComponentsType,
+  HistoryProps
+} from '@/types/edit.'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import type { TextComponentProps } from '@/types/props'
+import { computed, ref } from 'vue'
+import type { AllComponentProps, TextComponentProps } from '@/types/props'
+import textDefaultProps from 'editor-components-sw'
+import { message } from 'ant-design-vue'
+import { cloneDeep } from 'lodash-es'
+import { insertAt } from '@/utils/helper'
 
 const testData: CompData[] = [
   {
     id: v4(),
-    name: 'div',
+    name: 'text-comp',
+    isHidden: true,
+    isLocked: false,
+    layerName: '图层1',
     props: {
+      ...textDefaultProps,
       text: 'test',
-      fontSize: '10px',
+      fontSize: '18px',
       color: '#000000',
-      actionType: 'url'
-    }
-  },
-  {
-    id: v4(),
-    name: 'div',
-    props: { text: 'test1', fontSize: '20px', actionType: 'url', url: 'https://www.baidu.com' }
-  },
-  {
-    id: v4(),
-    name: 'div',
-    props: {
-      text: 'test2',
-      color: 'blue'
-    }
-  },
-  {
-    id: v4(),
-    name: 'div',
-    props: {
-      src: 'https://imgs.699pic.com/images/500/618/976.jpg!seo.v1',
-      width: '100px'
+      tag: 'span',
+      height: '100px',
+      width: '100px',
+      lineHeight: '1',
+      boxSizing: 'content-box',
+      position: 'absolute',
+      textAlign: 'left',
+      top: '10px',
+      left: '10px',
+      backgroundColor: '#efefef'
     }
   }
 ]
 
+const pageDefaultProps = {
+  backgroundColor: '#FFFFFF',
+  backgroundImage: 'url("https://img.keaitupian.cn/newupload/08/1629449018344288.jpg")',
+  height: '560px',
+  backgroundSize: 'cover',
+  backgroundRepeat: 'no-repeat'
+}
+
 export const useEditStore = defineStore(
   'edit',
   () => {
-    const editInfo = ref<EditorData>({ components: testData, currentElement: '' })
+    const editInfo = ref<EditorData>({
+      components: testData,
+      currentElement: '',
+      page: {
+        props: pageDefaultProps,
+        test: 'test title'
+      },
+      histories: [],
+      historyIndex: -1,
+      cacheOldValue: null,
+      maxHistoryNumber: 5
+    })
 
     //存储模版信息
     const setEditInfo = (template: EditorData) => {
@@ -58,7 +80,14 @@ export const useEditStore = defineStore(
     }
 
     const addEditInfo = (componentData: CompData) => {
+      componentData.layerName = '图层' + (editInfo.value.components.length + 1)
       editInfo.value.components.push(componentData)
+      pushHistory(editInfo.value, {
+        id: v4(),
+        currentElId: componentData.id,
+        type: 'add',
+        data: cloneDeep(componentData)
+      })
     }
 
     function setActive(editInfo: EditorData, currentId: string) {
@@ -72,12 +101,257 @@ export const useEditStore = defineStore(
       return comp
     }
 
-    function updateComponent(editInfo2: EditorData, { key, value }) {
+    function debounceChange(callback: (...arg: any) => void, timeout = 1000) {
+      let timer = 0
+      return (...arg: any) => {
+        clearTimeout(timer)
+        timer = window.setTimeout(() => {
+          callback(...arg)
+        }, timeout)
+      }
+    }
+
+    function pushMotifyHistory(
+      editValue: EditorData,
+      { key, value, id }: UpdateComponentsType,
+      oldValue: any
+    ) {
+      pushHistory(editValue, {
+        id: v4(),
+        currentElId: id || editValue.currentElement,
+        type: 'modify',
+        data: {
+          oldValue: editValue.cacheOldValue,
+          newValue: value,
+          key
+        }
+      })
+      editValue.cacheOldValue = null
+    }
+
+    const pushHistoryDebounce = debounceChange(pushMotifyHistory)
+    function pushHistory(editValue: EditorData, historyRecord: HistoryProps) {
+      if (editValue.historyIndex !== -1) {
+        editValue.histories = editValue.histories.slice(0, editValue.historyIndex)
+        editValue.historyIndex = -1
+      }
+      if (editValue.maxHistoryNumber > editValue.histories.length) {
+        editValue.histories.push(historyRecord)
+      } else {
+        editValue.histories.shift()
+        editValue.histories.push(historyRecord)
+      }
+    }
+
+    function updateComponent(
+      editInfo2: EditorData,
+      { key, value, id, isRoot }: UpdateComponentsType
+    ) {
       const update = editInfo2.components.find(
-        (component) => component.id === editInfo2.currentElement
+        (component) => component.id === (id || editInfo2.currentElement)
       )
       if (update) {
-        update.props[key as keyof TextComponentProps] = value
+        if (isRoot) {
+          ;(update as any)[key as string] = value
+        } else {
+          const oldValue = Array.isArray(key)
+            ? key.map((key) => update.props[key])
+            : update.props[key]
+          if (!editInfo2.cacheOldValue) {
+            editInfo2.cacheOldValue = oldValue
+          }
+          pushHistoryDebounce(editInfo2, { key, value, id }, oldValue)
+          if (Array.isArray(key) && Array.isArray(value)) {
+            key.forEach((keyName, index) => {
+              update.props[keyName] = value[index]
+            })
+          } else if (typeof key === 'string' && typeof value === 'string') {
+            update.props[key] = value
+          }
+        }
+      }
+    }
+
+    function updatePage(editInfo3: EditorData, { key, value }) {
+      editInfo3.page.props[key as keyof PageProps] = value
+    }
+
+    function copyComponent(editValue: EditorData, id: string) {
+      const comp = editValue.components.find(
+        (component) => component.id === (id || editValue.currentElement)
+      )
+      if (comp) {
+        editInfo.value.copyComponent = comp
+        message.success('已拷贝当前图层', 1)
+      }
+    }
+
+    function pasteCopyComponnet(editValue: EditorData) {
+      if (editValue.copyComponent) {
+        const clone = cloneDeep(editValue.copyComponent)
+        clone.id = v4()
+        clone.layerName = clone.layerName + '副本'
+        editValue.components.push(clone)
+        pushHistory(editValue, {
+          id: v4(),
+          currentElId: clone.id,
+          type: 'add',
+          data: cloneDeep(clone)
+        })
+        message.success('粘贴成功', 1)
+      }
+    }
+    function deleteComponet(editValue: EditorData, id: string) {
+      const comp = editValue.components.find(
+        (component) => component.id === (id || editValue.currentElement)
+      )
+      if (comp) {
+        const currentIndex = editValue.components.findIndex((comp) => {
+          comp.id === id
+        })
+        editValue.components = editValue.components.filter((comp) => comp.id !== id)
+        pushHistory(editValue, {
+          id: v4(),
+          currentElId: comp.id,
+          type: 'delete',
+          data: comp,
+          index: currentIndex
+        })
+        message.success('删除成功', 1)
+      }
+    }
+
+    function moveComponent(editValue: EditorData, data: MoveType) {
+      const currentElement = editValue.components.find(
+        (component) => component.id === (data.id || editValue.currentElement)
+      )
+
+      if (currentElement) {
+        const oldTop = parseInt(currentElement.props.top || '0')
+        const oldLeft = parseInt(currentElement.props.left || '0')
+        const { direction, amount } = data
+
+        switch (direction) {
+          case 'Up': {
+            const newTop = oldTop - amount + 'px'
+            updateComponent(editValue, { key: 'top', value: newTop, id: data.id, isRoot: false })
+            break
+          }
+          case 'Down': {
+            const newTop = oldTop + amount + 'px'
+            updateComponent(editValue, { key: 'top', value: newTop, id: data.id, isRoot: false })
+            break
+          }
+          case 'Left': {
+            const newLeft = oldLeft - amount + 'px'
+            updateComponent(editValue, { key: 'left', value: newLeft, id: data.id, isRoot: false })
+            break
+          }
+          case 'Right': {
+            const newLeft = oldLeft + amount + 'px'
+            updateComponent(editValue, { key: 'left', value: newLeft, id: data.id, isRoot: false })
+            break
+          }
+          default:
+            break
+        }
+      }
+    }
+
+    function motifyHistory(editValue: EditorData, history: HistoryProps, type: 'undo' | 'redo') {
+      const { currentElId, data } = history
+      const { key, oldValue, newValue } = data
+      const newKey = key as keyof AllComponentProps | Array<keyof AllComponentProps>
+      const updateComp = editValue.components.find((comp) => comp.id === currentElId)
+      if (updateComp) {
+        if (Array.isArray(newKey)) {
+          newKey.forEach((keyName, index) => {
+            updateComp.props[keyName] = type === 'undo' ? oldValue[index] : newValue[index]
+          })
+        } else {
+          updateComp.props[newKey] = type === 'undo' ? oldValue : newValue
+        }
+      }
+    }
+
+    function undo(editValue: EditorData) {
+      if (editValue.historyIndex === -1) {
+        editValue.historyIndex = editValue.histories.length - 1
+      } else {
+        editValue.historyIndex--
+      }
+      const history = editValue.histories[editValue.historyIndex]
+      switch (history.type) {
+        case 'add': {
+          editValue.components = editValue.components.filter((comp) => comp.id !== history.data.id)
+          break
+        }
+        case 'delete': {
+          editValue.components = insertAt(
+            editValue.components,
+            history.index as number,
+            history.data
+          )
+          break
+        }
+        case 'modify': {
+          motifyHistory(editValue, history, 'undo')
+          break
+        }
+        default:
+          break
+      }
+    }
+
+    function redo(editValue: EditorData) {
+      if (editValue.historyIndex === -1) {
+        return
+      }
+      const history = editValue.histories[editValue.historyIndex]
+      switch (history.type) {
+        case 'add': {
+          editValue.components.push(history.data)
+          break
+        }
+        case 'delete': {
+          editValue.components = editValue.components.filter((comp) => comp.id !== history.id)
+          break
+        }
+        case 'modify': {
+          motifyHistory(editValue, history, 'redo')
+
+          break
+        }
+        default:
+          break
+      }
+      editValue.historyIndex++
+    }
+
+    function resetEditor(editValue: EditorData) {
+      editValue.components = []
+      editValue.currentElement = ''
+      editValue.histories = []
+      editValue.historyIndex = -1
+    }
+
+    function checkUndoDisable(editvalue: EditorData) {
+      if (editvalue.histories.length === 0 || editvalue.historyIndex === 0) {
+        return true
+      } else {
+        return false
+      }
+    }
+
+    function checkRedoDisable(editValue: EditorData) {
+      if (
+        editValue.histories.length === 0 ||
+        editValue.historyIndex === -1 ||
+        editValue.historyIndex === editValue.histories.length
+      ) {
+        return true
+      } else {
+        return false
       }
     }
 
@@ -88,7 +362,17 @@ export const useEditStore = defineStore(
       addEditInfo,
       setActive,
       getCurrentElement,
-      updateComponent
+      updateComponent,
+      updatePage,
+      copyComponent,
+      pasteCopyComponnet,
+      deleteComponet,
+      moveComponent,
+      undo,
+      resetEditor,
+      redo,
+      checkRedoDisable,
+      checkUndoDisable
     }
   },
   // pinia定制化

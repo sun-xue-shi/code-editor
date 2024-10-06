@@ -14,19 +14,20 @@ interface ImageProps {
 }
 
 const props = withDefaults(defineProps<ImageProps>(), {
-  delete: false
+  delete: true
 })
 
 const cropperImg = ref<null | HTMLImageElement>(null)
 const showModal = ref(false)
 const backgroundUrl = computed(() => `url(${props.value})`)
-const showDelete = ref(false)
 let cropper: Cropper
 let cropperData = ref({})
 watch(showModal, async (newValue) => {
   if (newValue) {
     await nextTick()
     if (cropperImg.value) {
+      console.log('cropperImg.value', cropperImg.value)
+
       cropper = new Cropper(cropperImg.value, {
         aspectRatio: 16 / 9,
         viewMode: 1,
@@ -55,6 +56,11 @@ function handleDelete() {
 }
 function handlleOk() {
   if (cropperData.value) {
+    console.log('cropperData.value', cropperData.value)
+    console.log('cropper', cropper)
+
+    console.log('cropper.getCroppedCanvas', cropper.getCroppedCanvas())
+
     cropper.getCroppedCanvas().toBlob((blob) => {
       if (blob) {
         const formData = new FormData()
@@ -62,7 +68,7 @@ function handlleOk() {
         cropper.getCroppedCanvas().toBlob((blob) => {
           if (blob) {
             const formData = new FormData()
-            formData.append('croppedImage', blob, 'name')
+            formData.append('files', blob, 'image.png')
             axios
               .post('http://localhost:3000/file/upload', formData, {
                 headers: {
@@ -70,8 +76,8 @@ function handlleOk() {
                 }
               })
               .then((res) => {
-                emit('change', res.data)
-                console.log(res, 'res')
+                emit('change', res.data.data.url[0])
+                console.log('res', res.data.data.url[0])
                 showModal.value = false
               })
           }
@@ -91,12 +97,15 @@ function handlleOk() {
       @cancel="showModal = false"
       okText="确认"
       cancelText="取消"
+      destroyOnClose
     >
       <div class="image-cropper">
-        <img :src="props.value" alt="" id="processed-image" ref="cropperImg" />
+        <img :src="value" alt="" id="processed-image" ref="cropperImg" crossorigin="anonymous" />
       </div>
     </a-modal>
-    <div class="image-preview" :style="{ backgroundImage: backgroundUrl }"></div>
+    <div class="image-preview">
+      <img :src="value" alt="" width="100%" />
+    </div>
     <div class="image-process">
       <div>
         <SuperUploader url="http://localhost:3000/file/upload" />
@@ -104,14 +113,17 @@ function handlleOk() {
       <a-button @click="showModal = true" style="width: 100%">
         <template v-slot:icon><ScissorOutlined />裁剪图片</template>
       </a-button>
-      <a-buttom v-if="showDelete" type="danger" @click="handleDelete">
+      <a-button v-if="props.delete" type="danger" @click="handleDelete" style="width: 100%">
         <template v-slot:icon><DeleteOutlined />删除图片</template>
-      </a-buttom>
+      </a-button>
     </div>
   </div>
 </template>
 
 <style scoped lang="less">
+.ant-modal div[aria-hidden='true'] {
+  display: none !important;
+}
 .imgage-processer {
   display: flex;
   justify-content: space-between;

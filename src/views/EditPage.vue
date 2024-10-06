@@ -20,36 +20,60 @@
       <ALayout style="padding: 0 24px 24px">
         <ALayoutContent class="preview-container">
           <p>画布区域</p>
-          <div class="preview-list">
-            <EditWrapper
-              v-for="ele in elements"
-              :key="ele.id"
-              :id="ele.id"
-              @setActive="handleSetActive"
-              :active="ele.id === (currentElement && currentElement.id)"
-            >
-              <TextComp :tag="ele.name" v-bind="ele.props" />
 
-              <div class="img" v-if="ele.props.src">
-                <ImageComp v-bind="ele.props" />
-              </div>
-            </EditWrapper>
+          <HistoryArea @undo="handleUndo" @redo="handleRedo" />
+          <div class="preview-list" id="canvas-area">
+            <div class="body-container" :style="page.props">
+              <EditWrapper
+                v-for="ele in elements"
+                :key="ele.id"
+                :id="ele.id"
+                @setActive="handleSetActive"
+                @update-position="handleUpdatePosition"
+                :active="ele.id === (currentElement && currentElement.id)"
+                :props="ele?.props"
+              >
+                <TextComp v-bind="ele.props" />
+
+                <div class="img" v-if="ele.props.src">
+                  <ImageComp v-bind="ele.props" />
+                </div>
+              </EditWrapper>
+            </div>
           </div>
         </ALayoutContent>
       </ALayout>
       <ALayoutSider width="300" style="background: #fff" class="settings-panel">
         <ATabs type="card">
           <ATabPane key="component" tab="属性设置" class="no-top-radius">
-            <PropsTable
-              v-if="currentElement && currentElement.props"
-              :props="currentElement?.props"
-              @change="handleChange"
-            />
+            <div v-if="currentElement">
+              <EditGroup
+                v-if="!currentElement.isLocked"
+                :props="currentElement?.props"
+                @change="handleChange"
+              />
+            </div>
+            <div v-else>
+              <a-empty>
+                <template #description>
+                  <p>该元素被锁定无法编辑</p>
+                </template>
+              </a-empty>
+            </div>
             {{ currentElement && currentElement.props }}
           </ATabPane>
-          <ATabPane key="layer" tab="图层设置"> 图层设置内容 </ATabPane>
+          <ATabPane key="layer" tab="图层设置">
+            <LayerList
+              :list="elements"
+              @change="handleChange"
+              :select-id="currentElement && currentElement.id"
+              @select="handleSetActive"
+            />
+          </ATabPane>
           <ATabPane key="page" tab="页面设置">
-            <div class="page-settings">页面设置content</div>
+            <div class="page-settings">
+              <PropsTable :props="page.props" @change="pageChange" />
+            </div>
           </ATabPane>
         </ATabs>
       </ALayoutSider>
@@ -65,14 +89,34 @@ import ImageComp from '@/component/ImageComp.vue'
 import { useEditStore } from '@/stores/edit'
 import EditWrapper from '@/component/EditWrapper.vue'
 import { computed } from 'vue'
-import type { CompData } from '@/types/edit.'
+import type { CompData, PositionType } from '@/types/edit.'
 import PropsTable from '@/component/PropsTable.vue'
+import LayerList from '@/component/LayerList.vue'
+import EditGroup from '@/component/EditGroup.vue'
+import { pickBy } from 'lodash-es'
+import initHotkeys from '@/plugins/hotkeys/initHotkeys'
+import HistoryArea from '@/component/HistoryArea.vue'
+import initRightMenu from '@/plugins/hotkeys/initRightMenu'
+
+initHotkeys()
+initRightMenu()
 
 const editStore = useEditStore()
-const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent } = editStore
-const elements = editInfo.components
+const {
+  addEditInfo,
+  editInfo,
+  getCurrentElement,
+  setActive,
+  updateComponent,
+  updatePage,
+  undo,
+  redo
+} = editStore
+const elements = computed(() => editInfo.components)
 const currentElement = computed<undefined | CompData>(() => getCurrentElement(editInfo))
-
+const page = computed(() => {
+  return editInfo.page
+})
 const handleAddItem = (newData: CompData) => {
   addEditInfo(newData)
 }
@@ -82,6 +126,22 @@ function handleSetActive(id: string) {
 }
 function handleChange(e: any) {
   updateComponent(editInfo, e)
+}
+async function pageChange(e: any) {
+  updatePage(editInfo, e)
+}
+async function handleUpdatePosition(data: PositionType) {
+  const { id } = data
+  const updateData = pickBy(data, (v, k) => k !== 'id')
+  const keyArr = Object.keys(updateData)
+  const valueArr = Object.values(updateData).map((value) => value + 'px')
+  updateComponent(editInfo, { key: keyArr, value: valueArr, id, isRoot: false })
+}
+function handleUndo() {
+  undo(editInfo)
+}
+function handleRedo() {
+  redo(editInfo)
 }
 </script>
 

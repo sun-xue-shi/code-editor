@@ -88,6 +88,8 @@ function postFile(readyFile: UploaderFile) {
 function uploadFiles(files: null | FileList) {
   if (files) {
     const uploadFile = files[0]
+    console.log('uploadFile', uploadFile)
+
     if (props.beforeUpload) {
       const result = props.beforeUpload(uploadFile)
       if (result && result instanceof Promise) {

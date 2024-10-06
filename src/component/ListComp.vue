@@ -98,18 +98,18 @@ const imageUpload = (response: UploadResponse) => {
     id: v4(),
     name: 'img',
     props: {
-      ...imageDefaultProps
+      src: response.data.url,
+      width: '100px'
     }
   }
   message.success('上传成功')
-  newData.props.src = response.data.url
-  getImageSize(response.data.url).then(({ naturalWidth }) => {
-    newData.props.width = (naturalWidth > MAX_EDIT_WIDTH
-      ? MAX_EDIT_WIDTH
-      : naturalWidth) as unknown as string
+  emit('add-item', newData)
+  // getImageSize(response.data.url).then(({ naturalWidth }) => {
+  //   newData.props.width = (naturalWidth > MAX_EDIT_WIDTH
+  //     ? MAX_EDIT_WIDTH
+  //     : naturalWidth) as unknown as string
 
-    emit('add-item', newData)
-  })
+  // })
 }
 </script>
 
