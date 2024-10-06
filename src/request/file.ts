@@ -21,3 +21,9 @@ export async function mergeFile(data: { name: string; hash: string }) {
     params: data
   })
 }
+
+export async function checkFile(data: { name: string; hash: string; chunkTotal: number }) {
+  return await Request.get('file/check-chunks', {
+    params: data
+  })
+}
