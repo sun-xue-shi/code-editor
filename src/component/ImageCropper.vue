@@ -58,7 +58,9 @@ function handlleOk() {
         const formData = new FormData()
         formData.append('files', blob, 'image.png')
         uploadFile(formData).then((res) => {
-          const imageUrl = res.data?.data.url[0].replace('\\', '\\\\')
+          console.log(res.data.url[0])
+
+          const imageUrl = res.data?.url[0].replace('\\', '\\\\')
 
           if (props.isPageCropper) {
             const data = {
@@ -67,8 +69,8 @@ function handlleOk() {
             }
             updatePage(data)
           }
-          emit('change', res.data?.data.url[0])
-          cropperUrl.value = res.data?.data.url[0]
+          emit('change', res.data.url[0])
+          cropperUrl.value = res.data.url[0]
           isShowModal.value = false
           cropper.destroy()
         })

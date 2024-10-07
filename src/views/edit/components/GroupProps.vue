@@ -3,7 +3,7 @@ import type { AllComponentProps } from '@/types/props'
 import { difference } from 'lodash-es'
 import { computed, ref } from 'vue'
 import { DefaultGroupProps } from '@/common/constants'
-import PropsTable from '@/component/PropsTable.vue'
+import PropsTable from '@/views/edit/components/PropsTable.vue'
 
 export interface GroupProp {
   name: string

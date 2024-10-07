@@ -7,7 +7,7 @@ import {
   DragOutlined
 } from '@ant-design/icons-vue'
 import draggable from 'vuedraggable'
-import InlineEditor from './InlineEditor.vue'
+import InlineEditor from '../../../component/InlineEditor.vue'
 import type { ComponentData } from '@/types/edit.'
 
 defineProps<{

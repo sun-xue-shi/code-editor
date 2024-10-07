@@ -3,7 +3,7 @@ import { v4 } from 'uuid'
 import { TextComp, textDefaultProps } from 'editor-components-sw'
 import type { TextComponentProps } from '@/types/props'
 import { TextPropsList } from '@/common/constants'
-import ImageUploader from './ImageUploader.vue'
+import ImageUploader from '../../../component/ImageUploader.vue'
 import type { ComponentData } from '@/types/edit.'
 import { ref } from 'vue'
 

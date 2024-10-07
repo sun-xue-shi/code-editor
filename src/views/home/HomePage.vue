@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import TemplateList from '@/component/TemplateList.vue'
+import TemplateList from '@/views/home/TemplateList.vue'
 import { getWorkList } from '@/request/work'
 import { useTemplateStore } from '@/stores/template'
 import { onMounted } from 'vue'
