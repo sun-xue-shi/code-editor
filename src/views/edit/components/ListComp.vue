@@ -5,7 +5,6 @@ import type { TextComponentProps } from '@/types/props'
 import { TextPropsList } from '@/common/constants'
 import ImageUploader from '../../../component/ImageUploader.vue'
 import type { ComponentData } from '@/types/edit.'
-import { ref } from 'vue'
 
 const emit = defineEmits<{
   (e: 'add-item', newData: ComponentData): void
