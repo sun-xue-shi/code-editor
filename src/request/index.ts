@@ -56,7 +56,6 @@ export class Request {
         const { data, config } = error.response
 
         if (refreshing && !config.url.includes('/user/refresh')) {
-          refreshing = false
           return new Promise((resolve) => {
             queue.push({
               config,

@@ -29,13 +29,13 @@ export async function login(data: EmailLoginData | PwdLoginData) {
 }
 
 export async function refreshToken() {
+  console.log('刷新token')
+
   const res = await Request.get('/user/refresh', {
     params: {
       token: localStorage.getItem('refreshToken')
     }
   })
-
-
 
   localStorage.setItem('accessToken', res.data.accessToken)
   localStorage.setItem('refreshToken', res.data.refreshToken)
