@@ -53,7 +53,13 @@
           <!-- <p>{{ pageData.props }}</p> -->
           <HistoryOperate />
 
-          <div class="preview-list" :style="pageData.props" id="canvas-area">
+          <div
+            class="preview-list"
+            :style="pageData.props"
+            id="canvas-area"
+            @drop="handleDrop"
+            @dragover="handleDragover"
+          >
             <EditWrapper
               v-for="ele in elements"
               @update-position="updatePosition"
@@ -128,6 +134,14 @@ import { message, Modal } from 'ant-design-vue'
 import { useScreenshot } from '@/hooks/useScreenshot'
 import ChannelForm from './ChannelForm.vue'
 
+onMounted(() => {
+  nextTick()
+  getWorkInfo()
+})
+
+initFastKeys()
+initRightMenu()
+
 let timer = 0
 const showModal = ref(false)
 const route = useRoute()
@@ -136,13 +150,6 @@ const workId = route.params.id as string
 
 const { addEditInfo, editInfo, getCurrentElement, setActive, updateComponent, updatePage } =
   editStore
-
-onMounted(() => {
-  initFastKeys()
-  initRightMenu()
-  nextTick()
-  getWorkInfo()
-})
 
 const activeKey = ref('component')
 const currentElement = computed<undefined | ComponentData>(() => getCurrentElement())
@@ -193,6 +200,29 @@ function titleChange(value: string) {
   updatePage({ key: 'title', value, isRoot: true })
 }
 
+function handleDrop(event: DragEvent) {
+  event.preventDefault()
+
+  const container = document.getElementById('canvas-area') as HTMLElement
+
+  const { x, y } = container.getBoundingClientRect()
+
+  const newItemData = JSON.parse(event.dataTransfer!.getData('data'))
+  const position = JSON.parse(event.dataTransfer!.getData('position'))
+
+  const left = event.pageX - x - position.x + 'px'
+  const top = event.pageY - y - position.y + 'px'
+
+  newItemData.props.left = left
+  newItemData.props.top = top
+
+  addEditInfo(newItemData)
+}
+
+function handleDragover(event: DragEvent) {
+  event.preventDefault()
+}
+
 async function publishWork() {
   setActive('')
   await nextTick()
@@ -211,7 +241,6 @@ async function publishWork() {
 
     if (!res.data || res.data.list.length === 0) {
       const newChannels = await createChannel({ name: '默认', workId })
-      console.log('newChannels', newChannels)
     }
   }
 }
@@ -227,6 +256,7 @@ async function saveWork() {
 
   await updateWork(workId, data).then(() => {
     message.success('保存成功!', 1)
+    editInfo.history = []
     editInfo.isdirty = false
   })
 }

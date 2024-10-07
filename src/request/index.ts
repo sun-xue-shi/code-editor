@@ -90,8 +90,6 @@ export class Request {
             }, 1500)
           }
         } else {
-          console.log(5555)
-
           message.error(error.response.data.message)
 
           return Promise.reject(error.response)

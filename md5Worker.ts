@@ -1,8 +1,6 @@
 import SparkMD5 from 'spark-md5'
 
 self.addEventListener('message', async (event) => {
-  console.log('event', event.data)
-
   const file = event.data
   const md5 = await getFileHash(file)
   self.postMessage(md5)

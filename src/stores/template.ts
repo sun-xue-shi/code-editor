@@ -23,7 +23,6 @@ export const useTemplateStore = defineStore(
     //存储模版信息
     const setTemplate = (template: templateInfo[]) => {
       templateInfo.value = template
-      console.log('templateInfo4', templateInfo.value)
     }
 
     //清除模版信息

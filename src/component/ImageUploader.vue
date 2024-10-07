@@ -47,7 +47,6 @@ const customRequest = async (info: any) => {
   const worker = new Worker('../../md5Worker.ts', { type: 'module' })
   worker.postMessage(file)
   worker.onmessage = async (e) => {
-    console.log('e.data', e.data)
     hash = e.data
     worker.terminate()
 
@@ -103,8 +102,6 @@ function handleUpdateImage(url: string, fileName: string) {
 
     editStore.addEditInfo(imageData)
   } else {
-    console.log(666)
-
     const data = {
       key: 'backgroundImage',
       value: `url('${imageUrl}')`,

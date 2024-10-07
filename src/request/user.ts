@@ -35,7 +35,7 @@ export async function refreshToken() {
     }
   })
 
-  console.log('res.data', res.data)
+
 
   localStorage.setItem('accessToken', res.data.accessToken)
   localStorage.setItem('refreshToken', res.data.refreshToken)
