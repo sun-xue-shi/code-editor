@@ -22,7 +22,9 @@ const finalProps = computed(() => {
     const item = mapPropsToForms[key as keyof AllComponentProps]
     if (item) {
       const value = props.props[key]
+
       const { valueProp = 'value', envenName = 'change', initailTransform, afterTransform } = item
+
       const newItem: FormProp = {
         ...item,
         value: initailTransform ? initailTransform(value) : value,
@@ -39,27 +41,29 @@ const finalProps = computed(() => {
     }
   })
 
+
+
   return result
 })
 </script>
 
 <template>
   <div class="props-table">
-    <div v-for="(value, key) in finalProps" :key="key" class="prop-item">
-      <span class="label" v-if="value?.text">{{ value.text }}</span>
+    <div v-for="propItem in finalProps" :key="propItem.value" class="prop-item">
+      <span class="label" v-if="propItem?.text">{{ propItem.text }}</span>
       <div class="prop-component">
         <component
-          v-if="value"
-          :is="value.component"
-          :[value.valueProp]="value.value"
-          v-bind="value.extraProps"
-          v-on="value.events"
+          v-if="propItem"
+          :is="propItem.component"
+          :[propItem.valueProp]="propItem.value"
+          v-bind="propItem.extraProps"
+          v-on="propItem.events"
         >
-          <template v-if="value.options">
+          <template v-if="propItem.options">
             <component
-              :is="value.subComponent"
-              v-for="(option, key) in value.options"
-              :key="key"
+              :is="propItem.subComponent"
+              v-for="option in propItem.options"
+              :key="option.value"
               :value="option.value"
             >
               <render-v-node :v-node="option.text" />

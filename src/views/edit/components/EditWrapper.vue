@@ -11,17 +11,11 @@ const emit = defineEmits<{
 
 let isMoved = false
 const editWapper = ref<null | HTMLElement>(null)
+
 const offsetData = {
   x: 0,
   y: 0
 }
-
-// const isOutside = useClickOutside(editWapper)
-// watch(isOutside, (newVal) => {
-//   if (newVal) {
-//     emit('setActive', '')
-//   }
-// })
 
 function onItemClick(id: string) {
   emit('setActive', id)
@@ -43,7 +37,7 @@ function calcPosition(e: MouseEvent) {
   }
 }
 
-function startMove(e: MouseEvent) {
+function handleMousedown(e: MouseEvent) {
   const currentElement = editWapper.value
   if (currentElement) {
     //元素相对于视口的位置
@@ -164,7 +158,7 @@ function startResize(location: string) {
     :style="styles"
     :data-component-id="id"
     @click="onItemClick(props.id)"
-    @mousedown="startMove"
+    @mousedown="handleMousedown"
     ref="editWapper"
     :class="{ active: props.active }"
   >

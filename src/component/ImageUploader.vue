@@ -31,23 +31,23 @@ const customRequest = async (info: any) => {
     startPos += CHUNK_SIZE
   }
 
-  let chunkStatusArr = new Array(chunks.length).fill(0)
-  const checkRes = await checkFile({ name: file.name, hash, chunkTotal: chunks.length })
-
-  if (checkRes.data.checkStatus === 'less') {
-    chunkStatusArr = [...checkRes.data.chunkStatusArr]
-  } else if (checkRes.data.checkStatus === 'uploaded') {
-    //秒传
-    handleUpdateImage(checkRes.data.url, file.name)
-    info.onSuccess(checkRes)
-    return
-  }
-
   const worker = new Worker('../../md5Worker.ts', { type: 'module' })
   worker.postMessage(file)
   worker.onmessage = async (e) => {
     hash = e.data
     worker.terminate()
+
+    let chunkStatusArr = new Array(chunks.length).fill(0)
+    const checkRes = await checkFile({ name: file.name, hash, chunkTotal: chunks.length })
+
+    if (checkRes.data.checkStatus === 'less') {
+      chunkStatusArr = [...checkRes.data.chunkStatusArr]
+    } else if (checkRes.data.checkStatus === 'uploaded') {
+      //秒传
+      handleUpdateImage(checkRes.data.url, file.name)
+      info.onSuccess(checkRes)
+      return
+    }
 
     const uploadTask: any[] = []
     chunks.map((chunk, index) => {

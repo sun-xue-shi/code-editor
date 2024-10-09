@@ -58,7 +58,7 @@ function handlleOk() {
         const formData = new FormData()
         formData.append('files', blob, 'image.png')
         uploadFile(formData).then((res) => {
-          console.log(res.data.url[0])
+    
 
           const imageUrl = res.data?.url[0].replace('\\', '\\\\')
 

@@ -1,14 +1,7 @@
 <template>
   <div class="editor" id="editor-layout-main">
-    <!-- <Spin tip="读取中" class="editor-spinner"> </Spin> -->
-
     <ADrawer title="设置面板" placement="right" width="400" :closable="true"> 设置面板 </ADrawer>
-    <!-- <div class="final-preview">
-      <div class="final-preview-inner">
-        <div class="preview-title">预览标题</div>
-        <div class="iframe-container">预览</div>
-      </div>
-    </div> -->
+
     <a-modal
       title="发布成功"
       v-model:open="showModal"
@@ -28,7 +21,7 @@
         </div>
         <a-menu :selectable="false" theme="dark" mode="horizontal" :style="{ lineHeight: '64px' }">
           <a-menu-item key="1">
-            <a-button type="primary">预览和设置</a-button>
+            <!-- <a-button type="primary">预览和设置</a-button> -->
           </a-menu-item>
           <a-menu-item key="2">
             <a-button type="primary" @click="saveWork"> 保存 </a-button>
@@ -103,7 +96,7 @@
             <div class="page-settings">
               <PropsTable :props="pageData?.props" @change="handleChangePage" />
             </div>
-            {{ pageData?.props }}
+            <!-- {{ pageData?.props }} -->
           </ATabPane>
         </ATabs>
       </ALayoutSider>

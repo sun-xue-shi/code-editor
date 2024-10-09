@@ -72,15 +72,19 @@ export class Request {
           try {
             res = await refreshToken()
           } catch (error) {
-            console.log('刷新token错误', error)
+  
           } finally {
             refreshing = false
           }
 
           if (res && res.code === 200) {
+      
+
             queue.forEach(({ config, resolve }) => {
               resolve(this.instance(config))
             })
+        
+
             return this.instance(config)
           } else {
             message.error('登录已过期,请重新登录')

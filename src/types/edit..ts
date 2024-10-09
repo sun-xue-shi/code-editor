@@ -16,6 +16,7 @@ export interface HistoryData {
   //删除时记录数组位置方便插入
   index?: number
 }
+
 export interface EditorData {
   /**编辑器渲染数组 */
   components: ComponentData[]
