@@ -1,5 +1,5 @@
 export interface UserInfo {
-  userName: string
-  /**是否登录 */
-  isLogin: boolean
+  username: string
+  email: string
+  id: string
 }

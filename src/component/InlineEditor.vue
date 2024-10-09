@@ -13,6 +13,13 @@ const emit = defineEmits<{
 }>()
 
 const innerValue = ref(props.value)
+
+watch(
+  () => props.value,
+  (newVal) => {
+    innerValue.value = newVal
+  }
+)
 const isEditing = ref(false)
 
 const inlineWapper = ref<null | HTMLElement>(null)
@@ -30,7 +37,16 @@ const handleClick = async () => {
   inputRef.value?.focus()
 }
 
+// watch(isEditing, (newval) => {
+//   if (newval) {
+//     isOutside.value = false
+//   } else {
+//     isOutside.value = true
+//   }
+// })
+
 watch(isOutside, (newVal) => {
+
   if (!validateCheck.value) {
     return message.error('内容不能为空!')
   }
@@ -59,7 +75,7 @@ useKeypress('Escape', () => {
 </script>
 
 <template>
-  <span class="inline-editor" ref="inlineWapper" @click="handleClick">
+  <div class="inline-editor" ref="inlineWapper" @click="handleClick">
     <a-input
       v-model:value="innerValue"
       v-if="isEditing"
@@ -68,13 +84,19 @@ useKeypress('Escape', () => {
       ref="inputRef"
     />
     <slot v-else>{{ innerValue }}</slot>
-  </span>
+  </div>
 </template>
 
 <style scoped lang="less">
 .ant-input {
-  width: 160px;
+  width: 100%;
 }
+
+.inline-editor {
+  display: inline-block;
+  width: 120px;
+}
+
 .input-error {
   border: 1px solid #f5222d;
 }

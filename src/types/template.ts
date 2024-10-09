@@ -8,4 +8,6 @@ export interface templateInfo {
   coverImg: string
   /**复制次数 */
   copiedCount: number
+  isHot: boolean
+  isNew: boolean
 }

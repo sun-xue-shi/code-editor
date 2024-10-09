@@ -79,4 +79,25 @@ export const TextPropsList = [
   }
 ]
 
+export const DefaultGroupProps = [
+  {
+    name: '尺寸',
+    items: ['width', 'height', 'paddingLeft']
+  },
+  {
+    name: '边框',
+    items: ['borderColor', 'borderWidth', 'borderRadius']
+  },
+  {
+    name: '透明度',
+    items: ['opacity']
+  },
+  {
+    name: '文本',
+    items: ['color', 'text', 'fontSize', 'lineHeight']
+  }
+]
+
 export const MAX_EDIT_WIDTH = 373
+
+export const CHUNK_SIZE = 100 * 1024

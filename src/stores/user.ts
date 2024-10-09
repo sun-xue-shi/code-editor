@@ -8,7 +8,7 @@ import { type UserInfo } from '@/types/user'
 export const useUserStore = defineStore(
   'user',
   () => {
-    const user = ref({ isLogin: false, userName: 'zilong' } as UserInfo)
+    const user = ref<UserInfo | null>(null)
 
     //存储用户信息
     const setUser = (userData: UserInfo) => {
