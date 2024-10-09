@@ -32,7 +32,7 @@ const finalProps = computed(() => {
         parent
       } = item
       if (parent) {
-        isHidden = !props.props[parent]
+        isHidden = props.props[parent] === 'url' ? false : true
       }
 
       const newItem: FormProp = {
