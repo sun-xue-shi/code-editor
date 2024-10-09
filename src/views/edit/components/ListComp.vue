@@ -23,6 +23,8 @@ function createNewItem(props: Partial<TextComponentProps>) {
     }
   }
 
+  console.log(textDefaultProps)
+
   return newItem
 }
 
