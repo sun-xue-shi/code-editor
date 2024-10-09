@@ -1,4 +1,13 @@
-import { Textarea, InputNumber, Select, Slider, RadioGroup, RadioButton } from 'ant-design-vue'
+import {
+  Textarea,
+  InputNumber,
+  Select,
+  Slider,
+  RadioGroup,
+  RadioButton,
+  SelectOption,
+  Input
+} from 'ant-design-vue'
 import { h } from 'vue'
 import ColorPicker from '@/component/ColorPicker.vue'
 import ImageCropper from '@/component/ImageCropper.vue'
@@ -175,5 +184,26 @@ export const mapPropsToForms: PropToForms = {
         return ''
       }
     }
+  },
+  actionType: {
+    component: Select,
+    subComponent: SelectOption,
+    text: '点击',
+    extraProps: {
+      style: {
+        width: '150px'
+      }
+    },
+    options: [
+      { value: '', text: '无' },
+      { value: 'url', text: '跳转到 URL' },
+      { value: 'animation', text: '动画效果' }
+    ]
+  },
+  url: {
+    component: Input,
+    afterTransform: (e: any) => e.target.value,
+    text: '链接',
+    parent: 'actionType'
   }
 }

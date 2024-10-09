@@ -95,6 +95,10 @@ export const DefaultGroupProps = [
   {
     name: '文本',
     items: ['color', 'text', 'fontSize', 'lineHeight']
+  },
+  {
+    name: '事件',
+    items: ['actionType', 'url']
   }
 ]
 

@@ -66,6 +66,8 @@ export interface PropToForm {
   afterTransform?: (v: any) => any
   valueProp?: string
   envenName?: string
+  // 该属性有可能和其他联动，由父属性控制它的行为
+  parent?: string
 }
 
 export type PropToForms = {
@@ -73,7 +75,7 @@ export type PropToForms = {
 }
 
 export interface FormProp {
-  component: any
+  component?: any
   value: string
   extraProps?: Record<string, any> | undefined
   text?: string | VNode
@@ -82,4 +84,6 @@ export interface FormProp {
   valueProp: string
   envenName: string
   events?: { [key: string]: (e: any) => void }
+  // 该属性有可能和其他联动，由父属性控制它的行为
+  isHidden?: boolean
 }

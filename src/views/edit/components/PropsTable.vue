@@ -19,17 +19,28 @@ const finalProps = computed(() => {
   const result: Record<string, FormProp> = {}
 
   Object.keys(props.props).map((key) => {
+    let isHidden = false
     const item = mapPropsToForms[key as keyof AllComponentProps]
     if (item) {
       const value = props.props[key]
 
-      const { valueProp = 'value', envenName = 'change', initailTransform, afterTransform } = item
+      const {
+        valueProp = 'value',
+        envenName = 'change',
+        initailTransform,
+        afterTransform,
+        parent
+      } = item
+      if (parent) {
+        isHidden = props.props[parent] === 'url' ? false : true
+      }
 
       const newItem: FormProp = {
         ...item,
         value: initailTransform ? initailTransform(value) : value,
         valueProp,
         envenName,
+        isHidden,
         events: {
           [envenName]: (e: any) => {
             emit('change', { key, value: afterTransform ? afterTransform(e) : e })
@@ -41,15 +52,18 @@ const finalProps = computed(() => {
     }
   })
 
-
-
   return result
 })
 </script>
 
 <template>
   <div class="props-table">
-    <div v-for="propItem in finalProps" :key="propItem.value" class="prop-item">
+    <div
+      v-for="propItem in finalProps"
+      :key="propItem.value"
+      class="prop-item"
+      :class="{ 'no-text': !propItem.text, 'hide-item': propItem.isHidden }"
+    >
       <span class="label" v-if="propItem?.text">{{ propItem.text }}</span>
       <div class="prop-component">
         <component
@@ -87,5 +101,14 @@ const finalProps = computed(() => {
     line-height: 30px;
     width: 25%;
   }
+}
+
+.hide-item {
+  display: none;
+}
+
+.prop-item.no-text {
+  display: inline-block;
+  margin: 0 10px 0 0;
 }
 </style>
