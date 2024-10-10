@@ -196,8 +196,7 @@ export const mapPropsToForms: PropToForms = {
     },
     options: [
       { value: '', text: '无' },
-      { value: 'url', text: '跳转到 URL' },
-      { value: 'animation', text: '动画效果' }
+      { value: 'url', text: '跳转到 URL' }
     ]
   },
   url: {

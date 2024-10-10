@@ -13,7 +13,7 @@ const emit = defineEmits<{
 function createNewItem(props: Partial<TextComponentProps>) {
   const newItem: ComponentData = {
     id: v4(),
-    name: 'text-comp',
+    name: TextComp,
     layerName: '',
     isLocked: false,
     isHidden: false,
