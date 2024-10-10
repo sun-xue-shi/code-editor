@@ -61,11 +61,9 @@
               :props="ele.props"
               @setActive="handleSetActive"
               :active="ele.id === (currentElement && currentElement.id)"
+              :class="{ img: ele.props.src }"
             >
-              <div v-if="ele.props?.src" class="img">
-                <ImageComp v-bind="ele.props" class="img" />
-              </div>
-              <TextComp v-bind="ele.props" v-else-if="ele.id" />
+              <component :is="ele.name" v-bind="ele.props" />
             </EditWrapper>
           </div>
         </ALayoutContent>
@@ -105,7 +103,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue'
+import {
+  computed,
+  ref,
+  onMounted,
+  onUnmounted,
+  nextTick,
+  defineComponent,
+  defineAsyncComponent
+} from 'vue'
 import { TextComp, ImageComp } from 'editor-components-sw'
 import { useEditStore } from '@/stores/edit'
 import ListComp from '@/views/edit/components/ListComp.vue'
@@ -123,11 +129,14 @@ import { createChannel, getChannels, getWork, publish, updateWork } from '@/requ
 import { onBeforeRouteLeave, useRoute } from 'vue-router'
 import type { ComponentData, WorkData } from '@/types/edit.'
 import { pageDefaultPropsData } from '@/stores/common/constants'
-import { message, Modal } from 'ant-design-vue'
+import { message, Modal, Input } from 'ant-design-vue'
 import { useScreenshot } from '@/hooks/useScreenshot'
 import ChannelForm from './components/ChannelForm.vue'
 
 onMounted(() => {
+  defineComponent({
+    components: { TextComp, ImageComp }
+  })
   nextTick()
   getWorkInfo()
 })
@@ -316,8 +325,9 @@ onBeforeRouteLeave((to, from, next) => {
   top: 10px;
 }
 .img > * {
-  width: 96px !important;
-  height: 96px !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  position: static !important;
 }
 .preview-container {
   padding: 24px;

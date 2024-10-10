@@ -30,8 +30,8 @@ importers:
         specifier: ^1.6.2
         version: 1.6.2
       editor-components-sw:
-        specifier: ^1.7.0
-        version: 1.7.0(@babel/parser@7.25.6)(rollup@4.21.2)(typescript@5.4.5)
+        specifier: ^1.7.5
+        version: 1.7.5(@babel/parser@7.25.6)(rollup@4.21.2)(typescript@5.4.5)
       flush-promises:
         specifier: ^1.0.2
         version: 1.0.2
@@ -1158,8 +1158,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  editor-components-sw@1.7.0:
-    resolution: {integrity: sha512-cx2nFnPCQ4JPi1w+SwBLKoXV55yTgs/OqDOSz+XDHv9Xsv/aH90AFTQKt1eOj+wwyRP1c595JK3jUqSkItXJQw==}
+  editor-components-sw@1.7.5:
+    resolution: {integrity: sha512-EkM8C5ajU0MB4KPMoqJIoK71pQRN99J+BRX1tuoJYeVh3z7hEGoUV1fvRSQYLKeM/eYiW2aUAX7LQNakWVjjTQ==}
 
   editorconfig@1.0.4:
     resolution: {integrity: sha512-L9Qe08KWTlqYMVvMcTIvMAdl1cDUubzRNYL+WfA4bLDMHe4nemKkpmYzkznE1FwLKu0EEmy6obgQKzMJrg4x9Q==}
@@ -3527,7 +3527,7 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  editor-components-sw@1.7.0(@babel/parser@7.25.6)(rollup@4.21.2)(typescript@5.4.5):
+  editor-components-sw@1.7.5(@babel/parser@7.25.6)(rollup@4.21.2)(typescript@5.4.5):
     dependencies:
       '@ant-design/icons-vue': 7.0.1(vue@3.5.11(typescript@5.4.5))
       ant-design-vue: 4.2.3(vue@3.5.11(typescript@5.4.5))

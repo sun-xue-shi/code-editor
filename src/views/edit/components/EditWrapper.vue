@@ -21,7 +21,9 @@ function onItemClick(id: string) {
   emit('setActive', id)
 }
 
-const styles = computed(() => pick(props.props, ['top', 'left', 'position', 'width', 'height']))
+const styles = computed(() =>
+  pick(props.props, ['top', 'left', 'position', 'width', 'height', 'fontSize'])
+)
 
 function calcPosition(e: MouseEvent) {
   const container = document.getElementById('canvas-area') as HTMLElement
@@ -78,18 +80,32 @@ function handleMousedown(e: MouseEvent) {
 function calcSize(
   location: string,
   e: MouseEvent,
-  originalPosition: { top: number; left: number; right: number; bottom: number }
+  originalPosition: {
+    top: number
+    left: number
+    right: number
+    bottom: number
+    fontSize?: string
+    height?: number
+  }
 ) {
   const container = document.getElementById('canvas-area') as HTMLElement
-  const { bottom, left, right, top } = originalPosition
+  const { bottom, left, right, top, fontSize, height } = originalPosition
   const { clientX, clientY } = e
 
+  let topFontSize
+  let downFontSize
   const upHeight = bottom - clientY
   const downHeight = clientY - top
   const rightWidth = clientX - left
   const leftWidth = right - clientX
   const leftOffset = clientX - container.offsetLeft
   const topOffset = clientY - container.offsetTop + container.scrollTop //有滚动条时要加上滚动的距离
+  // console.log('fontSize', parseInt(fontSize))
+  if (fontSize && height) {
+    topFontSize = parseInt(fontSize) * (upHeight / height)
+    downFontSize = parseInt(fontSize) * (downHeight / height)
+  }
 
   switch (location) {
     case 'top-left':
@@ -97,34 +113,39 @@ function calcSize(
         width: leftWidth,
         height: upHeight,
         top: topOffset,
-        left: leftOffset
+        left: leftOffset,
+        fontSize: topFontSize
       }
 
     case 'top-right':
       return {
         width: rightWidth,
         height: upHeight,
-        top: topOffset
+        top: topOffset,
+        fontSize: topFontSize
       }
 
     case 'bottom-left':
       return {
         width: leftWidth,
         height: downHeight,
-        left: leftOffset
+        left: leftOffset,
+        fontSize: downFontSize
       }
 
     case 'bottom-right':
       return {
         width: rightWidth,
-        height: downHeight
+        height: downHeight,
+        fontSize: downFontSize
       }
   }
 }
 
 function startResize(location: string) {
   const currentElement = editWapper.value as HTMLElement
-  const { left, top, bottom, right } = currentElement.getBoundingClientRect()
+  const fontSize = currentElement.style.fontSize
+  const { left, top, bottom, right, height } = currentElement.getBoundingClientRect()
 
   const handleMove = (e: MouseEvent) => {
     const size = calcSize(location, e, { left, right, top, bottom })
@@ -140,7 +161,8 @@ function startResize(location: string) {
 
   const handleMouseUp = (e: MouseEvent) => {
     document.removeEventListener('mousemove', handleMove)
-    const size = calcSize(location, e, { left, right, top, bottom })
+    const size = calcSize(location, e, { left, right, top, bottom, fontSize, height })
+
     emit('updatePosition', { ...size, id: props.id })
     nextTick(() => {
       document.removeEventListener('mouseup', handleMouseUp)
@@ -163,6 +185,7 @@ function startResize(location: string) {
     :class="{ active: props.active }"
   >
     <slot></slot>
+
     <div class="resizers">
       <div class="resizer top-left" @mousedown.stop="startResize('top-left')"></div>
       <div class="resizer top-right" @mousedown.stop="startResize('top-right')"></div>
@@ -191,8 +214,6 @@ function startResize(location: string) {
 }
 
 .edit-wrapper > * {
-  width: 100% !important;
-  height: 100% !important;
   position: static !important;
 }
 
@@ -201,7 +222,7 @@ function startResize(location: string) {
   height: 10px;
   border-radius: 50%;
   background: white;
-  border: 3px solid #1890ff;
+  border: 1px solid #1890ff;
   position: absolute;
   display: block;
 }

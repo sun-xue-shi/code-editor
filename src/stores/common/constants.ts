@@ -5,7 +5,7 @@ import { v4 } from 'uuid'
 export const testData: ComponentData[] = [
   {
     id: v4(),
-    name: 'text-comp',
+    name: 'TextComp',
     isHidden: true,
     isLocked: false,
     layerName: '图层1',

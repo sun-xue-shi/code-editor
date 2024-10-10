@@ -16,7 +16,8 @@ export const TextPropsList = [
     text: '大标题',
     fontSize: '30px',
     fontWeight: 'bold',
-    tag: 'h2'
+    tag: 'h2',
+    lineHeight: '2'
   },
   {
     text: '楷体副标题',
@@ -27,8 +28,7 @@ export const TextPropsList = [
   },
   {
     text: '正文内容',
-    tag: 'p',
-    lineHeight: '2px'
+    tag: 'p'
   },
   {
     text: '宋体正文内容',
