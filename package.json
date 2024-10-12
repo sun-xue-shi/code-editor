@@ -59,7 +59,7 @@
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-vue": "^9.23.0",
-    "husky": "^9.1.6",
+    "husky": "^8.0.0",
     "jsdom": "^24.1.0",
     "lodash-es": "^4.17.21",
     "npm-run-all2": "^6.2.0",
