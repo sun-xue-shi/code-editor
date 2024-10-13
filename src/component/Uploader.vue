@@ -3,7 +3,6 @@ import type { UploaderFile, ActionType } from '@/types/upload'
 import { v4 as uid } from 'uuid'
 import { computed, reactive, ref } from 'vue'
 import axios from 'axios'
-import { DeleteOutlined, FileOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import { last } from 'lodash-es'
 
 const props = withDefaults(defineProps<ActionType>(), {
@@ -51,7 +50,7 @@ if (props.drag) {
   }
 }
 
-function triggerUpload(e: Event) {
+function triggerUpload() {
   if (fileInput.value) {
     fileInput.value.click()
   }
@@ -71,8 +70,6 @@ function postFile(readyFile: UploaderFile) {
     .then((res: any) => {
       readyFile.status = 'success'
       readyFile.response = res.data
-      console.log(res.data, 'res.data')
-
       emit('success', res.data)
     })
     .catch(() => {
@@ -88,8 +85,6 @@ function postFile(readyFile: UploaderFile) {
 function uploadFiles(files: null | FileList) {
   if (files) {
     const uploadFile = files[0]
-    console.log('uploadFile', uploadFile)
-
     if (props.beforeUpload) {
       const result = props.beforeUpload(uploadFile)
       if (result && result instanceof Promise) {
@@ -125,11 +120,6 @@ function addFileToList(uploadFile: File) {
   if (props.listType === 'picture') {
     try {
       fileObj.url = URL.createObjectURL(uploadFile)
-      // const fileReader = new FileReader()
-      // fileReader.readAsDataURL(uploadFile)
-      // fileReader.addEventListener('load', () => {
-      //   fileObj.url = fileReader.result as string
-      // })
     } catch (error) {
       console.log('上传失败', error)
     }
@@ -153,9 +143,9 @@ function handleFileChange(e: Event) {
   uploadFiles(target.files)
 }
 
-function removeFile(id: string) {
-  fileList.value = fileList.value.filter((file) => file.uid !== id)
-}
+// function removeFile(id: string) {
+//   fileList.value = fileList.value.filter((file) => file.uid !== id)
+// }
 
 function handleDrag(e: DragEvent, over: boolean) {
   e.preventDefault()
@@ -190,7 +180,7 @@ function handleDrop(e: DragEvent) {
       </slot>
     </div>
     <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
-    <ul v-if="showUploadList" :class="`upload-list upload-list-${listType}`">
+    <!-- <ul v-if="showUploadList" :class="`upload-list upload-list-${listType}`">
       <li :class="`upoaded-file upload-${file.status}`" v-for="file in fileList" :key="file.uid">
         <img :src="file.url" :alt="file.name" class="preview-picture" />
         <div :class="`file-handle ${file.url}`">
@@ -200,7 +190,7 @@ function handleDrop(e: DragEvent) {
           <button @click="removeFile(file.uid)" class="delete-file"><DeleteOutlined /></button>
         </div>
       </li>
-    </ul>
+    </ul> -->
   </div>
 </template>
 

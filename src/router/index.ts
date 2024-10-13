@@ -6,8 +6,19 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to) => {
-  document.title = `code-editor-${to.meta.title || ''}`
+// 设置前置路由守卫
+router.beforeEach((to, from, next) => {
+  if (to.meta.requireAuth) {
+    const token = localStorage.getItem('access_token')
+    if (token) {
+      next()
+      document.title = `code-editor-${to.meta.title || ''}`
+    } else {
+      next({ path: '/login' })
+    }
+  } else {
+    next()
+  }
 })
 
 export default router

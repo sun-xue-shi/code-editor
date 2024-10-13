@@ -9,6 +9,8 @@ interface OriginalPosition {
   left: number
   right: number
   bottom: number
+  fontSize?: string
+  height?: string
 }
 
 const props = defineProps<EditWrapper>()
@@ -17,7 +19,7 @@ const emit = defineEmits<{
   (e: 'update-position', data: PositionType): void
 }>()
 const styles = computed(() => {
-  return pick(props.props, ['position', 'top', 'left', 'height', 'width'])
+  return pick(props.props, ['position', 'top', 'left', 'height', 'width', 'fontSize'])
 })
 const editWrapper = ref<null | HTMLElement>(null)
 const gap = {
@@ -43,6 +45,7 @@ function startMove(e: MouseEvent) {
     gap.x = e.clientX - left
     gap.y = e.clientY - top
   }
+
   function handleMove(e: MouseEvent) {
     const { left, top } = caculateMovePosition(e)
     if (currentElement.value) {
@@ -69,12 +72,17 @@ function startMove(e: MouseEvent) {
 function onItemClick(id: string) {
   emit('set-active', id)
 }
+
 function startResize(direction: ResizerDirection) {
   const currentElement = editWrapper.value as HTMLElement
+  const fontSize = window.getComputedStyle(currentElement).fontSize
+  const height = window.getComputedStyle(currentElement).height
   const { left, right, top, bottom } = currentElement.getBoundingClientRect()
   function handleMove(e: MouseEvent) {
-    const size = caculateResizer(direction, e, { left, top, bottom, right })
+    const size = caculateResizer(direction, e, { left, top, bottom, right, fontSize, height })
     const { style } = currentElement
+    console.log(fontSize)
+
     if (size) {
       style.width = size.width + 'px'
       style.height = size.height + 'px'
@@ -88,7 +96,9 @@ function startResize(direction: ResizerDirection) {
   }
   function handleMouseUp(e: MouseEvent) {
     document.removeEventListener('mousemove', handleMove)
-    const size = caculateResizer(direction, e, { left, top, bottom, right })
+    const size = caculateResizer(direction, e, { left, top, bottom, right, fontSize, height })
+    console.log('size', size)
+
     emit('update-position', { ...size, id: props.id })
     nextTick(() => {
       document.removeEventListener('mouseup', handleMouseUp)
@@ -97,9 +107,13 @@ function startResize(direction: ResizerDirection) {
   document.addEventListener('mousemove', handleMove)
   document.addEventListener('mouseup', handleMouseUp)
 }
+
 function caculateResizer(dirction: ResizerDirection, e: MouseEvent, position: OriginalPosition) {
   const { clientX, clientY } = e
-  const { left, right, top, bottom } = position
+  const { left, right, top, bottom, fontSize, height } = position
+
+  let topFontSize
+  let bottomFontSize
   const container = document.getElementById('canvas-area') as HTMLElement
   const rightWidth = clientX - left
   const leftWidth = right - clientX
@@ -107,33 +121,41 @@ function caculateResizer(dirction: ResizerDirection, e: MouseEvent, position: Or
   const topHeight = bottom - clientY
   const offsetTop = clientY - container.getBoundingClientRect().top + container.scrollTop
   const offsetLeft = clientX - container.getBoundingClientRect().left
+  if (fontSize && height) {
+    topFontSize = (parseInt(fontSize) * topHeight) / parseInt(height)
+    bottomFontSize = parseInt(fontSize) * (bottomHeight / parseInt(height))
+  }
+
   switch (dirction) {
     case 'top-left':
       return {
         width: leftWidth,
         height: topHeight,
         top: offsetTop,
-        left: offsetLeft
+        left: offsetLeft,
+        fontSize: topFontSize
       }
-
     case 'top-right':
       return {
         width: rightWidth,
         height: topHeight,
-        top: offsetTop
+        top: offsetTop,
+        fontSize: topFontSize
       }
 
     case 'bottom-left':
       return {
         width: leftWidth,
         height: bottomHeight,
-        left: offsetLeft
+        left: offsetLeft,
+        fontSize: bottomFontSize
       }
 
     case 'bottom-right':
       return {
         width: rightWidth,
-        height: bottomHeight
+        height: bottomHeight,
+        fontSize: bottomFontSize
       }
   }
 }
@@ -146,8 +168,8 @@ function caculateResizer(dirction: ResizerDirection, e: MouseEvent, position: Or
     class="edit-wrapper"
     :component-id="props.id"
     @click="onItemClick(props.id)"
-    :class="{ active: props.active }"
     @mousedown="startMove"
+    :class="{ active: props.active }"
   >
     <slot></slot>
     <div class="resizers">
@@ -166,6 +188,7 @@ function caculateResizer(dirction: ResizerDirection, e: MouseEvent, position: Or
   cursor: pointer;
   border: 1px solid transparent;
   user-select: none;
+  position: absolute;
 }
 
 .edit-wrapper:hover {
@@ -175,7 +198,7 @@ function caculateResizer(dirction: ResizerDirection, e: MouseEvent, position: Or
 .edit-wrapper.active {
   border: 2px solid #1890ff;
   user-select: none;
-  z-index: 2;
+  z-index: 99;
 }
 
 .edit-wrapper > * {
@@ -184,7 +207,7 @@ function caculateResizer(dirction: ResizerDirection, e: MouseEvent, position: Or
   position: static !important;
 }
 
-.edit-wrapper.active .resizers .resizer {
+.active .resizers .resizer {
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -193,22 +216,22 @@ function caculateResizer(dirction: ResizerDirection, e: MouseEvent, position: Or
   position: absolute;
   display: block;
 }
-.edit-wrapper .resizers .resizer.top-left {
+.active .resizers .resizer.top-left {
   left: -5px;
   top: -5px;
   cursor: nwse-resize;
 }
-.edit-wrapper .resizers .resizer.top-right {
+.active .resizers .resizer.top-right {
   right: -5px;
   top: -5px;
   cursor: nesw-resize;
 }
-.edit-wrapper .resizers .resizer.bottom-left {
+.active .resizers .resizer.bottom-left {
   left: -5px;
   bottom: -5px;
   cursor: nesw-resize;
 }
-.edit-wrapper .resizers .resizer.bottom-right {
+.active .resizers .resizer.bottom-right {
   right: -5px;
   bottom: -5px;
   cursor: nwse-resize;

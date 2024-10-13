@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Uploader from './Uploader.vue'
 import { commonUploadCheck } from '@/utils/upload'
-import { FileImageOutlined, LoadingOutlined } from '@ant-design/icons-vue'
+// import { FileImageOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 
 const props = withDefaults(defineProps<{ text?: string; url: string }>(), {
   text: '上传图片'
@@ -27,7 +27,7 @@ function handleSuccess(data: any) {
         }
       "
     >
-      <div class="uploader-container">
+      <!-- <div class="uploader-container">
         <FileImageOutlined :style="{ fontSize: '30px' }" />
         <h4>{{ text }}</h4>
       </div>
@@ -41,7 +41,7 @@ function handleSuccess(data: any) {
         <div class="uploader-container">
           <img :src="dataProps.uploadedData.data.url" />
         </div>
-      </template>
+      </template> -->
     </Uploader>
   </div>
 </template>

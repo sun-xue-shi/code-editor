@@ -16,6 +16,7 @@ export interface EditorData {
   historyIndex: number
   cacheOldValue: any
   maxHistoryNumber: number
+  isNeedSave: boolean
 }
 
 export interface CompData {
@@ -36,7 +37,7 @@ export interface EditWrapper {
 }
 
 export interface GroupProps {
-  text: string
+  name: string
   items: string[]
 }
 

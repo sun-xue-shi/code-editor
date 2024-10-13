@@ -12,12 +12,13 @@ import type {
   HistoryProps
 } from '@/types/edit.'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
-import type { AllComponentProps, TextComponentProps } from '@/types/props'
+import { ref } from 'vue'
+import type { AllComponentProps, PageData } from '@/types/props'
 import textDefaultProps from 'editor-components-sw'
 import { message } from 'ant-design-vue'
 import { cloneDeep } from 'lodash-es'
 import { insertAt } from '@/utils/helper'
+import myRequest from '@/axios'
 
 const testData: CompData[] = [
   {
@@ -46,27 +47,31 @@ const testData: CompData[] = [
 ]
 
 const pageDefaultProps = {
-  backgroundColor: '#FFFFFF',
-  backgroundImage: 'url("https://img.keaitupian.cn/newupload/08/1629449018344288.jpg")',
-  height: '560px',
-  backgroundSize: 'cover',
-  backgroundRepeat: 'no-repeat'
+  backgroundColor: '',
+  backgroundImage: '',
+  height: '',
+  backgroundSize: '',
+  backgroundRepeat: ''
 }
 
 export const useEditStore = defineStore(
   'edit',
   () => {
     const editInfo = ref<EditorData>({
-      components: testData,
+      components: [],
       currentElement: '',
       page: {
         props: pageDefaultProps,
-        test: 'test title'
+        coverImg: '',
+        desc: '',
+        id: '',
+        title: ''
       },
       histories: [],
       historyIndex: -1,
       cacheOldValue: null,
-      maxHistoryNumber: 5
+      maxHistoryNumber: 5,
+      isNeedSave: false
     })
 
     //存储模版信息
@@ -80,6 +85,7 @@ export const useEditStore = defineStore(
     }
 
     const addEditInfo = (componentData: CompData) => {
+      editInfo.value.isNeedSave = true
       componentData.layerName = '图层' + (editInfo.value.components.length + 1)
       editInfo.value.components.push(componentData)
       pushHistory(editInfo.value, {
@@ -151,8 +157,21 @@ export const useEditStore = defineStore(
         (component) => component.id === (id || editInfo2.currentElement)
       )
       if (update) {
+        editInfo.value.isNeedSave = true
+
         if (isRoot) {
           ;(update as any)[key as string] = value
+        } else if (!value && key === 'src') {
+          const preData = update.props[key as keyof AllComponentProps]
+          editInfo.value.components = editInfo.value.components.filter(
+            (comp) => comp.id !== update.id
+          )
+          pushHistory(editInfo.value, {
+            id: v4(),
+            currentElId: update.id,
+            type: 'modify',
+            data: { preData, key, newValue: value }
+          })
         } else {
           const oldValue = Array.isArray(key)
             ? key.map((key) => update.props[key])
@@ -172,8 +191,13 @@ export const useEditStore = defineStore(
       }
     }
 
-    function updatePage(editInfo3: EditorData, { key, value }) {
-      editInfo3.page.props[key as keyof PageProps] = value
+    function updatePage(editInfo3: EditorData, { key, value, isRoot = false }) {
+      editInfo.value.isNeedSave = true
+      if (isRoot) {
+        editInfo3.page[key as keyof PageData] = value
+      } else {
+        editInfo3.page.props[key as keyof PageProps] = value
+      }
     }
 
     function copyComponent(editValue: EditorData, id: string) {
@@ -198,9 +222,11 @@ export const useEditStore = defineStore(
           type: 'add',
           data: cloneDeep(clone)
         })
+        editInfo.value.isNeedSave = true
         message.success('粘贴成功', 1)
       }
     }
+
     function deleteComponet(editValue: EditorData, id: string) {
       const comp = editValue.components.find(
         (component) => component.id === (id || editValue.currentElement)
@@ -209,6 +235,7 @@ export const useEditStore = defineStore(
         const currentIndex = editValue.components.findIndex((comp) => {
           comp.id === id
         })
+        editInfo.value.isNeedSave = true
         editValue.components = editValue.components.filter((comp) => comp.id !== id)
         pushHistory(editValue, {
           id: v4(),
@@ -280,6 +307,8 @@ export const useEditStore = defineStore(
       } else {
         editValue.historyIndex--
       }
+      editInfo.value.isNeedSave = false
+
       const history = editValue.histories[editValue.historyIndex]
       switch (history.type) {
         case 'add': {
@@ -307,6 +336,8 @@ export const useEditStore = defineStore(
       if (editValue.historyIndex === -1) {
         return
       }
+      editInfo.value.isNeedSave = false
+
       const history = editValue.histories[editValue.historyIndex]
       switch (history.type) {
         case 'add': {
@@ -355,8 +386,53 @@ export const useEditStore = defineStore(
       }
     }
 
+    function getWorkDetail(id: string) {
+      myRequest
+        .get({
+          url: `work/${id}`
+        })
+        .then((res) => {
+          editInfo.value.components = res.data.data.content.components
+          editInfo.value.page.props = res.data.data.content.props
+          editInfo.value.page = { ...res.data.data }
+        })
+        .catch((e) => {
+          console.log(e)
+        })
+    }
+
+    function updateWork(id: string, data: Record<string, any>) {
+      myRequest
+        .patch({
+          url: `work/update/${id}`,
+          data
+        })
+        .then(() => {
+          message.success('保存成功!', 1)
+          editInfo.value.histories = []
+          editInfo.value.isNeedSave = false
+        })
+    }
+
+    function createChannel(data: { name: string; workId: string }) {
+      myRequest
+        .post({
+          url: 'work/create-channel',
+          data
+        })
+        .then((res) => {
+          message.success(res.data.message)
+        })
+    }
+
+    function deleteChannel(id: string, workId: string) {
+      myRequest.delete({ url: `work/delete-channel`, params: { workId, id } }).then((res) => {
+        message.success(res.data.message)
+      })
+    }
     return {
       editInfo,
+      getWorkDetail,
       setEditInfo,
       removeEditInfo,
       addEditInfo,
@@ -372,7 +448,10 @@ export const useEditStore = defineStore(
       resetEditor,
       redo,
       checkRedoDisable,
-      checkUndoDisable
+      checkUndoDisable,
+      updateWork,
+      createChannel,
+      deleteChannel
     }
   },
   // pinia定制化

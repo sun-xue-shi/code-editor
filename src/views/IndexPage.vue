@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import UserInfo from '@/component/UserInfo.vue'
 </script>
 
 <template>
   <div class="homepage-container">
     <ALayout class="layout">
-      <ALayoutHeader class="layout-header"><div class="header">Header</div></ALayoutHeader>
+      <ALayoutHeader class="layout-header"
+        ><div class="header">
+          <UserInfo /></div
+      ></ALayoutHeader>
       <ALayoutContent class="layout-content">
         <RouterView />
       </ALayoutContent>

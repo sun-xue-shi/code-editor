@@ -1,22 +1,19 @@
 <script setup lang="ts">
-// import TextComp from './TextComp.vue'
 import { TextComp } from 'editor-components-sw'
 import SuperUploader from './SuperUploader.vue'
 import type { TextComponentProps } from '@/types/props'
 import type { CompData } from '@/types/edit.'
 import { v4 } from 'uuid'
 import type { UploadResponse } from '@/types/upload'
-import { imageDefaultProps } from '@/common/defaultProps'
 import { message } from 'ant-design-vue'
-import { getImageSize } from '@/utils/upload'
-import { MAX_EDIT_WIDTH } from '@/common/constants'
 
 const textPropsList = [
   {
     text: '大标题',
     fontSize: '30px',
     fontWeight: 'bold',
-    tag: 'h2'
+    tag: 'h2',
+    lineHeight: '2'
   },
   {
     text: '楷体副标题',
@@ -27,8 +24,7 @@ const textPropsList = [
   },
   {
     text: '正文内容',
-    tag: 'p',
-    lineHeight: '2px'
+    tag: 'p'
   },
   {
     text: '宋体正文内容',
@@ -79,6 +75,8 @@ const textPropsList = [
   }
 ]
 
+
+
 const emit = defineEmits<{
   (e: 'add-item', newData: CompData): void
   (e: 'image-upload', newData: CompData): void
@@ -102,21 +100,52 @@ const imageUpload = (response: UploadResponse) => {
       width: '100px'
     }
   }
-  message.success('上传成功')
   emit('add-item', newData)
-  // getImageSize(response.data.url).then(({ naturalWidth }) => {
-  //   newData.props.width = (naturalWidth > MAX_EDIT_WIDTH
-  //     ? MAX_EDIT_WIDTH
-  //     : naturalWidth) as unknown as string
-
-  // })
+  message.success('上传成功')
+}
+const offsetPosition = {
+  x: 0,
+  y: 0
+}
+function createProps(props: TextComponentProps) {
+  const newProps: CompData = {
+    id: v4(),
+    name: 'text-comp',
+    layerName: '',
+    isHidden: false,
+    isLocked: false,
+    props: {
+      ...props
+    }
+  }
+  return newProps
+}
+function handleMouseDowm(e: MouseEvent, index: number) {
+  const ele = document.getElementById(`draggableEle-${index}`) as HTMLElement
+  const { clientX, clientY } = e
+  const { x, y } = ele.getBoundingClientRect()
+  offsetPosition.x = clientX - x
+  offsetPosition.y = clientY - y
+}
+function handleDragStart(e: DragEvent, item: TextComponentProps) {
+  const newProps = createProps(item)
+  e.dataTransfer?.setData('data', JSON.stringify(newProps))
+  e.dataTransfer?.setData('position', JSON.stringify(offsetPosition))
 }
 </script>
 
 <template>
   <div class="list-comp">
-    <div class="list-item" v-for="item in textPropsList" :key="item.tag">
-      <TextComp v-bind="item" @click="addItem(item)" />
+    <div class="list-item" v-for="(item, index) in textPropsList" :key="item.tag">
+      <TextComp
+        :id="`draggableEle-${index}`"
+        v-bind="item"
+        @click="addItem(item)"
+        :style="{ position: 'static' }"
+        draggable="true"
+        @mousedown="handleMouseDowm($event, index)"
+        @dragstart="handleDragStart($event, item)"
+      />
     </div>
     <SuperUploader
       url="http://localhost:3000/file/upload"
@@ -126,4 +155,12 @@ const imageUpload = (response: UploadResponse) => {
   </div>
 </template>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+.list-comp > * {
+  margin-top: 10px;
+}
+.list-item {
+  position: relative;
+  cursor: pointer;
+}
+</style>

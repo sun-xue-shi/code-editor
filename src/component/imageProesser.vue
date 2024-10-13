@@ -26,8 +26,6 @@ watch(showModal, async (newValue) => {
   if (newValue) {
     await nextTick()
     if (cropperImg.value) {
-      console.log('cropperImg.value', cropperImg.value)
-
       cropper = new Cropper(cropperImg.value, {
         aspectRatio: 16 / 9,
         viewMode: 1,
@@ -56,11 +54,6 @@ function handleDelete() {
 }
 function handlleOk() {
   if (cropperData.value) {
-    console.log('cropperData.value', cropperData.value)
-    console.log('cropper', cropper)
-
-    console.log('cropper.getCroppedCanvas', cropper.getCroppedCanvas())
-
     cropper.getCroppedCanvas().toBlob((blob) => {
       if (blob) {
         const formData = new FormData()
@@ -77,7 +70,6 @@ function handlleOk() {
               })
               .then((res) => {
                 emit('change', res.data.data.url[0])
-                console.log('res', res.data.data.url[0])
                 showModal.value = false
               })
           }
@@ -85,6 +77,9 @@ function handlleOk() {
       }
     })
   }
+}
+function handleUploadSuccess(data: any) {
+  emit('change', data.data.url[0])
 }
 </script>
 
@@ -108,12 +103,15 @@ function handlleOk() {
     </div>
     <div class="image-process">
       <div>
-        <SuperUploader url="http://localhost:3000/file/upload" />
+        <SuperUploader
+          url="http://localhost:3000/file/upload"
+          @uploadSuccess="handleUploadSuccess"
+        />
       </div>
       <a-button @click="showModal = true" style="width: 100%">
         <template v-slot:icon><ScissorOutlined />裁剪图片</template>
       </a-button>
-      <a-button v-if="props.delete" type="danger" @click="handleDelete" style="width: 100%">
+      <a-button v-if="props.delete" @click="handleDelete" style="width: 100%">
         <template v-slot:icon><DeleteOutlined />删除图片</template>
       </a-button>
     </div>

@@ -6,13 +6,14 @@ import {
   Slider,
   RadioGroup,
   RadioButton,
+  SelectOption,
   Input
 } from 'ant-design-vue'
 import type { VNode } from 'vue'
 import { h } from 'vue'
-import imageProesser from '@/component/imageProesser.vue'
 import type { PageProps } from './edit.'
 import BackgroundProcesser from '@/component/BackgroundProcesser.vue'
+import ImageProesser from '@/component/imageProesser.vue'
 
 /**元素通用属性 */
 export interface CommonComponentProps {
@@ -68,7 +69,10 @@ export interface ShapeComponentProps extends CommonComponentProps {
 
 export interface PageData {
   props: PageProps
-  test: string
+  coverImg: string
+  id: string
+  desc: string
+  title: string
 }
 
 export type AllComponentProps = TextComponentProps &
@@ -86,6 +90,7 @@ export interface PropToForm {
   afterTransform?: (v: any) => any
   valueProp?: string
   envenName?: string
+  parent?: string
 }
 
 export type PropToForms = {
@@ -116,6 +121,9 @@ export const mapPropsToForms: PropToForms = {
   fontSize: {
     component: InputNumber,
     text: '字号',
+    extraProps: {
+      min: 0
+    },
     initailTransform: (v: string) => parseInt(v),
     afterTransform: (e: number) => (e ? `${e}px` : '')
   },
@@ -124,7 +132,7 @@ export const mapPropsToForms: PropToForms = {
     text: '行高',
     extraProps: {
       min: 0,
-      max: 3,
+      max: 10,
       step: 1,
       style: {
         width: '150px'
@@ -148,88 +156,137 @@ export const mapPropsToForms: PropToForms = {
     component: Select,
     subComponent: RadioButton,
     text: '字体',
-    options: [{ value: '', text: '无' }, ...fontFamilyOptions]
+    extraProps: {
+      style: {
+        width: '100px'
+      }
+    },
+    options: [...fontFamilyOptions]
   },
   color: {
     component: ColorPicker,
     text: '文本颜色'
   },
   width: {
-    component: Input,
+    component: InputNumber,
     text: '宽度',
-    afterTransform: (e: any) => e.target.value
-  },
-  src: {
-    component: imageProesser,
-    text: ''
+    extraProps: {
+      min: 0
+    },
+    initailTransform: (v: string) => parseInt(v),
+    afterTransform: (e: number) => (e ? `${e}px` : '')
   },
   height: {
-    component: Input,
+    component: InputNumber,
     text: '高度',
-    afterTransform: (e: any) => e.target.value
+    extraProps: {
+      min: 0
+    },
+    initailTransform: (v: string) => parseInt(v),
+    afterTransform: (e: number) => (e ? `${e}px` : '')
   },
-  top: {
-    component: Input,
-    text: 'top',
-    afterTransform: (e: any) => e.target.value
-  },
-  left: {
-    component: Input,
-    text: 'left',
-    afterTransform: (e: any) => e.target.value
-  },
-
-  paddingLeft: {
-    component: Input,
-    text: '左内边距',
-    afterTransform: (e: any) => e.target.value
-  },
-  boxSizing: {
-    component: Input,
-    text: '盒子模型',
-    afterTransform: (e: any) => e.target.value
-  },
-  borderStyle: {
-    component: Input,
-    text: '边框样式',
-    afterTransform: (e: any) => e.target.value
-  },
-  borderColor: {
-    component: Input,
-    text: '边框颜色',
-    afterTransform: (e: any) => e.target.value
-  },
-  boxShadow: {
-    component: Input,
-    text: '宽度',
-    afterTransform: (e: any) => e.target.value
-  },
-  position: {
-    component: Input,
-    text: '定位',
-    afterTransform: (e: any) => e.target.value
+  src: {
+    component: ImageProesser
   },
   backgroundColor: {
     component: ColorPicker,
     text: '背景颜色'
   },
+  borderWidth: {
+    component: InputNumber,
+    text: '边框宽度',
+    extraProps: {
+      min: 0
+    },
+    initailTransform: (v: string) => parseInt(v),
+    afterTransform: (e: number) => (e ? `${e}px` : '')
+  },
+  paddingTop: {
+    component: InputNumber,
+    text: '内上边距',
+    extraProps: {
+      min: 0
+    },
+    initailTransform: (v: string) => parseInt(v),
+    afterTransform: (e: number) => (e ? `${e}px` : '')
+  },
+  paddingBottom: {
+    component: InputNumber,
+    text: '内下边距',
+    extraProps: {
+      min: 0
+    },
+    initailTransform: (v: string) => parseInt(v),
+    afterTransform: (e: number) => (e ? `${e}px` : '')
+  },
+  paddingLeft: {
+    component: InputNumber,
+    text: '内左边距',
+    extraProps: {
+      min: 0
+    },
+    initailTransform: (v: string) => parseInt(v),
+    afterTransform: (e: number) => (e ? `${e}px` : '')
+  },
+  paddingRight: {
+    component: InputNumber,
+    text: '内右边距',
+    extraProps: {
+      min: 0
+    },
+    initailTransform: (v: string) => parseInt(v),
+    afterTransform: (e: number) => (e ? `${e}px` : '')
+  },
+  opacity: {
+    component: Slider,
+    text: '透明度',
+    extraProps: {
+      min: 0,
+      max: 1,
+      step: 0.1,
+      style: {
+        width: '150px'
+      }
+    },
+    initailTransform: (v: string) => parseFloat(v),
+    afterTransform: (e: number) => e.toString()
+  },
   backgroundImage: {
     component: BackgroundProcesser,
-    initailTransform: (v: string) => {
+    text: '背景图片',
+    initailTransform(v) {
       if (v) {
         const reg = /\(["'](.+)["']\)/g
-        const matches = reg.exec(v)
-        if (matches && matches.length > 1) {
-          return matches[1]
+        const res = reg.exec(v)
+        if (res && res.length >= 1) {
+          return res
         } else {
           return ''
         }
+      } else {
+        return ''
       }
-      return ''
-    },
-    afterTransform: (e: string) => {
-      e ? `url(${e})` : ''
     }
+  },
+  actionType: {
+    component: Select,
+    subComponent: SelectOption,
+    text: '点击',
+    extraProps: {
+      style: {
+        width: '150px'
+      }
+    },
+    options: [
+      { value: '', text: '无' },
+      { value: 'url', text: '跳转到 URL' }
+    ]
+  },
+  url: {
+    component: Input,
+    afterTransform: (e: any) => e.target.value,
+    text: '链接',
+    parent: 'actionType'
   }
 }
 
@@ -243,4 +300,5 @@ export interface FormProp {
   valueProp: string
   envenName: string
   events?: { [key: string]: (e: any) => void }
+  isHidden?: boolean
 }

@@ -1,39 +1,52 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import router from '@/router'
 import { useTemplateStore } from '@/stores/template'
 import { UserOutlined } from '@ant-design/icons-vue'
+import { nextTick, ref } from 'vue'
 
 const templateStore = useTemplateStore()
-const list = templateStore.templateInfo
+const { getWorkList } = templateStore
+let list = ref<Record<string, any>[] | null>(null)
+
+async function getList() {
+  await nextTick()
+  await getWorkList()
+
+  list.value = templateStore.templateList
+}
+getList()
+
+function editClck(id: string) {
+  templateStore.currentTemplateId = id
+  router.push({ path: `/edit/${id}` })
+}
 </script>
 
 <template>
   <div class="template-list-component">
     <ARow :gutter="16">
       <ACol :span="6" v-for="item in list" :key="item.id" class="poster-item">
-        <router-link to="/edit">
-          <ACard hoverable>
-            <template #cover>
-              <!-- <img :src="item.coverImg"  /> -->
+        <ACard hoverable>
+          <template #cover>
+            <!-- <img :src="item.coverImg"  /> -->
 
-              <div class="hover-item">
-                <a-button size="large" type="primary">'编辑该作品'</a-button>
+            <div class="hover-item">
+              <a-button size="large" type="primary" @click="editClck(item.id)">编辑该作品</a-button>
+            </div>
+          </template>
+          <ACardMeta :title="item.title">
+            <template #description>
+              <div class="description-detail">
+                <span>作者:{{ item.author }}</span>
+                <span class="user-number"><UserOutlined />{{ item.copiedCount }} </span>
               </div>
             </template>
-            <ACardMeta :title="item.title">
-              <template #description>
-                <div class="description-detail">
-                  <span>作者:{{ item.author }}</span>
-                  <span class="user-number"><UserOutlined />{{ item.copiedCount }} </span>
-                </div>
-              </template>
-            </ACardMeta>
-          </ACard>
-          <div class="tag-list">
-            <ATag color="red"> HOT </ATag>
-            <ATag color="green"> NEW </ATag>
-          </div>
-        </router-link>
+          </ACardMeta>
+        </ACard>
+        <div class="tag-list">
+          <ATag color="red"> HOT </ATag>
+          <ATag color="green"> NEW </ATag>
+        </div>
       </ACol>
     </ARow>
   </div>

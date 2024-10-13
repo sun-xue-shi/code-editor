@@ -27,7 +27,7 @@ function redoHistory() {
     <div class="opration-list">
       <a-tooltip>
         <template #title>撤销</template>
-        <a-button shape="circle" @click="undoHistory" :disabled="undoDisable">
+        <a-button shape="circle" @click="undoHistory" :disabled="undoDisable" class="leftBtn">
           <template #icon><UndoOutlined /></template>
         </a-button>
       </a-tooltip>
@@ -49,5 +49,8 @@ function redoHistory() {
   position: absolute;
   right: 10px;
   top: 20px;
+}
+.leftBtn {
+  margin-right: 5px;
 }
 </style>

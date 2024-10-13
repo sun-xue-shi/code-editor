@@ -3,14 +3,38 @@
     <!-- <Spin tip="读取中" class="editor-spinner"> </Spin> -->
 
     <ADrawer title="设置面板" placement="right" width="400" :closable="true"> 设置面板 </ADrawer>
-    <!-- <div class="final-preview">
-      <div class="final-preview-inner">
-        <div class="preview-title">预览标题</div>
-        <div class="iframe-container">预览</div>
-      </div>
-    </div> -->
-    <AModal title="发布成功" width="700px" :footer="null"> 发布成功弹窗 </AModal>
-
+    <a-modal
+      title="发布成功"
+      v-model:open="showModal"
+      width="700px"
+      :footer="null"
+      :maskClosable="false"
+      :destroyOnClose="true"
+    >
+      <publishResult />
+    </a-modal>
+    <!-- <AModal title="发布成功" width="700px" :footer="null"> 发布成功弹窗 </AModal> -->
+    <a-layout>
+      <a-layout-header class="header">
+        <div class="page-title">
+          <InlineEditor class="title"> {{ editInfo.page.title }} </InlineEditor>
+        </div>
+        <a-menu :selectable="false" theme="dark" mode="horizontal" :style="{ lineHeight: '64px' }">
+          <a-menu-item key="1">
+            <!-- <a-button type="primary">预览和设置</a-button> -->
+          </a-menu-item>
+          <a-menu-item key="2">
+            <a-button type="primary" @click="handleSave"> 保存 </a-button>
+          </a-menu-item>
+          <a-menu-item key="3">
+            <a-button type="primary" @click="handlePublic">发布</a-button>
+          </a-menu-item>
+          <a-menu-item key="4">
+            <AboutUser />
+          </a-menu-item>
+        </a-menu>
+      </a-layout-header>
+    </a-layout>
     <ALayout>
       <ALayoutSider width="300" style="background: #fff">
         <div class="sidebar-container">
@@ -19,11 +43,15 @@
       </ALayoutSider>
       <ALayout style="padding: 0 24px 24px">
         <ALayoutContent class="preview-container">
-          <p>画布区域</p>
-
           <HistoryArea @undo="handleUndo" @redo="handleRedo" />
+
           <div class="preview-list" id="canvas-area">
-            <div class="body-container" :style="page.props">
+            <div
+              class="body-container"
+              :style="page.props"
+              @dragover="handleDragover($event)"
+              @drop="handleDrop($event)"
+            >
               <EditWrapper
                 v-for="ele in elements"
                 :key="ele.id"
@@ -32,12 +60,13 @@
                 @update-position="handleUpdatePosition"
                 :active="ele.id === (currentElement && currentElement.id)"
                 :props="ele?.props"
+                :class="{ isHidden: ele.isHidden }"
               >
-                <TextComp v-bind="ele.props" />
-
-                <div class="img" v-if="ele.props.src">
-                  <ImageComp v-bind="ele.props" />
+                <div v-if="ele.props.src">
+                  <ImageComp v-bind="ele.props" class="img" style="position: static" />
                 </div>
+
+                <TextComp v-bind="ele.props" v-else />
               </EditWrapper>
             </div>
           </div>
@@ -82,13 +111,11 @@
 </template>
 
 <script setup lang="ts">
-// import TextComp from '@/component/TextComp.vue'
-import { TextComp } from 'editor-components-sw'
+import { TextComp, ImageComp } from 'editor-components-sw'
 import ListComp from '@/component/ListComp.vue'
-import ImageComp from '@/component/ImageComp.vue'
 import { useEditStore } from '@/stores/edit'
 import EditWrapper from '@/component/EditWrapper.vue'
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import type { CompData, PositionType } from '@/types/edit.'
 import PropsTable from '@/component/PropsTable.vue'
 import LayerList from '@/component/LayerList.vue'
@@ -97,10 +124,19 @@ import { pickBy } from 'lodash-es'
 import initHotkeys from '@/plugins/hotkeys/initHotkeys'
 import HistoryArea from '@/component/HistoryArea.vue'
 import initRightMenu from '@/plugins/hotkeys/initRightMenu'
+import type { AllComponentProps } from '@/types/props'
+import { onBeforeRouteLeave, useRoute } from 'vue-router'
+import { Modal } from 'ant-design-vue'
+import { useScreenshot } from '@/hooks/useScreenshot'
+import myRequest from '@/axios'
+import publishResult from '@/component/publishResult.vue'
+import { useTemplateStore } from '@/stores/template'
 
 initHotkeys()
 initRightMenu()
 
+const route = useRoute()
+const workId = route.params.id as string
 const editStore = useEditStore()
 const {
   addEditInfo,
@@ -110,8 +146,11 @@ const {
   updateComponent,
   updatePage,
   undo,
-  redo
+  redo,
+  getWorkDetail,
+  updateWork
 } = editStore
+let timer = 0
 const elements = computed(() => editInfo.components)
 const currentElement = computed<undefined | CompData>(() => getCurrentElement(editInfo))
 const page = computed(() => {
@@ -120,6 +159,7 @@ const page = computed(() => {
 const handleAddItem = (newData: CompData) => {
   addEditInfo(newData)
 }
+const showModal = ref(false)
 
 function handleSetActive(id: string) {
   setActive(editInfo, id)
@@ -135,13 +175,106 @@ async function handleUpdatePosition(data: PositionType) {
   const updateData = pickBy(data, (v, k) => k !== 'id')
   const keyArr = Object.keys(updateData)
   const valueArr = Object.values(updateData).map((value) => value + 'px')
-  updateComponent(editInfo, { key: keyArr, value: valueArr, id, isRoot: false })
+  updateComponent(editInfo, {
+    key: keyArr as Array<keyof AllComponentProps>,
+    value: valueArr,
+    id,
+    isRoot: false
+  })
 }
 function handleUndo() {
   undo(editInfo)
 }
 function handleRedo() {
   redo(editInfo)
+}
+
+getWorkDetail(workId)
+
+function handleSave() {
+  const data = {
+    content: {
+      components: editInfo.components,
+      props: editInfo.page.props
+    }
+  }
+  updateWork(workId, data)
+}
+onMounted(() => {
+  timer = window.setInterval(
+    () => {
+      if (editInfo.isNeedSave) {
+        handleSave()
+      }
+    },
+    3 * 60 * 1000
+  )
+})
+
+onUnmounted(() => {
+  clearInterval(timer)
+})
+
+onBeforeRouteLeave((to, from, next) => {
+  if (editInfo.isNeedSave) {
+    Modal.confirm({
+      title: '作品还未保存',
+      okText: '保存',
+      okType: 'primary',
+      cancelText: '不保存',
+      onOk: async () => {
+        await handleSave()
+        next()
+      },
+      onCancel: () => {
+        next()
+      }
+    })
+  } else {
+    next()
+  }
+})
+
+async function handlePublic() {
+  setActive(editInfo, '')
+  const canvasEle = document.getElementById('canvas-area') as HTMLElement
+  let url = ''
+  await useScreenshot(canvasEle).then((res: any) => {
+    url = res.data.data.url[0]
+  })
+  if (url) {
+    updatePage(editInfo, { key: 'coverImg', value: url as string, isRoot: true })
+
+    await myRequest
+      .patch({
+        url: `work/publish-work/${workId}`
+      })
+      .then(() => {
+        showModal.value = true
+      })
+  }
+}
+
+function handleDragover(e: DragEvent) {
+  e.preventDefault()
+}
+
+function handleDrop(e: DragEvent) {
+  e.preventDefault()
+
+  const container = document.getElementById('canvas-area') as HTMLElement
+
+  const { x, y } = container.getBoundingClientRect()
+  const newProps = JSON.parse(e.dataTransfer!.getData('data'))
+  const position = JSON.parse(e.dataTransfer!.getData('position'))
+
+  const left = e.pageX - x - position.x + 'px'
+  const top = e.pageY - y - position.y + 'px'
+
+  newProps.props.left = left
+  newProps.props.top = top
+
+  addEditInfo(newProps)
 }
 </script>
 
@@ -177,18 +310,14 @@ function handleRedo() {
 .preview-list {
   padding: 0;
   margin: 0;
-  min-width: 375px;
-  min-height: 200px;
+  min-width: 420px;
+  height: 600px;
   border: 1px solid #efefef;
   background: #fff;
   overflow-x: hidden;
   overflow-y: auto;
   position: absolute;
   margin-top: 50px;
-  max-height: 80vh;
-}
-.preview-list.active {
-  border: 1px solid #1890ff;
 }
 .preview-list.canvas-fix .l-text-component,
 .preview-list.canvas-fix .l-image-component,
@@ -262,5 +391,15 @@ function handleRedo() {
 }
 .settings-panel .ant-tabs-tab {
   border-radius: 0 !important;
+}
+.img > * {
+  width: 96px !important;
+  height: 96px !important;
+}
+.isHidden {
+  display: none;
+}
+.title {
+  color: #fff;
 }
 </style>

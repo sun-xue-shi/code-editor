@@ -26,8 +26,6 @@ function initRightMenu() {
       rightText: 'Backspace/Delete',
       action: (id: string | undefined) => {
         if (id) {
-          console.log(id, 'id')
-
           deleteComponet(editInfo, id)
         }
       }

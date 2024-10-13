@@ -16,14 +16,19 @@ const emit = defineEmits<{
 const finalProps = computed(() => {
   const result: Record<string, FormProp> = {}
   Object.keys(props.props).map((key) => {
+    let isHidden = false
     const item = mapPropsToForms[key as keyof TextComponentProps]
     if (item) {
+      if (item.parent) {
+        isHidden = props.props[item.parent] === 'url' ? false : true
+      }
       const value = props.props[key]
       const { valueProp = 'value', envenName = 'change', initailTransform, afterTransform } = item
       const newItem: FormProp = {
         ...item,
         value: initailTransform ? initailTransform(value) : value,
         valueProp,
+        isHidden,
         envenName,
         events: {
           [envenName]: (e: any) => {
@@ -42,20 +47,25 @@ const finalProps = computed(() => {
 
 <template>
   <div class="props-table">
-    <div v-for="(value, key) in finalProps" :key="key" class="prop-item">
-      <span class="label" v-if="value?.text">{{ value.text }}</span>
+    <div
+      v-for="(item, index) in finalProps"
+      :key="index"
+      class="prop-item"
+      :class="{ 'hidden-item': item.isHidden }"
+    >
+      <span class="label" v-if="item?.text">{{ item.text }}</span>
       <div class="prop-component">
         <component
-          v-if="value"
-          :is="value.component"
-          :[value.valueProp]="value.value"
-          v-bind="value.extraProps"
-          v-on="value.events"
+          v-if="item"
+          :is="item.component"
+          :[item.valueProp]="item.value"
+          v-bind="item.extraProps"
+          v-on="item.events"
         >
-          <template v-if="value.options">
+          <template v-if="item.options">
             <component
-              :is="value.subComponent"
-              v-for="(option, key) in value.options"
+              :is="item.subComponent"
+              v-for="(option, key) in item.options"
               :key="key"
               :value="option.value"
             >
@@ -77,5 +87,8 @@ const finalProps = computed(() => {
     display: inline-block;
     width: 25%;
   }
+}
+.hidden-item {
+  display: none;
 }
 </style>

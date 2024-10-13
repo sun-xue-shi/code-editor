@@ -2,7 +2,7 @@
 import type { GroupProps } from '@/types/edit.'
 import type { AllComponentProps } from '@/types/props'
 import { difference } from 'lodash-es'
-import { defaultEditGroups } from '@/common/constants'
+import { defaultGroupProps } from '@/common/constants'
 import { computed, ref } from 'vue'
 import PropsTable from './PropsTable.vue'
 
@@ -12,7 +12,7 @@ interface EditGroupType {
 }
 
 const emit = defineEmits<{ change: [e: any] }>()
-const props = withDefaults(defineProps<EditGroupType>(), { groups: () => defaultEditGroups })
+const props = withDefaults(defineProps<EditGroupType>(), { groups: () => defaultGroupProps })
 const currentIndex = ref('item-1')
 
 const newGroups = computed(() => {
@@ -54,7 +54,7 @@ function handleChange(e: any) {
       <a-collapse-panel
         v-for="(item, index) in editGroups"
         :key="`item-${index + 1}`"
-        :header="item.text"
+        :header="item.name"
       >
         <PropsTable :props="item.props" @change="handleChange" />
       </a-collapse-panel>

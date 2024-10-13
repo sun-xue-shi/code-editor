@@ -9,19 +9,15 @@ import { ref } from 'vue'
 export const useUserStore = defineStore(
   'user',
   () => {
-    const user = ref({ isLogin: false, userName: 'zilong' } as UserInfo)
-
-    //存储用户信息
-    const setUser = (userData: UserInfo) => {
-      user.value = userData
-    }
+    const info = localStorage.getItem('userInfo')
+    const user = ref(JSON.parse(info as string))
 
     //清除用户信息
     const removeUser = () => {
       user.value = {} as UserInfo
     }
 
-    return { user, setUser, removeUser }
+    return { user, removeUser }
   },
   // pinia定制化
   {

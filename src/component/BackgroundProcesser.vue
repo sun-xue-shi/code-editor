@@ -3,7 +3,6 @@ import { message } from 'ant-design-vue'
 import ImageProesser from './imageProesser.vue'
 import SuperUploader from './SuperUploader.vue'
 import type { UploadResponse } from '@/types/upload'
-import { computed } from 'vue'
 
 interface BackgroundProcesserType {
   value: string

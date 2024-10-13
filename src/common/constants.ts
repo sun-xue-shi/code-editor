@@ -1,4 +1,4 @@
-import type { GroupProps } from "@/types/edit."
+import type { GroupProps } from '@/types/edit.'
 
 export const DEFAULT_COLOR = [
   '#ffffff',
@@ -15,21 +15,25 @@ export const DEFAULT_COLOR = [
 
 export const MAX_EDIT_WIDTH = 373
 
-export const defaultEditGroups: GroupProps[] = [
+export const defaultGroupProps = [
   {
-    text: '尺寸',
+    name: '尺寸',
     items: ['width', 'height', 'paddingLeft']
   },
   {
-    text: '边框',
+    name: '边框',
     items: ['borderColor', 'borderWidth', 'borderRadius']
   },
   {
-    text: '透明度',
+    name: '透明度',
     items: ['opacity']
   },
   {
-    text: '文本',
+    name: '文本',
     items: ['color', 'text', 'fontSize', 'lineHeight']
+  },
+  {
+    name: '事件',
+    items: ['actionType', 'url']
   }
 ]

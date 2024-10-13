@@ -97,8 +97,8 @@ function handleSelect(id: string) {
 .ant-list-item:hover {
   background-color: #e6f7ff;
 }
-.ant-list-item .active {
-  border: 1px solid #1890ff;
+.active {
+  border: 1px solid #1890ff !important;
 }
 .ant-list-item {
   display: flex;
