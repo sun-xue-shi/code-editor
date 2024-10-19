@@ -1,29 +1,31 @@
 <script setup lang="ts">
 import { DEFAULT_COLOR } from '@/common/constants'
-
-export interface Props {
-  value: string
-  colors: string[]
-}
+import { defineEmits, defineProps } from 'vue'
 
 const emit = defineEmits<{
   change: [color: string]
 }>()
 
-withDefaults(defineProps<Props>(), {
-  colors: () => DEFAULT_COLOR,
-  value: ''
-})
+withDefaults(
+  defineProps<{
+    value: string
+    colors: string[]
+  }>(),
+  {
+    colors: () => DEFAULT_COLOR,
+    value: ''
+  }
+)
 
-const onChange = (color: string) => {
-  emit('change', color)
+const onChange = (e: any) => {
+  emit('change', e)
 }
 </script>
 
 <template>
   <div class="color-picker">
     <div class="color-container">
-      <input type="color" :value="value" @input="onChange($event.target?.value)" />
+      <input type="color" :value="value" @input="onChange" />
     </div>
     <ul class="default-color-list">
       <li

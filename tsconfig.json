@@ -1,7 +1,8 @@
 {
   "files": [],
   "compilerOptions": {
-    "module": "ESNext"
+    "module": "ESNext",
+    "noEmit": true
   },
   "references": [
     {

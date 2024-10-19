@@ -122,7 +122,7 @@ export const useEditStore = defineStore(
 
       if (updateComponent) {
         if (isRoot) {
-          ;(updateComponent[key as keyof ComponentData] as string) = value as string
+          (updateComponent[key as keyof ComponentData] as string) = value as string
         }
         //传入更新的value为空 --- 删除画布区图片
         else if (!value && key === 'src') {

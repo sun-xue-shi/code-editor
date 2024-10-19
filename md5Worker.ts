@@ -10,7 +10,10 @@ async function getFileHash(file: File) {
   return new Promise((resolve, reject) => {
     const fileReader = new FileReader()
     fileReader.onload = (e: Event) => {
-      const fileHash = SparkMD5.ArrayBuffer.hash(e.target?.result)
+      const target = e.target as FileReader
+      const res = target.result as ArrayBuffer
+
+      const fileHash = SparkMD5.ArrayBuffer.hash(res)
       resolve(fileHash)
     }
     fileReader.onerror = () => {
