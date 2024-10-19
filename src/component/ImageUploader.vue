@@ -4,7 +4,9 @@ import { checkFile, mergeFile, uploadBigFile } from '@/request/file'
 import { useEditStore } from '@/stores/edit'
 import type { ComponentData } from '@/types/edit.'
 import { message } from 'ant-design-vue'
-import { imageDefaultProps,ImageComp } from 'editor-components-sw'
+import { defineProps } from 'vue'
+
+import { imageDefaultProps, ImageComp } from 'editor-components-sw'
 import { v4 } from 'uuid'
 
 const editStore = useEditStore()
