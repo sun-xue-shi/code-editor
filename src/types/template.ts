@@ -9,3 +9,13 @@ export interface templateInfo {
   /**复制次数 */
   copiedCount: number
 }
+export interface addInfo {
+  uuid: string
+  title: string
+  desc: string
+  coverImg?: string
+  copiedCount: number
+  user: string | number
+  content: Record<string, any>
+  author: string
+}

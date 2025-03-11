@@ -24,30 +24,30 @@ class MYRequest {
     this.instance = axios.create(config)
 
     // 每一个instance实例都添加拦截器
-    this.instance.interceptors.request.use(
-      (config) => {
-        console.log('拦截成功，全局')
-        const token = localStorage.getItem('access_token') as string
-        if (token) {
-          config.headers!.Authorization = 'Bearer ' + token
-        }
-        return config
-      },
-      (err) => {
-        console.log('拦截失败，全局')
-        throw err
-      }
-    )
-    this.instance.interceptors.response.use(
-      (response) => {
-        console.log('响应成功，全局')
-        return response
-      },
-      (err) => {
-        console.log('响应失败，全局')
-        throw err
-      }
-    )
+    // this.instance.interceptors.request.use(
+    //   (config) => {
+    //     console.log('拦截成功，全局')
+    //     const token = localStorage.getItem('access_token')
+    //   if (config.headers && token) {
+    //     config.headers.Authorization = `Bearer ${token}`
+    //   }
+    //   return config
+    //   },
+    //   (err) => {
+    //     console.log('拦截失败，全局')
+    //     throw err
+    //   }
+    // )
+    // this.instance.interceptors.response.use(
+    //   (response) => {
+    //     console.log('响应成功，全局')
+    //     return response
+    //   },
+    //   (err) => {
+    //     console.log('响应失败，全局')
+    //     throw err
+    //   }
+    // )
 
     // 针对特定的实例添加拦截器（局部），局部拦截器与全局拦截器不会冲突
     if (config.interceptors) {

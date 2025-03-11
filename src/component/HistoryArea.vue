@@ -53,4 +53,7 @@ function redoHistory() {
 .leftBtn {
   margin-right: 5px;
 }
+.bold {
+  font-weight: 700;
+}
 </style>

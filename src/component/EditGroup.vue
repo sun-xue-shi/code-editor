@@ -22,7 +22,7 @@ const newGroups = computed(() => {
   const specialProps = difference(Object.keys(props.props), allNormalProps)
   return [
     {
-      text: '基本属性',
+      name: '基本属性',
       items: specialProps
     },
     ...props.groups
@@ -34,6 +34,7 @@ const editGroups = computed(() => {
     const propsMap = {} as AllComponentProps
     group.items.forEach((item) => {
       const key = item as keyof AllComponentProps
+
       propsMap[key] = props.props[key]
     })
     return {

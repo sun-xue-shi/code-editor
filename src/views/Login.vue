@@ -5,29 +5,66 @@ import { message } from 'ant-design-vue'
 import { reactive } from 'vue'
 
 const loginStore = useLoginStore()
-const { login, getLoginCode } = loginStore
+const { login, getLoginCode, register, getRegisterCode } = loginStore
 const formState = reactive<FormState>({
   username: '',
   password: '',
   code: '',
-  email: '',
-  type: 2
+  email: ''
 })
 
 function emailLogin() {
-  formState.type = 1
+  loginStore.loginType = 1
+  formState.code = ''
+  formState.password = ''
+  formState.email = ''
+  formState.username = ''
 }
 function passwordLogin() {
-  formState.type = 2
+  loginStore.loginType = 2
+  formState.code = ''
+  formState.password = ''
+  formState.email = ''
+  formState.username = ''
 }
-function commitBtn() {
-  login(formState)
+function registerFn() {
+  if (loginStore.loginType === 3) {
+    loginStore.loginType = 1
+  } else {
+    loginStore.loginType = 3
+  }
+  formState.code = ''
+  formState.password = ''
+  formState.email = ''
+  formState.username = ''
+}
+async function commitBtn() {
+  if (loginStore.loginType === 3) {
+    register(formState)
+      .then((res) => {
+        message.success(res.success)
+        loginStore.loginType = 2
+        formState.code = ''
+        formState.password = ''
+        formState.email = ''
+        formState.username = ''
+      })
+      .catch((err) => {
+        message.error(err)
+      })
+  } else {
+    login(formState)
+  }
 }
 function getCode() {
   if (formState.email) {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.([a-zA-Z]{2,})$/
     if (regex.test(formState.email)) {
-      getLoginCode(formState.email)
+      if (loginStore.loginType === 3) {
+        getRegisterCode(formState.email)
+      } else {
+        getLoginCode(formState.email)
+      }
     } else {
       message.error('邮箱格式不正确')
     }
@@ -72,7 +109,7 @@ function getCode() {
               label="邮箱"
               name="email"
               :rules="[{ required: true, message: 'Please input your email!' }]"
-              v-if="formState.type === 1"
+              v-if="loginStore.loginType === 1 || loginStore.loginType === 3"
             >
               <div class="email">
                 <a-input v-model:value="formState.email" />
@@ -80,7 +117,7 @@ function getCode() {
               </div>
             </a-form-item>
             <a-form-item
-              v-if="formState.type === 2"
+              v-if="loginStore.loginType === 2 || loginStore.loginType === 3"
               label="密码"
               name="password"
               :rules="[{ required: true, message: 'Please input your password!' }]"
@@ -88,7 +125,7 @@ function getCode() {
               <a-input-password v-model:value="formState.password" />
             </a-form-item>
             <a-form-item
-              v-if="formState.type === 1"
+              v-if="loginStore.loginType === 1 || loginStore.loginType === 3"
               label="验证码"
               name="code"
               :rules="[{ required: true, message: 'Please input your code!' }]"
@@ -96,19 +133,22 @@ function getCode() {
               <a-input v-model:value="formState.code" />
             </a-form-item>
 
-            <a-form-item>
-              <div class="checkBoxItem" @click="emailLogin" v-if="formState.type === 2">
+            <div class="chooseBox">
+              <div class="checkBoxItem" @click="emailLogin" v-if="loginStore.loginType === 2">
                 邮箱登录
               </div>
-              <div class="checkBoxItem" @click="passwordLogin" v-if="formState.type === 1">
+              <div class="checkBoxItem" @click="passwordLogin" v-if="loginStore.loginType === 1">
                 密码登录
               </div>
-            </a-form-item>
+              <div class="checkBoxItem" @click="registerFn">
+                {{ loginStore.loginType === 3 ? '登录' : '注册' }}
+              </div>
+            </div>
 
             <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-              <a-button type="primary" html-type="submit" class="buttom" @click="commitBtn"
-                >登录</a-button
-              >
+              <a-button type="primary" html-type="submit" class="buttom" @click="commitBtn">{{
+                loginStore.loginType === 3 ? '注册' : '登录'
+              }}</a-button>
             </a-form-item>
           </a-form>
         </div>
@@ -117,7 +157,12 @@ function getCode() {
   </div>
 </template>
 
-<style>
+<style scoped>
+.chooseBox {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
 .logo-area {
   position: absolute;
   top: 30px;
@@ -165,6 +210,7 @@ function getCode() {
   margin-bottom: 3px;
 }
 .login-area .subTitle {
+  margin-top: 15px;
   color: #666666;
   font-size: 19px;
 }
@@ -191,7 +237,7 @@ function getCode() {
     display: flex;
   }
   .buttom {
-    width: 200px;
+    width: 233px;
   }
 }
 </style>

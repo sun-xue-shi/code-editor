@@ -1,20 +1,15 @@
+// import { message } from 'ant-design-vue'
 import MYRequest from './axios'
 import { BASE_URL, TIME_OUT } from './config'
-import type { AxiosRequestConfig } from 'axios'
+// import type { AxiosRequestConfig } from 'axios'
 
-interface PendingTask {
-  config: AxiosRequestConfig
-  resolve: Function
-}
+// interface PendingTask {
+//   config: AxiosRequestConfig
+//   resolve: Function
+// }
 
-let refreshing = false
-
-const queue: PendingTask[] = []
-
-const request = new MYRequest({
-  baseURL: BASE_URL,
-  timeout: TIME_OUT
-})
+let isRefreshing = false
+let refreshPromisesQueue: any[] = []
 
 const myRequest = new MYRequest({
   baseURL: BASE_URL,
@@ -39,57 +34,58 @@ const myRequest = new MYRequest({
 
       const { data, config } = err.response
 
-      if (refreshing) {
-        return new Promise((resolve) => {
-          queue.push({
-            config,
-            resolve
+      if (isRefreshing) {
+        // 如果已经有刷新 token 的请求在进行中，将当前请求加入队列
+        return new Promise((resolve, reject) => {
+          refreshPromisesQueue.push(() => {
+            myRequest.request(config).then(resolve, reject)
           })
         })
       }
 
       if (data.statusCode === 401 && !config.url.includes('/user/refresh')) {
-        refreshing = true
+        isRefreshing = true
 
-        let res: any
         try {
-          res = await refreshToken()
+          const res = await refreshToken()
+          if (res.status === 200) {
+            const token = localStorage.getItem('access_token')
+
+            // 更新所有队列中的请求的 Authorization 头
+            await refreshPromisesQueue.map((promiseCallback) => promiseCallback())
+            refreshPromisesQueue = [] // 清空队列
+            isRefreshing = false
+
+            // 重新发送当前请求
+            config.headers!.Authorization = token
+            return myRequest.request(config)
+          } else {
+            // 如果刷新 token 失败，重定向到登录页面
+            setTimeout(() => {
+              window.location.href = 'http://localhost:5173/#/login'
+            }, 1000)
+            throw data
+          }
         } catch (error) {
           console.log('error', error)
-        }
-
-        refreshing = false
-
-        if (res.status === 200) {
-          console.log('queue', queue)
-
-          queue.forEach(({ config, resolve }) => {
-            resolve(request.request(config))
-          })
-          console.log('config', config.url)
-
-          return request.request(config)
-        } else {
+          // 如果刷新 token 失败，重定向到登录页面
           setTimeout(() => {
             window.location.href = 'http://localhost:5173/#/login'
           }, 1000)
-          throw data
+          throw error.response.data
+        } finally {
+          isRefreshing = false
+          refreshPromisesQueue = [] // 确保队列被清空
         }
       } else {
         throw err.response.data
       }
-
-      // if (!err.response) {
-      //   return Promise.reject({ data: 'no response' })
-      // } else {
-      //   return Promise.reject(err.response.data)
-      // }
     }
   }
 })
 
 async function refreshToken() {
-  const res = await request.get({
+  const res = await myRequest.get({
     url: '/user/refresh',
     params: {
       token: localStorage.getItem('refresh_token')

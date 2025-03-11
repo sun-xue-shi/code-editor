@@ -136,6 +136,7 @@ export const useEditStore = defineStore(
     }
 
     const pushHistoryDebounce = debounceChange(pushMotifyHistory)
+
     function pushHistory(editValue: EditorData, historyRecord: HistoryProps) {
       if (editValue.historyIndex !== -1) {
         editValue.histories = editValue.histories.slice(0, editValue.historyIndex)

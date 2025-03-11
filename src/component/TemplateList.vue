@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import router from '@/router'
+import { useEditStore } from '@/stores/edit'
 import { useTemplateStore } from '@/stores/template'
 import { UserOutlined } from '@ant-design/icons-vue'
 import { nextTick, ref } from 'vue'
@@ -8,6 +9,9 @@ const templateStore = useTemplateStore()
 const { getWorkList } = templateStore
 let list = ref<Record<string, any>[] | null>(null)
 
+const editStore = useEditStore()
+const { getWorkDetail } = editStore
+
 async function getList() {
   await nextTick()
   await getWorkList()
@@ -15,6 +19,7 @@ async function getList() {
   list.value = templateStore.templateList
 }
 getList()
+
 
 function editClck(id: string) {
   templateStore.currentTemplateId = id

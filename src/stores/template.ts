@@ -3,7 +3,7 @@
  */
 
 import myRequest from '@/axios'
-import { type templateInfo } from '@/types/template'
+import { type addInfo, type templateInfo } from '@/types/template'
 import { message } from 'ant-design-vue'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
@@ -56,15 +56,27 @@ export const useTemplateStore = defineStore(
         message.error(error)
       }
     }
-
-
+    async function addTemplate(data: addInfo) {
+      myRequest
+        .post({
+          url: 'work/create',
+          data
+        })
+        .then((res) => {
+          message.success(res.message)
+        })
+        .catch((err) => {
+          message.error(err)
+        })
+    }
 
     return {
+      addTemplate,
       setTemplate,
       removeTemplate,
       getWorkList,
       templateList,
-      currentTemplateId,
+      currentTemplateId
     }
   },
 

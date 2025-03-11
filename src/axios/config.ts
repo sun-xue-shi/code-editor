@@ -1,5 +1,5 @@
 // export const BASE_URL = "http://codercba.com:8000"
-export const BASE_URL = 'http://localhost:3000'
+export const BASE_URL = 'http://localhost:3005'
 export const TIME_OUT = 8000
 
 // 自动判断生产环境与开发环境的方法

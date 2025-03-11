@@ -3,6 +3,7 @@ import router from '@/router'
 import type { FormState } from '@/types/login'
 import { message } from 'ant-design-vue'
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 
 export const useLoginStore = defineStore(
   'login',
@@ -25,6 +26,14 @@ export const useLoginStore = defineStore(
         message.error(error)
       }
     }
+    function register(formData: FormState) {
+      const data = Object.assign(formData, { type: 1 })
+
+      return myRequest.post({
+        url: 'user/register',
+        data
+      })
+    }
     function getLoginCode(email: string) {
       try {
         myRequest
@@ -42,7 +51,21 @@ export const useLoginStore = defineStore(
         message.error(error)
       }
     }
-    return { login, getLoginCode }
+    function getRegisterCode(email: string) {
+      try {
+        myRequest.post({
+          url: 'user/register-code',
+          params: {
+            receiver: email,
+            type: 1
+          }
+        })
+      } catch (error: any) {
+        message.error(error)
+      }
+    }
+const loginType = ref(2)
+    return { login, getLoginCode, register, getRegisterCode,loginType }
   },
   {
     persist: {

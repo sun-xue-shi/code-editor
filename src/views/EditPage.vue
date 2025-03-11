@@ -65,7 +65,6 @@
                 <div v-if="ele.props.src">
                   <ImageComp v-bind="ele.props" class="img" style="position: static" />
                 </div>
-
                 <TextComp v-bind="ele.props" v-else />
               </EditWrapper>
             </div>

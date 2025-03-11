@@ -54,6 +54,7 @@ function startMove(e: MouseEvent) {
       currentElement.value.style.left = left + 'px'
     }
   }
+
   function handleMouseUp(e: MouseEvent) {
     document.removeEventListener('mousemove', handleMove)
     if (isMoving.value) {
@@ -65,6 +66,7 @@ function startMove(e: MouseEvent) {
       document.removeEventListener('mouseup', handleMouseUp)
     })
   }
+
   document.addEventListener('mousemove', handleMove)
   document.addEventListener('mouseup', handleMouseUp)
 }

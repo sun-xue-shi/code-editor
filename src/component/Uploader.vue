@@ -2,8 +2,8 @@
 import type { UploaderFile, ActionType } from '@/types/upload'
 import { v4 as uid } from 'uuid'
 import { computed, reactive, ref } from 'vue'
-import axios from 'axios'
 import { last } from 'lodash-es'
+import myRequest from '@/axios'
 
 const props = withDefaults(defineProps<ActionType>(), {
   drag: true,
@@ -56,15 +56,51 @@ function triggerUpload() {
   }
 }
 
-function postFile(readyFile: UploaderFile) {
-  const formData = new FormData()
-  formData.append('files', readyFile.raw)
-  readyFile.status = 'loading'
+async function postFile(readyFile: UploaderFile) {
+  // const formData = new FormData()
+  // formData.append('files', readyFile.raw)
+  // readyFile.status = 'loading'
 
-  axios
-    .post(props.url, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+  const chunkSize = 100 * 1024
+  // if (readyFile.size > bigSize) {
+  const chunks = []
+  let startPos = 0
+  while (startPos < readyFile.size) {
+    chunks.push(readyFile.raw.slice(startPos, startPos + chunkSize))
+    startPos += chunkSize
+  }
+
+  const randomStr = Math.random().toString().slice(2, 8)
+  const tasks: any[] = []
+  chunks.map((chunk, index) => {
+    const data = new FormData()
+    data.set('name', randomStr + '_' + readyFile.name + '-' + index)
+    data.set('randomStr', randomStr)
+
+    data.append('files', chunk)
+    tasks.push(
+      myRequest.post({
+        url: 'file/big-file',
+        data: data,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        onUploadProgress: (progressEvent) => {
+          console.log(
+            `${index}上传进度:`,
+            ((progressEvent.loaded / progressEvent.total) * 100).toFixed(2) + '%'
+          )
+        }
+      })
+    )
+  })
+  await Promise.all(tasks)
+  myRequest
+    .get({
+      url: 'file/merge',
+      params: {
+        name: randomStr + '_' + readyFile.name,
+        randomStr
       }
     })
     .then((res: any) => {
@@ -80,6 +116,29 @@ function postFile(readyFile: UploaderFile) {
         fileInput.value.value = ''
       }
     })
+  // } else {
+  // myRequest
+  //   .post({
+  //     url: props.url,
+  //     data: formData,
+  //     headers: {
+  //       'Content-Type': 'multipart/form-data'
+  //     }
+  //   })
+  //   .then((res: any) => {
+  //     readyFile.status = 'success'
+  //     readyFile.response = res.data
+  //     emit('success', res.data)
+  //   })
+  //   .catch(() => {
+  //     readyFile.status = 'error'
+  //   })
+  //   .finally(() => {
+  //     if (fileInput.value) {
+  //       fileInput.value.value = ''
+  //     }
+  //   })
+  // }
 }
 
 function uploadFiles(files: null | FileList) {

@@ -3,5 +3,4 @@ export interface FormState {
   password?: string
   email?: string
   code?: string
-  type: number
 }
